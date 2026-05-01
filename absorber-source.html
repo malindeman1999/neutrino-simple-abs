@@ -1,0 +1,206 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Absorber and Source | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Absorber + Radioactive Source</h1>
+    <p>Geometry, Ho-163 source assumptions, count rate, and Ho heat-capacity scaling.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="absorber-source.html" class="active">Absorber + Source</a>
+    <a href="source-tradeoffs.html">Source Tradeoffs</a>
+    <a href="ho-properties.html">Ho Properties</a>
+    <a href="capping-properties.html">Capping Properties</a>
+    <a href="membrane-properties.html">Membrane Properties</a>
+    <a href="kid-properties.html">KID Properties</a>
+    <a href="thermalization-times.html">Thermalization Time</a>
+    <a href="electron-phonon-coupling.html">e-ph Coupling</a>
+    <a href="kapitza-coupling.html">Kapitza Coupling</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Absorber and Ho Source Assumption</h2>
+      <p>Assume neutrino-mass operation with <strong>\(^{163}\mathrm{Ho}\)</strong> as the radioactive source.</p>
+      <p>Assume absorber and KID material platform is WSi, with absorber superconducting requirement \(T_C &gt; 2\,\mathrm{K}\).</p>
+      <p>Alternative source-material options and tradeoffs are summarized on:</p>
+      <p><a href="source-tradeoffs.html">Source Tradeoffs</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Absorber Dimensions</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Absorber size</td><td>
+          \(1\,\mu\mathrm{m} \times 10\,\mu\mathrm{m} \times 10\,\mu\mathrm{m}\)
+        </td></tr>
+        <tr><td>Absorber volume</td><td>\(1\times10^{-16}\,\mathrm{m}^3\)</td></tr>
+        <tr><td>Membrane target size (overall)</td><td>\(\sim61\,\mu\mathrm{m}\times61\,\mu\mathrm{m}\)</td></tr>
+        <tr><td>Membrane typical size range (overall)</td><td>\(50{-}100\,\mu\mathrm{m}\) square</td></tr>
+        <tr><td>Membrane thickness assumption</td><td>\(0.5\,\mu\mathrm{m}\)</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Radioactive Source Geometry and Coverage</h2>
+      <p>The radioactive source must be fully covered by the absorber so all emitted electrons are captured in the absorber volume.</p>
+      <p>Coverage condition:</p>
+      <p>\[
+      A_{source} \le A_{absorber},
+      \qquad
+      A_{absorber}=10\,\mu\mathrm{m}\times10\,\mu\mathrm{m}.
+      \]</p>
+      <p>This sets the source footprint target to be within the full absorber top area, with no exposed source edge.</p>
+      <p>Define source volume as \(V_{\mathrm{Ho}}=A_{\mathrm{source}}t_{\mathrm{Ho}}\), with \(A_{\mathrm{source}}\le A_{\mathrm{absorber}}\).</p>
+    </section>
+
+    <section class="card">
+      <h2>Superconducting Capping</h2>
+      <p>To improve containment of Ho de-excitation electrons, use superconducting capping over the full source footprint.</p>
+      <ul>
+        <li>Minimum cap thickness: \(t_{cap,min}\approx 0.3\,\mu\mathrm{m}\)</li>
+        <li>Target cap thickness: \(t_{cap,target}\approx 0.5{-}1.0\,\mu\mathrm{m}\)</li>
+      </ul>
+      <p>The cap must fully overlap the source laterally so no source edge is exposed.</p>
+      <p>Heat-capacity summary at \(100\,\mathrm{mK}\):</p>
+      <p>\[
+      C_{cap}(100\,\mathrm{mK})\approx 8.7\times10^{-4}\,\mathrm{eV/mK}\quad (t_{cap}=0.5\,\mu\mathrm{m})
+      \]</p>
+      <p>\[
+      C_{cap}(100\,\mathrm{mK})\approx 5.2\times10^{-4}\text{ to }1.7\times10^{-3}\,\mathrm{eV/mK}\quad (t_{cap}=0.3{-}1.0\,\mu\mathrm{m})
+      \]</p>
+      <p>At this level, the superconducting capping heat capacity is negligible compared with the Ho-source contribution.</p>
+      <p>Heat-capacity treatment of the cap at \(100\,\mathrm{mK}\) is documented on:</p>
+      <p><a href="capping-properties.html">Capping Properties</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Ho Property Details</h2>
+      <p>Detailed Ho-specific properties, including magnetic effects, low-temperature heat-capacity treatment, and Ho-property references, are documented on:</p>
+      <p><a href="ho-properties.html">Ho Properties</a></p>
+      <p>Copied design result (from Ho properties page) for \(V_{\mathrm{Ho}}=1\times10^{-16}\,\mathrm{m^3}\) at \(100\,\mathrm{mK}\), using the stated low-\(T\) example:</p>
+      <p>\[
+      C_{\mathrm{Ho}}(100\,\mathrm{mK})\approx 5.39\times10^{-15}\,\mathrm{J/K}
+      \approx 33.6\,\mathrm{eV/mK}.
+      \]</p>
+      <p>This absorber page keeps geometry and coverage constraints; the Ho page carries material-property calculations and citations.</p>
+    </section>
+
+    <section class="card">
+      <h2>Membrane Area and Heat Capacity Summary</h2>
+      <p>Membrane footprint must allocate room for source+capping, KID, spacing, and wiring.</p>
+      <p>Example area allocation summary:</p>
+      <p>\[
+      A_{mem,target}\approx 3750\,\mu\mathrm{m}^2\;(\sim61\times61\,\mu\mathrm{m}).
+      \]</p>
+      <p>Heat-capacity summary at \(100\,\mathrm{mK}\):</p>
+      <p>\[
+      C_{mem}(100\,\mathrm{mK})\approx 0.72\,\mathrm{eV/mK}
+      \]</p>
+      <p>Typical island range (50-100 \(\mu\mathrm{m}\) square):</p>
+      <p>\[
+      C_{mem}(100\,\mathrm{mK})\approx 0.48\text{ to }1.92\,\mathrm{eV/mK}.
+      \]</p>
+      <p>At this design point, membrane heat capacity is negligible compared with Ho-source heat capacity.</p>
+      <p>Detailed area and heat-capacity estimate is documented on:</p>
+      <p><a href="membrane-properties.html">Membrane Properties</a></p>
+    </section>
+
+    <section class="card">
+      <h2>KID Heat Capacity Summary</h2>
+      <p>Using the same low-temperature specific heat assumption as capping at \(100\,\mathrm{mK}\):</p>
+      <p>\[
+      C_{KID}(100\,\mathrm{mK})\approx 7.8\times10^{-4}\,\mathrm{eV/mK}
+      \]</p>
+      <p>for example \(A_{KID}=30\times30\,\mu\mathrm{m}^2\) and \(t_{KID}=50\,\mathrm{nm}\).</p>
+      <p>Thickness range \(30{-}100\,\mathrm{nm}\):</p>
+      <p>\[
+      C_{KID}(100\,\mathrm{mK})\approx 4.7\times10^{-4}\text{ to }1.6\times10^{-3}\,\mathrm{eV/mK}.
+      \]</p>
+      <p>At this level, KID heat capacity is negligible compared with Ho-source heat capacity.</p>
+      <p>Detailed estimate is documented on:</p>
+      <p><a href="kid-properties.html">KID Properties</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Heat-Capacity Priority</h2>
+      <p>For this current sizing, \(C_{\mathrm{Ho}}\) dominates the budget.</p>
+      <p>Design significance threshold: only effects larger than \(\sim10\%\) of total heat capacity are treated as first-order.</p>
+      <p>Under that criterion, both membrane and KID heat capacities are negligible (\(&lt;10\%\) effects).</p>
+    </section>
+
+    <section class="card">
+      <h2>Thermal Conductance Summary</h2>
+      <p>Choose thermal conductance to satisfy the selected pileup-driven design goal \(\tau_{th}=\bar{\Delta t}/20\) at 50 Hz, i.e. \(\tau_{th}=1.0\,\mathrm{ms}\).</p>
+      <p>Using current heat-capacity sizing and \(\tau_{th,nom}=1.0\,\mathrm{ms}\):</p>
+      <p>\[
+      G_{nom}\approx 5.5\times10^{-12}\,\mathrm{W/K}.
+      \]</p>
+      <p>This page now uses the single \(\bar{\Delta t}/20\) design point (not a \(\tau\) range).</p>
+      <p><strong>Note:</strong> this summary neglects electrothermal feedback (ETF).</p>
+      <p>Detailed conductance calculation is documented on:</p>
+      <p><a href="thermal-conductance.html">Thermal Conductance</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Within-Absorber Thermalization Time</h2>
+      <p>Internal thermalization is set by the slowest of three channels:</p>
+      <p>\[
+      \tau_{int}=\max\!\left(\tau_{mem\rightarrow bath},\tau_{mem\leftrightarrow Ho},\tau_{K},\tau_{Ho,ph\rightarrow e},\tau_{qp\rightarrow Ho}\right).
+      \]</p>
+      <p>Where:</p>
+      <ul>
+        <li>\(\tau_{mem\rightarrow bath}\sim C_{mem}/G_{mem}\)</li>
+        <li>\(\tau_{mem\leftrightarrow Ho}\sim C_{mem}/G_{ph,mem-Ho}\)</li>
+        <li>\(\tau_{Ho,ph\rightarrow e}\sim C_{ph,Ho}/G_{e-ph,Ho}\)</li>
+        <li>\(\tau_{qp\rightarrow Ho}\): qp/athermal energy transfer from superconducting cap into normal-metal Ho</li>
+      </ul>
+      <p>Design requirement: this internal thermalization time should be much faster than the main membrane C/G pulse time.</p>
+      <p>Also check for long-lived athermal states (trapped qp / weakly coupled phonons) that can delay thermalization and add slow pulse tails.</p>
+      <p>Detailed estimate is documented on:</p>
+      <p><a href="thermalization-times.html">Thermalization Time</a></p>
+      <p>Coupling assumptions used in those estimates:</p>
+      <p><a href="electron-phonon-coupling.html">e-ph Coupling</a></p>
+      <p><a href="kapitza-coupling.html">Kapitza Coupling</a></p>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

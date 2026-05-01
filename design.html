@@ -1,0 +1,157 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Parameters | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Design Parameters</h1>
+    <p>Component-by-component values and constraints.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html">Project</a>
+    <a href="physics.html">Physics</a>
+    <a href="theory.html">Theory</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="design.html" class="active">Design Parameters</a>
+    <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="tls-noise.html">TLS + Johnson</a>
+    <a href="tls-estimate.html">TLS Estimate</a>
+    <a href="idc-geometry.html">IDC Geometry</a>
+    <a href="absorber-source.html">Absorber + Source</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+    <a href="performance.html">Performance & Risks</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Resonator Targets</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Q</td><td>1e4 - 2e4</td></tr>
+        <tr><td>\(f_0\) (project baseline center)</td><td>1.0 GHz</td></tr>
+        <tr><td>Per-chip multiplexing span</td><td>~0.2-2.2 GHz (for \(N=1000\), \(\Delta f/f=0.002\))</td></tr>
+        <tr><td>\(\tau_{res}\)</td><td>1-2 us</td></tr>
+      </table>
+      <p>Related: <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="tls-noise.html">TLS + Johnson</a>
+    <a href="tls-estimate.html">TLS Estimate</a>
+    <a href="idc-geometry.html">IDC Geometry</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Absorber Design</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Size</td><td>1 um x 10 um x 10 um</td></tr>
+        <tr><td>Volume</td><td>\(1\times10^{-16}\,m^3\)</td></tr>
+        <tr><td>Source isotope</td><td>\(^{163}\mathrm{Ho}\)</td></tr>
+        <tr><td>Absorber material platform</td><td>WSi (superconducting), \(T_C > 2\,\mathrm{K}\)</td></tr>
+      </table>
+      <p>Requirements: full decay-energy containment, fast thermalization, short quasiparticle lifetime.</p>
+      <p>Related: <a href="absorber-source.html">Absorber + Source</a>, <a href="source-tradeoffs.html">Source Tradeoffs</a>, <a href="ho-properties.html">Ho Properties</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Heat Capacity Budget</h2>
+      <p>Total at \(100\,\mathrm{mK}\): \(C_{total}\approx 34.3\,\mathrm{eV/mK}\) (\(\approx 5.49\times10^{-15}\,\mathrm{J/K}\)).</p>
+      <table>
+        <tr><th>Component</th><th>Contribution</th></tr>
+        <tr><td>Ho source</td><td>\(\sim33.6\,\mathrm{eV/mK}\)</td></tr>
+        <tr><td>Membrane</td><td>\(\sim0.72\,\mathrm{eV/mK}\) (range \(0.48{-}1.92\))</td></tr>
+        <tr><td>KID</td><td>\(\sim7.8\times10^{-4}\,\mathrm{eV/mK}\)</td></tr>
+        <tr><td>Superconducting capping</td><td>\(\sim8.7\times10^{-4}\,\mathrm{eV/mK}\)</td></tr>
+      </table>
+      <p>Priority rule: only contributions above ~10% of total are first-order; Ho dominates.</p>
+      <p>Related: <a href="absorber-source.html">Absorber + Source</a>, <a href="ho-properties.html">Ho Properties</a>, <a href="capping-properties.html">Capping Properties</a>, <a href="membrane-properties.html">Membrane Properties</a>, <a href="kid-properties.html">KID Properties</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Membrane Design</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Material</td><td>SiN</td></tr>
+        <tr><td>Thickness (assumed)</td><td>0.5 um</td></tr>
+        <tr><td>Island target size</td><td>~61 um x 61 um</td></tr>
+        <tr><td>Island typical range</td><td>50-100 um square</td></tr>
+        <tr><td>Leg width (calc assumption)</td><td>5 um</td></tr>
+        <tr><td>Leg length \(4-corner legs\)</td><td>~87-261 mm \(mid: ~174 mm\)</td></tr>
+      </table>
+      <p>Target island-to-bath conductance at selected \(\tau_{th}=\bar{\Delta t}/20=1.0\,\mathrm{ms}\): \(G_{nom}\approx 5.5\times10^{-12}\,\mathrm{W/K}\); ETF neglected.</p>
+      <p>Related: <a href="membrane-properties.html">Membrane Properties</a>, <a href="thermal-conductance.html">Thermal Conductance</a></p>
+    </section>
+
+    <section class="card">
+      <h2>KID Design Parameters</h2>
+      <table>
+        <tr><th>Parameter</th><th>Target</th></tr>
+        <tr><td>alpha (responsivity)</td><td>100-300</td></tr>
+        <tr><td>\(Q_i\)</td><td>\(10^4{-}10^5\)</td></tr>
+        <tr><td>Frequency baseline</td><td>1.0 GHz center (see Frequency + Mux page)</td></tr>
+      </table>
+      <p>Primary requirements: low loss, stable density of states, minimal noise.</p>
+      <p>Quasiparticle lifetime is not a primary design knob.</p>
+      <p>Related: <a href="kid-properties.html">KID Properties</a>, <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="tls-noise.html">TLS + Johnson</a>
+    <a href="tls-estimate.html">TLS Estimate</a>
+    <a href="idc-geometry.html">IDC Geometry</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Capacitor and TLS Controls</h2>
+      <table>
+        <tr><th>Requirement</th><th>Implementation</th></tr>
+        <tr><td>Low electric field</td><td>Large capacitor gaps (um scale)</td></tr>
+        <tr><td>Low dielectric participation</td><td>No deposited dielectrics</td></tr>
+        <tr><td>Low TLS</td><td>IDC or vacuum-gap capacitor</td></tr>
+        <tr><td>Maintain frequency</td><td>Limit total capacitance</td></tr>
+      </table>
+      <p>Capacitance constraint: \(C \approx 0.1{-}1\,\mathrm{pF}\) while preserving \(f_0 = 2{-}5\,\mathrm{GHz}\).</p>
+      <p>Noise criterion: in-band TLS phase noise should not be significantly larger than Johnson-limited phase noise (\(S_{\theta,TLS}\lesssim S_{\theta,J}\)).</p>
+      <p>Related: <a href="theory.html">Theory</a>, <a href="signal-processing.html">Signal Processing</a>, <a href="tls-noise.html">TLS + Johnson</a>
+    <a href="tls-estimate.html">TLS Estimate</a>
+    <a href="idc-geometry.html">IDC Geometry</a></p>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

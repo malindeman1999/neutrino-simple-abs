@@ -1,0 +1,81 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IDC Geometry and Sizing | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>IDC Geometry and Sizing</h1>
+    <p>Recommended capacitor dimensions for 1 GHz-center multiplexing and low TLS.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="design.html">Design Parameters</a>
+    <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="tls-noise.html">TLS + Johnson</a>
+    <a href="tls-estimate.html">TLS Estimate</a>
+    <a href="idc-geometry.html" class="active">IDC Geometry</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Frequency Context</h2>
+      <p>Project baseline is \(f_c\approx1\,\mathrm{GHz}\) with 1000 resonators/chip and \(\Delta f/f=0.002\). IDC sizing should maintain stable resonance placement while minimizing electric-field concentration.</p>
+    </section>
+
+    <section class="card">
+      <h2>Capacitance Target</h2>
+      <p>Use total resonator capacitance in the approximate range:</p>
+      <p>\[
+      C_{tot}\approx0.5\text{ to }2\,\mathrm{pF}
+      \]</p>
+      <p>with larger values preferred where area allows, to reduce readout voltage and TLS drive.</p>
+    </section>
+
+    <section class="card">
+      <h2>Recommended IDC Geometry (Starting Point)</h2>
+      <table>
+        <tr><th>Parameter</th><th>Suggested start range</th><th>TLS motivation</th></tr>
+        <tr><td>Finger gap \(g\)</td><td>6-12 um</td><td>Lower peak \(|E|\), lower dielectric drive</td></tr>
+        <tr><td>Finger width \(w\)</td><td>4-10 um</td><td>Reduces edge crowding, fabrication robustness</td></tr>
+        <tr><td>Finger length \(\ell\)</td><td>100-400 um</td><td>Increase C with moderate field</td></tr>
+        <tr><td>Finger pairs \(N_f\)</td><td>40-120</td><td>Raise C while keeping wide gaps</td></tr>
+        <tr><td>Ground clearance</td><td>>= 2g</td><td>Reduce parasitic high-field corners</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Layout Priorities for Low TLS</h2>
+      <ol>
+        <li>Keep strongest fields in vacuum/air regions, not lossy interfaces.</li>
+        <li>Avoid deposited dielectric overlap in high-field IDC regions.</li>
+        <li>Use larger capacitor area to reduce voltage for given resonator energy.</li>
+        <li>Use symmetric IDC routing and rounded corner transitions where possible.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Design Flow</h2>
+      <ol>
+        <li>Pick \(L\) and \(C\) for 1 GHz center design window.</li>
+        <li>Generate IDC geometry with large gaps and area-heavy capacitance.</li>
+        <li>Extract participation \(F\) from EM simulation.</li>
+        <li>Measure a resonator set vs \(P_{int}\) and fit TLS parameters.</li>
+        <li>Refine geometry to hit noise floor and multiplexing yield.</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
+
+

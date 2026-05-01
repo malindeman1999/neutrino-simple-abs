@@ -1,0 +1,75 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kapitza Coupling Estimate | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Kapitza Coupling Channel</h1>
+    <p>Phonon-in-Ho to phonon-in-membrane interface coupling estimate at 100 mK.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="absorber-source.html">Absorber + Source</a>
+    <a href="thermalization-times.html">Thermalization Time</a>
+    <a href="electron-phonon-coupling.html">e-ph Coupling</a>
+    <a href="kapitza-coupling.html" class="active">Kapitza Coupling</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Channel Definition</h2>
+      <p>For phonon transfer across the Ho-membrane interface, use:</p>
+      <p>\[
+      \tau_{K} \approx \frac{C_{mem}}{G_{K}},
+      \]</p>
+      <p>where \(G_K\) is the Kapitza (thermal boundary) conductance between Ho-side phonons and membrane phonons.</p>
+    </section>
+
+    <section class="card">
+      <h2>Kapitza Model</h2>
+      <p>Use the standard low-temperature interface scaling:</p>
+      <p>\[
+      G_K = A_{int}\,h_K\,T^3,
+      \]</p>
+      <p>with interface area \(A_{int}\), coefficient \(h_K\) (material-pair dependent), and temperature \(T\).</p>
+    </section>
+
+    <section class="card">
+      <h2>Assumptions and Numbers at 100 mK</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Membrane heat capacity</td><td>\(C_{mem}\approx 1.15\times10^{-16}\,\mathrm{J/K}\) (0.72 eV/mK)</td></tr>
+        <tr><td>Interface area</td><td>\(A_{int}\approx 10\times10\,\mu\mathrm{m}^2 = 1\times10^{-10}\,\mathrm{m^2}\)</td></tr>
+        <tr><td>\(h_K\) range (first pass)</td><td>\(5\times10^3\) to \(5\times10^4\,\mathrm{W\,m^{-2}\,K^{-4}}\)</td></tr>
+        <tr><td>Temperature</td><td>\(T=0.1\,\mathrm{K}\)</td></tr>
+      </table>
+      <p>Then:</p>
+      <p>\[
+      G_K \approx A_{int}h_KT^3 \approx 5\times10^{-10}\text{ to }5\times10^{-9}\,\mathrm{W/K}.
+      \]</p>
+      <p>and</p>
+      <p>\[
+      \tau_K \approx \frac{C_{mem}}{G_K} \approx 0.023\text{ to }0.23\,\mu\mathrm{s}.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Interpretation</h2>
+      <p>This channel is typically fast for the assumed contact area, but can become slower if effective interface area is reduced, interface quality is poor, or there is additional athermal bottlenecking near the interface.</p>
+      <p><strong>TODO:</strong> replace the \(h_K\) range with measured interface data for your exact Ho-WSi-SiN stack.</p>
+    </section>
+  </main>
+</body>
+</html>
