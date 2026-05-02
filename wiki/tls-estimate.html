@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TLS Noise Scale Estimate | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>TLS Noise Scale Estimate</h1>
+    <p>First-pass estimate from reasonable IDC participation and internal power.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="design.html">Design Parameters</a>
+    <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="noise-tls.html">TLS + Johnson</a>
+    <a href="tls-estimate.html" class="active">TLS Estimate</a>
+    <a href="idc-geometry.html">IDC Geometry</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Model</h2>
+      <p>Use a standard scaling model:</p>
+      <p>\[
+      \frac{S_f}{f_0^2}(\nu)=\frac{A\,F\,\tan\delta_{TLS}}{\nu^{\beta}}\left(1+\frac{P_{int}}{P_c}\right)^{-m}.
+      \]</p>
+      <table>
+        <tr><th>Parameter</th><th>Meaning</th><th>Typical units</th><th>Interpretation</th></tr>
+        <tr><td>\(S_f\)</td><td>Absolute resonance-frequency-noise PSD</td><td>Hz\(^2\)/Hz</td><td>Raw frequency-noise spectrum before normalization by \(f_0^2\)</td></tr>
+        <tr><td>\(f_0\)</td><td>Resonator center frequency</td><td>Hz</td><td>Carrier resonance used to normalize frequency noise into fractional form</td></tr>
+        <tr><td>\(S_f/f_0^2\)</td><td>Fractional frequency-noise PSD</td><td>1/Hz</td><td>Main TLS noise metric compared to requirement floor</td></tr>
+        <tr><td>\(\nu\)</td><td>Fourier (analysis) frequency</td><td>Hz</td><td>Noise is evaluated in the signal-analysis band (here 100-200 kHz)</td></tr>
+        <tr><td>\(A\)</td><td>Empirical scale prefactor</td><td>model-dependent</td><td>Absorbs process/material constants not explicitly separated</td></tr>
+        <tr><td>\(F\)</td><td>Dielectric participation ratio</td><td>dimensionless</td><td>Fraction of electric-field energy in TLS-hosting dielectric regions</td></tr>
+        <tr><td>\(\tan\delta_{TLS}\)</td><td>Effective TLS loss tangent</td><td>dimensionless</td><td>Material/interface TLS strength</td></tr>
+        <tr><td>\(\beta\)</td><td>Frequency-noise slope exponent</td><td>dimensionless</td><td>Controls \(1/f^{\beta}\)-like rolloff</td></tr>
+        <tr><td>\(P_{int}\)</td><td>Internal resonator microwave power</td><td>dBm or W</td><td>Design/operation knob; higher power tends to saturate TLS</td></tr>
+        <tr><td>\(P_c\)</td><td>TLS saturation characteristic power</td><td>dBm or W</td><td>Power scale where TLS saturation becomes significant</td></tr>
+        <tr><td>\(m\)</td><td>Power-saturation exponent</td><td>dimensionless</td><td>Strength of TLS suppression with increasing power</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Assumed Values (First Pass)</h2>
+      <table>
+        <tr><th>Parameter</th><th>Assumed value</th></tr>
+        <tr><td>IDC participation \(F\)</td><td>0.005 to 0.02</td></tr>
+        <tr><td>\(\tan\delta_{TLS}\)</td><td>\(1\times10^{-4}\) to \(5\times10^{-4}\)</td></tr>
+        <tr><td>\(\beta\)</td><td>0.5 to 0.8</td></tr>
+        <tr><td>\(m\)</td><td>0.5</td></tr>
+        <tr><td>\(P_{int}\)</td><td>-75 to -65 dBm</td></tr>
+        <tr><td>\(P_c\)</td><td>-85 to -75 dBm</td></tr>
+        <tr><td>Analysis frequency</td><td>100-200 kHz</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Estimated Scale</h2>
+      <p>Using the above ranges, a practical first-pass fractional-frequency-noise estimate at 100-200 kHz is:</p>
+      <p>\[
+      \frac{S_f}{f_0^2}\sim 10^{-19}\text{ to }10^{-17}\ /\mathrm{Hz}.
+      \]</p>
+      <p>Design target remains keeping this near or below \(\sim10^{-18}/\mathrm{Hz}\) in-band.</p>
+    </section>
+
+    <section class="card">
+      <h2>Interpretation</h2>
+      <ul>
+        <li>Lower \(F\) (via larger-gap/larger-area IDC) gives direct improvement.</li>
+        <li>Higher \(P_{int}\) helps through TLS saturation until nonlinearity/heating constraints appear.</li>
+        <li>These are pre-fabrication scaling estimates; final numbers require fitting \(A,\beta,m,P_c\) from your own resonators.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
+
+

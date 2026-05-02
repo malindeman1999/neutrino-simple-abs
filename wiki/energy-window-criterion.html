@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Energy Truncation vs Pulse Window | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Energy Truncation from Finite Pulse Window</h1>
+    <p>Exponential-pulse tail truncation criterion for target energy-error floor.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="pileup-analysis.html">Pileup Analysis</a>
+    <a href="energy-window-criterion.html" class="active">Energy Window Criterion</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Assumption</h2>
+      <p>For stationary noise and a single-pole exponential pulse shape:</p>
+      <p>\[
+      p(t)\propto e^{-t/\tau}, \qquad t\ge 0.
+      \]</p>
+      <p>If energy is estimated by finite-window area integration up to time \(T\), the fractional missed area is:</p>
+      <p>\[
+      \frac{\Delta E}{E}=e^{-T/\tau}.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>1 Part in 20000 Criterion</h2>
+      <p>Set target truncation error:</p>
+      <p>\[
+      \frac{\Delta E}{E}\le \frac{1}{20000}=5\times10^{-5}.
+      \]</p>
+      <p>Then:</p>
+      <p>\[
+      e^{-T/\tau}\le\frac{1}{20000}
+      \Rightarrow
+      \frac{T}{\tau}\ge\ln(20000)\approx 9.90.
+      \]</p>
+      <p><strong>Result:</strong> need about \(10\tau\) of pulse window for this worst-case truncation criterion.</p>
+    </section>
+
+    <section class="card">
+      <h2>Use in Pileup Logic</h2>
+      <p>This sets a consistent pileup-overlap criterion: treat overlap as potentially biasing if a second event begins before \(9.90\tau\) of the first pulse has elapsed.</p>
+      <p>Linked application page: <a href="pileup-analysis.html">Pileup Analysis</a>.</p>
+      <p><strong>Note:</strong> this is conservative; model-based pulse fitting can reduce effective bias below this worst-case direct-integration bound.</p>
+    </section>
+  </main>
+</body>
+</html>
+

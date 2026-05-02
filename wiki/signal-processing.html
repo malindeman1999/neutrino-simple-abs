@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Signal Processing | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Optimal Filtering and Signal Processing</h1>
+    <p>Pulse templates, whitening, estimators, and energy resolution extraction.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html">Project</a>
+    <a href="physics.html">Physics</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="signal-processing.html" class="active">Signal Processing</a>
+    <a href="design.html">Design Parameters</a>
+    <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="noise-tls.html">TLS + Johnson</a>
+    <a href="tls-estimate.html">TLS Estimate</a>
+    <a href="idc-geometry.html">IDC Geometry</a>
+    <a href="absorber-source.html">Absorber + Source</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+    <a href="performance.html">Performance & Risks</a>
+    <a href="pileup-analysis.html">Pileup Analysis</a>
+    <a href="energy-window-criterion.html">Energy Window Criterion</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Pulse Model in I/Q</h2>
+      <p>An event of energy \(E\) produces thermal response</p>
+      <p>\[
+      \delta T(\omega)=\frac{E/C}{1+i\omega\tau_{th}}.
+      \]</p>
+      <p>Readout template in quadrature space:</p>
+      <p>\[
+      \mathbf{s}_E(\omega)=\mathbf{g}_T(\omega)\,\delta T(\omega),
+      \quad
+      \mathbf{g}_T(\omega)=
+      \begin{bmatrix}
+      \partial I/\partial T \\
+      \partial Q/\partial T
+      \end{bmatrix}.
+      \]</p>
+      <p>Using your impedance coefficients:</p>
+      <p>\[
+      \mathbf{s}_E(\omega)=
+      \begin{bmatrix}
+      g_{I,A}\,\alpha_A + g_{I,\phi}\,\alpha_{\phi}\\
+      g_{Q,A}\,\alpha_A + g_{Q,\phi}\,\alpha_{\phi}
+      \end{bmatrix}
+      \delta T(\omega).
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Noise and Whitening</h2>
+      <p>From the resonator-bolometer theory page, build source vectors with Eq. (16)-(19), propagate with \(Y=M^{-1}N\), and then map to measured quadratures. The measured noise PSD matrix is</p>
+      <p>\[
+      \mathbf{S}_{IQ}(\omega)=\mathbf{G}(\omega)\,\mathbf{S}(\omega)\,\mathbf{G}^{\dagger}(\omega)+\mathbf{S}_{amp}(\omega).
+      \]</p>
+      <p>Use this same construction for phonon, Johnson, excess electronic/quasiparticle, TLS, and amplifier contributions so filter weights and NEP estimates are internally consistent.</p>
+      <p>Whitening uses \(\mathbf{W}(\omega)\) such that \(\mathbf{W}\mathbf{S}_{IQ}\mathbf{W}^{\dagger}=\mathbf{I}\), with e.g. Cholesky or eigen decomposition.</p>
+      <p>Whitened data/template:</p>
+      <p>\[
+      \tilde{\mathbf{d}}=\mathbf{W}\mathbf{d},
+      \qquad
+      \tilde{\mathbf{s}}_1=\mathbf{W}\mathbf{s}_1.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Optimal Linear Energy Estimator</h2>
+      <p>For unit-energy template \(\mathbf{s}_1\), the frequency-domain ML/optimal-filter estimator is</p>
+      <p>\[
+      \hat{E}=\frac{\int_0^{\infty} \mathbf{s}_1^{\dagger}(\omega)\,\mathbf{S}_{IQ}^{-1}(\omega)\,\mathbf{d}(\omega)\,\frac{d\omega}{2\pi}}
+      {\int_0^{\infty} \mathbf{s}_1^{\dagger}(\omega)\,\mathbf{S}_{IQ}^{-1}(\omega)\,\mathbf{s}_1(\omega)\,\frac{d\omega}{2\pi}}.
+      \]</p>
+      <p>Estimator variance:</p>
+      <p>\[
+      \sigma_E^{-2}=\int_0^{\infty}
+      \mathbf{s}_1^{\dagger}(\omega)\,\mathbf{S}_{IQ}^{-1}(\omega)\,\mathbf{s}_1(\omega)
+      \frac{d\omega}{2\pi}.
+      \]</p>
+      <p>If you estimate in phase direction directly, use Eq. (20) notation from Theory:</p>
+      <p>\[
+      \mathrm{NEP}_{\phi}(\omega)=\left|\frac{[Y_{\mathrm{RMS}}(\omega)]_{\phi}}{(M^{-1})_{\phi,\,P}}\right|.
+      \]</p>
+      <p>Then convert to an energy-domain noise prediction by weighting \(\mathrm{NEP}_{\phi}(\omega)\) with the same pulse template and integration limits used by the optimal filter.</p>
+    </section>
+
+    <section class="card">
+      <h2>Practical Processing Steps</h2>
+      <ol>
+        <li>Fit or import resonator parameters and sensitivities (\(\alpha,\beta,Q,Q_i,P_0,C,G\)); construct \(M(\omega)\).</li>
+        <li>Build Eq. (16)-(19) source vectors; propagate with \(Y=M^{-1}N\); assemble modeled \(\mathbf{S}_{IQ}(\omega)\).</li>
+        <li>Estimate empirical \(\mathbf{S}_{IQ}(\omega)\) from off-event data windows and compare against modeled components.</li>
+        <li>Build \(\mathbf{s}_1(\omega)\) from calibration pulses.</li>
+        <li>Apply whitening or directly apply \(\mathbf{S}_{IQ}^{-1}\)-weighted matched filter.</li>
+        <li>Estimate \(\hat{E}\), then calibrate to physical energy units.</li>
+        <li>Report both \(\sigma_E\) and phase-direction \(\mathrm{NEP}_{\phi}\); validate residuals and nonlinearity terms linked to \(\beta_A,\beta_\phi\).</li>
+      </ol>
+      <p>Reference equations and symbol definitions: <a href="theory.html">Theory</a>.</p>
+      <p>For overlap-driven bias assumptions and rate-vs-\(\tau\) tradeoffs, see <a href="pileup-analysis.html">Pileup Analysis</a>.</p>
+      <p>For the \(9.90\tau\) truncation criterion derivation, see <a href="energy-window-criterion.html">Energy Window Criterion</a>.</p>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

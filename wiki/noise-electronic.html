@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Electronic Noise Vector | TKID Neutrino Detector Docs</title>
+<link rel="stylesheet" href="styles.css" />
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script></head>
+<body>
+<header class="hero"><h1>Excess Electronic Noise Vector</h1><p>Eq. (19) quasiparticle-generation noise as scaled Johnson vectors.</p></header>
+<nav class="nav"><a href="index.html">Home</a><a href="theory.html">Theory</a><a href="noise-sources.html">Noise Sources</a><a href="noise-electronic.html" class="active">Electronic</a><a href="signal-processing.html">Signal Processing</a></nav>
+<main class="container">
+<section class="card"><h2>Physical Expression</h2>
+<p>The paper models excess electronic noise from microwave-driven quasiparticle generation as:</p>
+<p>\[P_D=\sqrt{4E_{qp}P_0},\qquad M_e\approx\sqrt{\frac{E_{qp}}{k_B T_0}}.\]</p>
+</section>
+<section class="card"><h2>Noise Vector Derivation (Eq. 19)</h2>
+<p>Assumption: this source has the same component structure as Johnson noise (electrical sidebands plus correlated thermal-power component), but larger magnitude.</p>
+<p>Therefore:</p>
+<p>\[N_{g,A}=M_eN_{J,A},\qquad N_{g,\phi}=M_eN_{J,\phi}.\]</p>
+<p>Explicitly:</p>
+<p>\[
+N_{g,A}=
+\begin{bmatrix}
+M_e\sqrt{16k_BT_0/P_0}\\
+0\\
+-M_e\sqrt{4k_BT_0P_0}
+\end{bmatrix},
+\qquad
+N_{g,\phi}=
+\begin{bmatrix}
+0\\
+iM_e\sqrt{16k_BT_0/P_0}\\
+0
+\end{bmatrix}.
+\]</p>
+<p>Total excess electronic contribution is obtained by quadrature sum of propagated outputs from these two vectors.</p>
+</section>
+<section class="card"><h2>Propagation and Comparison</h2>
+<p>\[Y_{g,A}=M^{-1}N_{g,A},\qquad Y_{g,\phi}=M^{-1}N_{g,\phi}.\]</p>
+<p>Use these to compute \\(\mathrm{NEP}_{\phi,g}\\) and compare against phonon contribution to verify phonon-dominant operation.</p>
+</section>
+</main></body></html>

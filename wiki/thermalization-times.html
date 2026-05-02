@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Internal Thermalization Times | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Internal Thermalization Time</h1>
+    <p>Within-pixel thermalization channels that set pulse-formation speed.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="absorber-source.html">Absorber + Source</a>
+    <a href="source-tradeoffs.html">Source Tradeoffs</a>
+    <a href="ho-properties.html">Ho Properties</a>
+    <a href="capping-properties.html">Capping Properties</a>
+    <a href="membrane-properties.html">Membrane Properties</a>
+    <a href="kid-properties.html">KID Properties</a>
+    <a href="thermalization-times.html" class="active">Thermalization Time</a>
+    <a href="electron-phonon-coupling.html">e-ph Coupling</a>
+    <a href="kapitza-coupling.html">Kapitza Coupling</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Definition</h2>
+      <p>Use the internal channels (excluding Channel 1) and take the slowest as the effective within-island thermalization time:</p>
+      <p>\[
+      \tau_{int} = \max\!\left(\tau_{mem\leftrightarrow Ho},\tau_{K},\tau_{Ho,ph\rightarrow e},\tau_{qp\rightarrow Ho}\right).
+      \]</p>
+      <p>Design goal: \(\tau_{int}\) should be much faster than the external island-to-bath time constant.</p>
+    </section>
+
+    <section class="card">
+      <h2>Channel 1: Whole Island to Bath</h2>
+      <p>\[
+      \tau_{island\rightarrow bath}\approx \frac{C_{tot}}{G_{bath}}.
+      \]</p>
+      <p>Design choice sets this channel to one-twentieth of the average event spacing at 50 Hz.</p>
+      <p>\[
+      \bar{\Delta t}=1/50\,\mathrm{s}=20\,\mathrm{ms},\qquad
+      \tau_{island\rightarrow bath}=\bar{\Delta t}/20=1.0\,\mathrm{ms}.
+      \]</p>
+      <p>Equivalent single-pole corner frequency (\(f_c\approx 1/(2\pi\tau)\)):</p>
+      <p>\[
+      f_{c,island\rightarrow bath}\approx 159\,\mathrm{Hz}.
+      \]</p>
+      <p>Ratio of Channel-1 \(\tau\) to average spacing:</p>
+      <p>\[
+      \frac{\tau_{island\rightarrow bath}}{\bar{\Delta t}}=\frac{1\,\mathrm{ms}}{20\,\mathrm{ms}}=\frac{1}{20}.
+      \]</p>
+      <p>This is the adopted project target.</p>
+    </section>
+
+    <section class="card">
+      <h2>Channel 2: Membrane to Ho (Phonon Coupling)</h2>
+      <p>\[
+      \tau_{mem\leftrightarrow Ho}\approx \frac{C_{mem}}{G_{mem-Ho,ph}}.
+      \]</p>
+      <p>Using a first-pass \(100\,\mathrm{mK}\) electron-phonon coupling scale for Ho gives \(G_{mem-Ho,ph}\sim 2.5\times10^{-11}\) to \(1.5\times10^{-10}\,\mathrm{W/K}\), which yields:</p>
+      <p>\[
+      \tau_{mem\leftrightarrow Ho}\approx 0.8\text{ to }4.6\,\mu\mathrm{s}.
+      \]</p>
+      <p>See the linked page for the explicit coupling estimate assumptions.</p>
+      <p><a href="electron-phonon-coupling.html">e-ph Coupling</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Channel 3: Kapitza Interface Coupling (Ho Phonon to Membrane Phonon)</h2>
+      <p>\[
+      \tau_{K}\approx \frac{C_{mem}}{G_{K}},\quad
+      G_K=A_{int}h_KT^3.
+      \]</p>
+      <p>With first-pass interface assumptions at \(100\,\mathrm{mK}\):</p>
+      <p>\[
+      G_K\approx 5\times10^{-10}\text{ to }5\times10^{-9}\,\mathrm{W/K},
+      \quad
+      \tau_K\approx 0.023\text{ to }0.23\,\mu\mathrm{s}.
+      \]</p>
+      <p><a href="kapitza-coupling.html">Kapitza Coupling</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Channel 4: Ho Phonons to Ho Electrons</h2>
+      <p>\[
+      \tau_{Ho,ph\rightarrow e}\approx \frac{C_{ph,Ho}}{G_{e-ph,Ho}}.
+      \]</p>
+      <p>Using first-pass values at \(100\,\mathrm{mK}\): \(C_{ph,Ho}\sim 3.4\times10^{-2}\,\mathrm{eV/mK}\) and
+      \(G_{e-ph,Ho}\sim 2.5\times10^{-11}\) to \(1.5\times10^{-10}\,\mathrm{W/K}\), gives:</p>
+      <p>\[
+      \tau_{Ho,ph\rightarrow e}\approx 0.036\text{ to }0.21\,\mu\mathrm{s}.
+      \]</p>
+      <p>Assumptions come from the same \(100\,\mathrm{mK}\) e-ph coupling model used for Channel 2.</p>
+      <p><a href="electron-phonon-coupling.html">e-ph Coupling</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Channel 5: QP in Cap to Ho Thermalization</h2>
+      <p>\[
+      \tau_{qp\rightarrow Ho}\approx \tau_{diff/escape} + \tau_{trap/relax}.
+      \]</p>
+      <p>Engineering estimate for current design phase:</p>
+      <p>\[
+      \tau_{qp\rightarrow Ho}\approx 0.1\text{ to }2\,\mu\mathrm{s}.
+      \]</p>
+      <p>Interpretation: quasiparticles/athermal excitations generated in superconducting capping must reach normal-metal Ho and down-convert rapidly. Long \(\tau_{qp\rightarrow Ho}\) broadens pulse rise and creates non-thermal tails.</p>
+      <p><strong>TODO:</strong> replace this range with your measured/model value from your resonator-bolometer paper once added to the project.</p>
+    </section>
+
+    <section class="card">
+      <h2>Overall Criterion</h2>
+      <p>Channel 1 is the external coupling to bath. The controlling internal timescale is the longest of Channels 2-5.</p>
+      <p>Require:</p>
+      <p>\[
+      \tau_{int} \ll \tau_{th} = \frac{C_{tot}}{G_{bath}}.
+      \]</p>
+      <p>With current design, \(\tau_{th}=1.0\,\mathrm{ms}\) (\(\bar{\Delta t}/20\)), and the first-pass internal estimate is:</p>
+      <p>\[
+      \tau_{int}\approx \max(0.8{-}4.6,\;0.023{-}0.23,\;0.036{-}0.21,\;0.1{-}2)\,\mu\mathrm{s}
+      \approx 0.8{-}4.6\,\mu\mathrm{s}.
+      \]</p>
+      <p>So internal equilibration is much faster than Channel 1, while Channel 1 intentionally sets the pulse-decay timescale at the \(\bar{\Delta t}/20\) design point.</p>
+    </section>
+
+    <section class="card">
+      <h2>Athermal Long-Lived States</h2>
+      <p>Potential risks include trapped quasiparticles, weakly coupled phonon populations, or interface-localized excitations that retain energy before thermalization.</p>
+      <p>If present, these produce delayed pulse components and apparent excess noise. The model should include a delayed-energy fraction when fitting pulse shapes.</p>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+

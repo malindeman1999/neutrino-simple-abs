@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Johnson Noise Vectors | TKID Neutrino Detector Docs</title>
+<link rel="stylesheet" href="styles.css" />
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script></head>
+<body>
+<header class="hero"><h1>Johnson Noise Vectors</h1><p>Eq. (17)-(18) decomposition into amplitude-like and phase-like source vectors.</p></header>
+<nav class="nav"><a href="index.html">Home</a><a href="theory.html">Theory</a><a href="noise-sources.html">Noise Sources</a><a href="noise-johnson.html" class="active">Johnson</a><a href="signal-processing.html">Signal Processing</a></nav>
+<main class="container">
+<section class="card"><h2>Physical Expression</h2>
+<p>Bolometer resistance Johnson voltage scale:</p>
+<p>\[V_e=\sqrt{4k_B T_0 R_0}.\]</p>
+<p>Johnson voltage appears in both sidebands and is represented by two orthogonal source directions.</p></section>
+<section class="card"><h2>Nominal Frequency Setting</h2>
+<p>For calculations in this wiki, use nominal detector frequency \(f_0=1.0\,\mathrm{GHz}\) when converting phase noise to fractional-frequency noise.</p></section>
+<section class="card"><h2>Equivalent PSD Form</h2>
+<p>The same source can be written in standard Nyquist form:</p>
+<p>\[
+S_V=4k_BT_0R_0,\qquad
+S_I=\frac{4k_BT_0}{R_0}.
+\]</p>
+<p>The vector formalism below is preferred for this wiki because it preserves the electrical and correlated thermal components needed by \(Y=M^{-1}N\).</p></section>
+<section class="card"><h2>Sideband Vector Derivation (Eq. 17)</h2>
+<p>Define amplitude-like and phase-like sideband vectors:</p>
+<p>\[n_{J,A}=\frac{V_e}{\sqrt{2}}\begin{bmatrix}1\\1\\-I_0\end{bmatrix},\qquad
+n_{J,\phi}=\frac{V_e}{\sqrt{2}}\begin{bmatrix}1\\-1\\0\end{bmatrix}.\]</p>
+<p>The third component in \\(n_{J,A}\\) is the correlated Joule-power term from electrical fluctuations.</p></section>
+<section class="card"><h2>Normalized Vector Derivation (Eq. 18)</h2>
+<p>Apply demodulation and normalization transforms (Eq. 8, 10, 12) to obtain:</p>
+<p>\[N_{J,A}=T_V^{-1}d^{-1}n_{J,A},\qquad N_{J,\phi}=T_V^{-1}d^{-1}n_{J,\phi}.\]</p>
+<p>Written explicitly in normalized coordinates (Eq. 18 form):</p>
+<p>\[
+N_{J,A}=
+\begin{bmatrix}
+\sqrt{16k_BT_0/P_0}\\
+0\\
+-\sqrt{4k_BT_0P_0}
+\end{bmatrix},
+\qquad
+N_{J,\phi}=
+\begin{bmatrix}
+0\\
+i\sqrt{16k_BT_0/P_0}\\
+0
+\end{bmatrix}.
+\]</p>
+<p>These are the vectors used in \\(Y=M^{-1}N\\) for noise propagation.</p></section>
+<section class="card"><h2>Role In NEP and Electronic-Noise Scaling</h2>
+<p>Propagated Johnson outputs are \(Y_{J,A}=M^{-1}N_{J,A}\) and \(Y_{J,\phi}=M^{-1}N_{J,\phi}\), combined in quadrature for total Johnson output noise.</p>
+<p>Fractional-frequency Johnson noise used for TLS scaling can be written from phase noise as:</p>
+<p>\[
+\left(\frac{S_f}{f_0^2}\right)_J(f)=\frac{S_{\phi,J}(f)}{(4Q_r)^2},
+\]</p>
+<p>using small-detuning phase slope \(d\phi/df\approx 4Q_r/f_0\).</p>
+<p>Phase-direction NEP uses Eq. (20):</p>
+<p>\[
+\mathrm{NEP}_{\phi,J}(\omega)=\left|\frac{[Y_{J,\mathrm{RMS}}(\omega)]_{\phi}}{(M^{-1})_{\phi,\,P}}\right|.
+\]</p>
+<p>Excess electronic/quasiparticle-generation noise is treated as scaled Johnson vectors (see <a href="noise-electronic.html">Electronic Noise Vector</a>).</p></section>
+<section class="card"><h2>Python Function Links</h2>
+<p>Code references: <a href="../python/sensor.py"><code>Sensor.n_johnson_A()</code></a>, <a href="../python/sensor.py"><code>Sensor.n_johnson_phi()</code></a>, and <a href="../python/sensor.py"><code>Sensor.fractional_frequency_psd_from_phase()</code></a>.</p></section>
+</main></body></html>

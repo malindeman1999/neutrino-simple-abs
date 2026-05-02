@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Readout Theory | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Resonator Bolometer Readout Theory</h1>
+    <p>Matrix mapping of physical noise sources into measured I/Q quadratures.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html">Project</a>
+    <a href="physics.html">Physics</a>
+    <a href="theory.html" class="active">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="design.html">Design Parameters</a>
+    <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="noise-tls.html">TLS + Johnson</a>
+    <a href="tls-estimate.html">TLS Estimate</a>
+    <a href="idc-geometry.html">IDC Geometry</a>
+    <a href="absorber-source.html">Absorber + Source</a>    <a href="thermal-conductance.html">Thermal Conductance</a>
+    <a href="performance.html">Performance & Risks</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Paper Basis and Scope</h2>
+      <p>This page now follows the resonator-bolometer model in M. A. Lindeman, J. Appl. Phys. 116, 024506 (2014), with emphasis on Eq. (4) and Eq. (10)-(20).</p>
+      <p>Model objective for this project: compute the measured quadrature noise, convert it to phase-direction noise, and then convert that to calorimeter NEP using the bolometer responsivity.</p>
+      <p>Nominal calculation setting for this wiki: \(f_0=1.0\,\mathrm{GHz}\) unless a section explicitly overrides it.</p>
+    </section>
+
+    <section class="card">
+      <h2>State and Measurement Vectors</h2>
+      <p>Define a small-signal state vector around the operating point:</p>
+      <p>\[
+      \mathbf{x}(\omega) =
+      \begin{bmatrix}
+      \delta T(\omega) \\
+      \delta x(\omega) \\
+      \delta y(\omega)
+      \end{bmatrix}
+      \quad
+      x \equiv \frac{f-f_0}{f_0},\; y \equiv \frac{1}{2Q_i}
+      \]</p>
+      <p>Measured baseband quadratures are:</p>
+      <p>\[
+      \mathbf{m}(\omega)=
+      \begin{bmatrix}
+      \delta I(\omega) \\
+      \delta Q(\omega)
+      \end{bmatrix}
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Linearized Forward Model</h2>
+      <p>Near resonance, the readout is linearized as:</p>
+      <p>\[
+      \mathbf{m}(\omega)=\mathbf{R}(\omega)\,\mathbf{x}(\omega)+\mathbf{n}_{amp}(\omega)
+      \]</p>
+      <p>with Jacobian</p>
+      <p>\[
+      \mathbf{R}(\omega)=
+      \begin{bmatrix}
+      \partial I/\partial T & \partial I/\partial x & \partial I/\partial y \\
+      \partial Q/\partial T & \partial Q/\partial x & \partial Q/\partial y
+      \end{bmatrix}
+      \]</p>
+      <p>The thermal-to-resonator chain can be factored as:</p>
+      <p>\[
+      \mathbf{x}(\omega)=\mathbf{H}(\omega)\,\mathbf{u}(\omega)
+      \]</p>
+      <p>Use the source vector</p>
+      <p>\[
+      \mathbf{u}(\omega)=
+      \begin{bmatrix}
+      p_E(\omega)\\
+      p_{TFN}(\omega)\\
+      n_{TLS}(\omega)\\
+      n_{GR}(\omega)\\
+      \delta T_b(\omega)
+      \end{bmatrix}
+      \]</p>
+      <p>with explicit transfer matrix</p>
+      <p>\[
+      \mathbf{H}(\omega)=
+      \begin{bmatrix}
+      \dfrac{1}{C(1+i\omega\tau_{th})} &
+      \dfrac{1}{C(1+i\omega\tau_{th})} &
+      0 &
+      0 &
+      \dfrac{G/C}{1+i\omega\tau_{th}}\\[1.1em]
+      \dfrac{k_T}{1+i\omega\tau_{res}} &
+      \dfrac{k_T}{1+i\omega\tau_{res}} &
+      k_{x,TLS} &
+      k_{x,GR} &
+      \dfrac{k_T\,G/C}{1+i\omega\tau_{res}}\\[1.1em]
+      \dfrac{\ell_T}{1+i\omega\tau_{res}} &
+      \dfrac{\ell_T}{1+i\omega\tau_{res}} &
+      k_{y,TLS} &
+      k_{y,GR} &
+      \dfrac{\ell_T\,G/C}{1+i\omega\tau_{res}}
+      \end{bmatrix}
+      \]</p>
+      <p>This writes thermal and resonator poles explicitly while allowing direct TLS/GR injection into frequency-like and dissipation-like channels.</p>
+    </section>
+
+    <section class="card">
+      <h2>Eq. (4): Sensitivities \( \alpha \) and \( \beta \)</h2>
+      <p>Let the KID complex impedance be \(Z(T,I)=Z'(T,I)+iZ''(T,I)\). Eq. (4) defines thermal and current sensitivities split into amplitude-like and phase-like channels.</p>
+      <p>Thermal sensitivities from \(dZ/dT\):</p>
+      <p>\[
+      \alpha_{\phi}\equiv \frac{1}{2}\,\frac{\partial \phi}{\partial T},
+      \qquad
+      \alpha_{A}\equiv \frac{1}{2}\,\frac{\partial \ln A}{\partial T},
+      \]</p>
+      <p>with \(\phi=\arg Z\) and \(A=|Z|\). Equivalently, using \(Z\):</p>
+      <p>\[
+      \frac{\partial \ln A}{\partial T}=\Re\!\left(\frac{1}{Z}\frac{\partial Z}{\partial T}\right),
+      \qquad
+      \frac{\partial \phi}{\partial T}=\Im\!\left(\frac{1}{Z}\frac{\partial Z}{\partial T}\right).
+      \]</p>
+      <p>Current sensitivities from \(dZ/dI\):</p>
+      <p>\[
+      \beta_{\phi}\equiv \frac{1}{2}\,\frac{\partial \phi}{\partial I},
+      \qquad
+      \beta_{A}\equiv \frac{1}{2}\,\frac{\partial \ln A}{\partial I},
+      \]</p>
+      <p>equivalently</p>
+      <p>\[
+      \frac{\partial \ln A}{\partial I}=\Re\!\left(\frac{1}{Z}\frac{\partial Z}{\partial I}\right),
+      \qquad
+      \frac{\partial \phi}{\partial I}=\Im\!\left(\frac{1}{Z}\frac{\partial Z}{\partial I}\right).
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Eq. (10)-(13): Normalized Sideband-to-Demodulated Model</h2>
+      <p>Eq. (10) defines voltage normalization (\(V_0=I_0R_0/2\)). Eq. (11) is the central linear system \(M\,Y=N\), where \(Y=[r,\phi,T]^T\) are demodulated normalized coordinates and \(N\) is the source/noise vector.</p>
+      <p>Eq. (12) gives the coordinate transforms from sideband variables to demodulated normalized variables. Eq. (13) expands \(M(\omega)\) explicitly in terms of \(Q, Q_i, \alpha, \beta, P_0, C, G, T_0\), and detuning.</p>
+      <p>Interpretation for implementation: build \(M(\omega)\) directly from measured or fitted resonator parameters, then solve \(Y=M^{-1}N\) for each source and frequency bin.</p>
+    </section>
+
+    <section class="card">
+      <h2>Eq. (14)-(15): Time-Domain Dynamics and Pulse Model</h2>
+      <p>Eq. (14) converts the frequency-domain model to time-domain dynamics \(\dot{Y}=M_tY+D_1^{-1}N\), where \(M_t\) is obtained from \(M(\omega)\).</p>
+      <p>Eq. (15) gives explicit coupled ODEs for \(r(t)\), \(\phi(t)\), and \(T(t)\) on resonance. The absorbed calorimeter power enters as an additive source term \(P(t)/C\) in the thermal equation.</p>
+      <p>Use this form to check stability (all eigenvalues of \(M_t\) must have negative real parts), pulse shape, and thermal/electrical coupling behavior before noise propagation.</p>
+    </section>
+
+    <section class="card">
+      <h2>Eq. (16)-(20): Noise Vectors and NEP</h2>
+      <p>Eq. (16): phonon noise enters as a thermal-band power source with RMS scale \(\sqrt{4k_BT_b^2G}\).</p>
+      <p>Eq. (17): Johnson noise is represented in sideband form with separate amplitude-like and phase-like source vectors.</p>
+      <p>Eq. (18): transformed normalized Johnson vectors \(N_{J,A}\) and \(N_{J,\phi}\), including the correlated Joule-power fluctuation component in the thermal entry.</p>
+      <p>Eq. (19): excess electronic (quasiparticle generation) noise is modeled as a multiplier of the Johnson vectors, \(N_g=M_eN_J\), with \(M_e\sim\sqrt{E_{qp}/k_BT_0}\).</p>
+      <p>Eq. (20): phase-direction NEP is computed from output phase noise divided by phase responsivity to power:</p>
+      <p>\[
+      \mathrm{NEP}_{\phi}(\omega)=\left|\frac{[Y_{\mathrm{RMS}}(\omega)]_{\phi}}{(M^{-1})_{\phi,\,P}}\right|.
+      \]</p>
+      <p>This is the core equation to convert modeled/measured phase noise into calorimeter-equivalent input power noise.</p>
+    </section>
+
+    <section class="card">
+      <h2>Noise PSD Matrix \( \mathbf{S} \) and Mapping to I/Q</h2>
+      <p>Combine the blocks:</p>
+      <p>\[
+      \mathbf{m}(\omega)=\underbrace{\mathbf{R}(\omega)\mathbf{H}(\omega)}_{\mathbf{G}(\omega)}\,\mathbf{u}(\omega)+\mathbf{n}_{amp}(\omega)
+      \]</p>
+      <p>so \(\mathbf{G}(\omega)\) is the matrix that maps each physical noise source into \(I\) and \(Q\).</p>
+      <p>Define your source cross-spectral density matrix as</p>
+      <p>\[
+      \mathbf{S}(\omega)\equiv\mathbf{S}_u(\omega)=
+      \begin{bmatrix}
+      S_{EE} & 0 & 0 & 0 & 0\\
+      0 & S_{TFN} & 0 & 0 & S_{TFN,b}\\
+      0 & 0 & S_{TLS} & S_{TLS,GR} & 0\\
+      0 & 0 & S_{GR,TLS} & S_{GR} & 0\\
+      0 & S_{b,TFN} & 0 & 0 & S_{bb}
+      \end{bmatrix}
+      \]</p>
+      <p>(set off-diagonal terms to zero if you assume independent sources).</p>
+      <p>A common explicit TLS term is</p>
+      <p>\[
+      S_{TLS}(f)=A_{TLS}\,f^{-\beta},
+      \]</p>
+      <p>which is inserted in the \((3,3)\) element of \(\mathbf{S}(\omega)\) (and optionally correlated terms).</p>
+      <p>Then with amplifier/readout noise \(\mathbf{S}_{amp}(\omega)\):</p>
+      <p>\[
+      \mathbf{S}_{IQ}(\omega)=\mathbf{G}(\omega)\,\mathbf{S}(\omega)\,\mathbf{G}^{\dagger}(\omega)+\mathbf{S}_{amp}(\omega)
+      \]</p>
+      <p>Here \(\mathbf{S}_{IQ}\) has entries \(S_{II},S_{QQ},S_{IQ}\), including cross-correlation.</p>
+    </section>
+
+    <section class="card">
+      <h2>Calorimeter Modeling Workflow</h2>
+      <ul>
+        <li>Fit \(S_{21}(f,T,P)\) to extract \(Q_i, f_r\), and derivatives needed for Eq. (4) sensitivities.</li>
+        <li>Construct \(M(\omega)\) with Eq. (10)-(13) and verify stable \(M_t\) from Eq. (14)-(15).</li>
+        <li>Build source vectors for phonon, Johnson, excess electronic, TLS, and readout noise using Eq. (16)-(19).</li>
+        <li>Propagate each source via \(Y=M^{-1}N\); sum output noise in quadrature (with correlations where needed).</li>
+        <li>Compute \(\mathrm{NEP}_{\phi}\) with Eq. (20), then feed the resulting PSD into the optimal filter on the Signal Processing page.</li>
+      </ul>
+      <p>Notation convention used here: \(T_b\) is bath temperature and \(T_0\) is bolometer operating-point temperature under bias.</p>
+      <p>Python implementation links: <a href="../python/sensor.py"><code>Sensor.estimates()</code></a>, <a href="../python/sensor.py"><code>Sensor.tau_res_s</code></a>, and <a href="../python/sensor.py"><code>Sensor.tau_th_s</code></a>.</p>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

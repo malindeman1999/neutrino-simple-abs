@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KID Heat Capacity | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>KID Heat Capacity at 100 mK</h1>
+    <p>Estimate using the same low-temperature specific heat model as superconducting capping.</p>
+  </header>
+
+    <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="absorber-source.html">Absorber + Source</a>
+    <a href="source-tradeoffs.html">Source Tradeoffs</a>
+    <a href="ho-properties.html">Ho Properties</a>
+    <a href="capping-properties.html">Capping Properties</a>
+    <a href="membrane-properties.html">Membrane Properties</a>
+    <a href="kid-properties.html" class="active">KID Properties</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Assumptions</h2>
+      <p>Use the same phonon specific heat estimate as capping at \(100\,\mathrm{mK}\):</p>
+      <p>\[
+      c_{KID}(100\,\mathrm{mK})\approx c_{cap}(100\,\mathrm{mK})\approx 3.0\times10^{-10}\,\mathrm{J/(g\,K)}.
+      \]</p>
+      <p>Use WSi-like density \(\rho\approx 9.3\,\mathrm{g/cm^3}\).</p>
+      <p>Example KID footprint and thickness for island budgeting:</p>
+      <p>\[
+      A_{KID}=30\times30=900\,\mu\mathrm{m}^2,
+      \quad t_{KID}=0.05\,\mu\mathrm{m}\ (50\,\mathrm{nm}).
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Volume and Heat Capacity</h2>
+      <p>\[
+      V_{KID}=A_{KID}t_{KID}=45\,\mu\mathrm{m}^3=4.5\times10^{-17}\,\mathrm{m}^3.
+      \]</p>
+      <p>\[
+      C_{KID}(100\,\mathrm{mK})\approx 1.26\times10^{-19}\,\mathrm{J/K}.
+      \]</p>
+      <p>Converted units:</p>
+      <p>\[
+      C_{KID}(100\,\mathrm{mK})\approx 7.8\times10^{-4}\,\mathrm{eV/mK}.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Thickness Range</h2>
+      <p>For \(t_{KID}=30{-}100\,\mathrm{nm}\) with the same area and material model:</p>
+      <p>\[
+      C_{KID}(100\,\mathrm{mK})\approx 4.7\times10^{-4}\text{ to }1.6\times10^{-3}\,\mathrm{eV/mK}.
+      \]</p>
+      <p>This remains negligible versus Ho-source heat capacity at the current design level.</p>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

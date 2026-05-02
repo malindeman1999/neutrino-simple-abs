@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Project Overview</h1>
+    <p>Purpose, architecture, and top-level constraints.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html" class="active">Project</a>
+    <a href="physics.html">Physics</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="design.html">Design Parameters</a>
+    <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="noise-tls.html">TLS + Johnson</a>
+    <a href="tls-estimate.html">TLS Estimate</a>
+    <a href="idc-geometry.html">IDC Geometry</a>
+    <a href="absorber-source.html">Absorber + Source</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+    <a href="performance.html">Performance & Risks</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Detector Goal</h2>
+      <p>
+        This design specifies a thermal kinetic inductance detector (TKID) operated as a calorimeter
+        for neutrino mass measurement with low-Q isotopes such as Ho-163.
+      </p>
+      <p>Thermal regime chain: \(E \rightarrow \text{absorber} \rightarrow \Delta T \rightarrow \text{KID frequency shift}\).</p>
+    </section>
+
+    <section class="card">
+      <h2>Top-Level Targets</h2>
+      <table>
+        <tr><th>Parameter</th><th>Target</th></tr>
+        <tr><td>Operating temperature</td><td>100 mK</td></tr>
+        <tr><td>Energy resolution</td><td>~0.1 eV (100 meV)</td></tr>
+        <tr><td>Count rate per pixel</td><td>~50 Hz</td></tr>
+        <tr><td>Array size</td><td>~10^5 pixels</td></tr>
+        <tr><td>Resonator center frequency baseline</td><td>1.0 GHz</td></tr>
+      </table>
+      <p><strong>Project spec:</strong> unless explicitly stated otherwise, nominal detector calculations in this wiki use \(f_0=1.0\,\mathrm{GHz}\).</p>
+    </section>
+
+    <section class="card">
+      <h2>Pixel Architecture</h2>
+      <p>Each pixel contains:</p>
+      <ul>
+        <li>Absorber (includes radioactive isotope)</li>
+        <li>Membrane (thermal isolation)</li>
+        <li>KID resonator (thermometer)</li>
+      </ul>
+      <p>Thermal topology: \(\text{Absorber} \leftrightarrow \text{KID} \leftrightarrow \text{Membrane} \leftrightarrow \text{Bath}\)</p>
+    </section>
+
+    <section class="card">
+      <h2>Core Design Rules</h2>
+      <ol>
+        <li>\(\tau_{qp} \ll \tau_{res} \ll \tau_{th}\)</li>
+        <li>\(\tau_{res} \le \tau_{th}/3\)</li>
+        <li>\(G_{AK} \gg G_{AB}\)</li>
+        <li>Maintain GHz resonator frequency</li>
+        <li>Minimize TLS via capacitor design</li>
+        <li>Keep heat capacity minimal</li>
+        <li>Ensure phonon containment</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Python Model Links</h2>
+      <p>Implementation: <a href="../python/sensor.py"><code>python/sensor.py</code></a> (<code>Sensor</code>, <code>nominal_sensor()</code>).</p>
+      <p>Model convention: absorber volume is derived from count rate and Ho activity; absorber is cubic; membrane dimensions are derived from absorber + KID + margin; cap and membrane thickness are basic parameters; leg thickness is derived from membrane thickness.</p>
+      <p>With leg width fixed as a basic parameter, leg length is the geometric knob used to tune \(G\).</p>
+      <p>Generated estimates: <a href="python-estimates.html">Python-Derived Estimates</a> via <a href="../python/generate_wiki_estimates.py"><code>python/generate_wiki_estimates.py</code></a>.</p>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

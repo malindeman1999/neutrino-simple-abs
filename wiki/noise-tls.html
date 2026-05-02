@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TLS Noise Vector | TKID Neutrino Detector Docs</title>
+<link rel="stylesheet" href="styles.css" />
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script></head>
+<body>
+<header class="hero"><h1>TLS Noise Vector</h1><p>TLS resonance-frequency noise represented in the phase-like source direction.</p></header>
+<nav class="nav"><a href="index.html">Home</a><a href="theory.html">Theory</a><a href="noise-sources.html">Noise Sources</a><a href="noise-tls.html" class="active">TLS</a><a href="noise-tls.html">TLS + Johnson</a></nav>
+<main class="container">
+<section class="card"><h2>Physical Expression</h2>
+<p>Common fractional frequency-noise form:</p>
+<p>\[S_{TLS}(f)=A_{TLS}f^{-\beta}.\]</p>
+<p>In the Lindeman mapping, TLS is treated as an effective fluctuating resonance frequency, aligned with the phase-like direction.</p>
+<p>Nominal detector frequency for this page: \(f_0=1.0\,\mathrm{GHz}\).</p>
+</section>
+<section class="card"><h2>Design Scaling and Geometry Controls</h2>
+<p>A practical scaling model is:</p>
+<p>\[
+\frac{S_f}{f_0^2}(\nu)\propto\frac{F\,\tan\delta_{TLS}}{\nu^{\beta}},
+\]</p>
+<p>where \(F\) is dielectric participation and \(\tan\delta_{TLS}\) is effective TLS loss tangent.</p>
+<p>IDC design intent is to reduce \(F\) and local electric field. For fixed stored energy \(U\),</p>
+<p>\[
+U=\frac{1}{2}CV^2\Rightarrow V=\sqrt{\frac{2U}{C}},
+\]</p>
+<p>so larger capacitance lowers field scale and typically reduces TLS coupling.</p>
+<p>Lower \(f_0\) often helps indirectly because it usually implies larger \(C\) for fixed \(L\):</p>
+<p>\[
+f_0=\frac{1}{2\pi\sqrt{LC}},\qquad V\propto C^{-1/2}.
+\]</p>
+<p>For first-pass quantitative estimates, see <a href="tls-estimate.html">TLS Estimate</a>. Geometry guidance is summarized in <a href="idc-geometry.html">IDC Geometry</a>.</p>
+</section>
+<section class="card"><h2>Noise Vector Derivation</h2>
+<p>Starting from Eq. (18) phase-like Johnson vector as a basis direction, define TLS source as:</p>
+<p>\[N_{TLS}(f)=M_{TLS}(f)\,N_{J,\phi}.\]</p>
+<p>Define the multiplier from fractional-frequency-noise ratio:</p>
+<p>\[
+M_{TLS}(f)=
+\sqrt{
+\frac{\left(S_f/f_0^2\right)_{TLS}(f)}
+{\left(S_f/f_0^2\right)_{J}(f)}
+}.
+\]</p>
+<p>Using \(N_{J,\phi}\) from the Johnson page, the explicit TLS vector is:</p>
+<p>\[
+N_{TLS}(f)=
+\begin{bmatrix}
+0\\
+i\,M_{TLS}(f)\sqrt{16k_BT_0/P_0}\\
+0
+\end{bmatrix}.
+\]</p>
+</section>
+<section class="card"><h2>Use In Total Budget</h2>
+<p>Compute \\(Y_{TLS}=M^{-1}N_{TLS}\\), then combine in quadrature with other sources (and include correlations if measured).</p>
+<p>Project criterion: in-band TLS phase noise should remain below the phonon-noise-equivalent floor over the analysis band (including 100-200 kHz).</p>
+</section>
+<section class="card"><h2>Python Function Links</h2>
+<p>Code references: <a href="../python/sensor.py"><code>Sensor.m_tls_from_ratio()</code></a> and <a href="../python/sensor.py"><code>Sensor.n_tls_phi()</code></a>.</p>
+</section>
+</main></body></html>

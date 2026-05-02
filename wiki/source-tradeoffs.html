@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Source Material Tradeoffs | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <h1>Radioactive Source Material Tradeoffs</h1>
+    <p>Comparison of candidate neutrino-mass source materials for low-temperature detector systems.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="absorber-source.html">Absorber + Source</a>
+    <a href="source-tradeoffs.html" class="active">Source Tradeoffs</a>
+    <a href="ho-properties.html">Ho Properties</a>
+    <a href="capping-properties.html">Capping Properties</a>
+    <a href="membrane-properties.html">Membrane Properties</a>
+    <a href="kid-properties.html">KID Properties</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Comparison Table</h2>
+      <table>
+        <tr>
+          <th>Isotope / Source</th>
+          <th>Material State at 100 mK</th>
+          <th>Decay Type and Endpoint/Q</th>
+          <th>Key Practical Issues</th>
+          <th>Recommendation</th>
+        </tr>
+        <tr>
+          <td><strong>Ho-163</strong> (embedded source)</td>
+          <td>Ho is a magnetic normal metal; often used in metallic host (e.g., Au:Ho) for microcalorimetry</td>
+          <td>EC decay, Q ~ 2.86 keV</td>
+          <td>Magnetic/hyperfine heat-capacity contributions at low T; isotope production/purification and controlled implantation/alloying required</td>
+          <td><strong>Recommended for TKID calorimetric concept</strong> (low Q, calorimetric endpoint analysis)</td>
+        </tr>
+        <tr>
+          <td><strong>Re-187</strong> (source = absorber)</td>
+          <td>Metallic rhenium is superconducting at 100 mK (Tc ~ 1.7 K)</td>
+          <td>beta- decay, endpoint ~ 2.47 keV</td>
+          <td>Very long half-life lowers specific activity; challenging detector/systematics history in practical arrays</td>
+          <td>Possible but generally lower-priority than Ho-163 for new large arrays</td>
+        </tr>
+        <tr>
+          <td><strong>Tritium (H-3)</strong></td>
+          <td>Can be molecular solid if condensed at 100 mK, but flagship neutrino experiments use gaseous molecular T2 at higher T</td>
+          <td>beta- decay, endpoint ~ 18.6 keV</td>
+          <td>Higher endpoint reduces near-endpoint statistics for calorimetric approach; containment, permeation, and safety handling are major constraints</td>
+          <td>Best for spectrometer approach (KATRIN-like), not preferred for this TKID calorimetric architecture</td>
+        </tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Recommendation Summary</h2>
+      <p>For this project, <strong>Ho-163</strong> remains the preferred source because its low Q-value is well matched to calorimetric neutrino-mass sensitivity goals and existing cryogenic microcalorimetry development.</p>
+    </section>
+
+    <section class="card">
+      <h2>References</h2>
+      <ol>
+        <li>Ho-163 Q-value (Penning-trap): https://www.nature.com/articles/s41567-024-02461-9</li>
+        <li>Alternative Ho-163 Q reporting and context: https://arxiv.org/abs/2402.06464</li>
+        <li>Re-187 direct Q-value determination: https://arxiv.org/abs/2108.07039</li>
+        <li>Tritium endpoint energy context: https://www.katrin.kit.edu/</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+

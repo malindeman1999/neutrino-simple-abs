@@ -1,0 +1,246 @@
+{
+  "notes": {
+    "f0_Hz": "Nominal detector carrier frequency",
+    "f_demod_Hz": "Demodulated analysis frequency",
+    "detuning_Hz": "Project parameter (currently 0)",
+    "complex_value_format": "[real, imag]"
+  },
+  "units": {
+    "T0_K": "K",
+    "Tb_K": "K",
+    "count_rate_Hz": "Hz",
+    "pileup_probability_max": "1",
+    "ho_activity_per_m3_Hz": "Hz/m^3",
+    "absorber_length_m": "m",
+    "absorber_width_m": "m",
+    "absorber_thickness_m": "m",
+    "absorber_edge_m": "m",
+    "kid_length_m": "m",
+    "kid_width_m": "m",
+    "membrane_margin_m": "m",
+    "leg_count": "count",
+    "leg_width_m": "m",
+    "leg_thickness_m": "m",
+    "cap_thickness_m": "m",
+    "membrane_thickness_m": "m",
+    "cv_absorber_J_per_m3K": "J/(m^3 K)",
+    "kappa_leg_W_per_mK": "W/(m K)",
+    "tls_F_participation": "1",
+    "tls_tan_delta": "1",
+    "tls_beta": "1",
+    "tls_A_scale": "1",
+    "tls_power_exponent_m": "1",
+    "tls_Pint_W": "W",
+    "tls_Pc_W": "W",
+    "tls_nu_Hz": "Hz",
+    "sphi_j_ref_per_hz": "rad^2/Hz",
+    "f0_Hz": "Hz",
+    "Qr": "1",
+    "Qi": "1",
+    "kinetic_inductance_fraction": "1",
+    "kid_trace_length_m": "m",
+    "kid_trace_width_m": "m",
+    "alpha_A": "1",
+    "alpha_phi": "1",
+    "beta_A": "1",
+    "beta_phi": "1",
+    "Tc_K": "K",
+    "P0_W": "W",
+    "delta_J": "J",
+    "eqp_J": "J",
+    "detuning_Hz": "Hz",
+    "f_demod_Hz": "Hz",
+    "absorber_volume_m3": "m^3",
+    "membrane_length_m": "m",
+    "membrane_width_m": "m",
+    "membrane_span_m": "m",
+    "leg_length_m": "m",
+    "C_J_per_K": "J/K",
+    "G_W_per_K": "W/K",
+    "tau_th_s": "s",
+    "tau_target_from_rate_s": "s",
+    "tau_error_fraction": "1",
+    "tau_res_s": "s",
+    "tau_ratio_res_over_th": "1",
+    "L_geo_H": "H",
+    "L_total_H": "H",
+    "C_res_F": "F",
+    "Z0_res_Ohm": "Ohm",
+    "R0_Ohm": "Ohm",
+    "sf_over_f0sq_johnson_ref": "1/Hz",
+    "sf_over_f0sq_tls_model": "1/Hz",
+    "phonon_power_rms_W": "W",
+    "johnson_voltage_rms_V": "V",
+    "johnson_sv_V2_per_Hz": "V^2/Hz",
+    "M_e": "1",
+    "N_J_scale": "norm",
+    "N_J_thermal_scale": "norm"
+  },
+  "model_inputs": {
+    "T0_K": 0.1,
+    "Tb_K": 0.1,
+    "count_rate_Hz": 50.0,
+    "pileup_probability_max": 0.0005,
+    "ho_activity_per_m3_Hz": 6.25e+17,
+    "kid_length_m": 0.00022,
+    "kid_width_m": 0.00022,
+    "membrane_margin_m": 2e-05,
+    "leg_count": 4,
+    "leg_width_m": 5e-07,
+    "cap_thickness_m": 1e-06,
+    "membrane_thickness_m": 1e-06,
+    "cv_absorber_J_per_m3K": 0.075,
+    "kappa_leg_W_per_mK": 0.0015,
+    "tls_F_participation": 0.002,
+    "tls_tan_delta": 0.001,
+    "tls_beta": 0.5,
+    "tls_A_scale": 1.0,
+    "tls_power_exponent_m": 0.5,
+    "tls_Pint_W": 1e-12,
+    "tls_Pc_W": 1e-12,
+    "tls_nu_Hz": 100000.0,
+    "sphi_j_ref_per_hz": 1e-18,
+    "f0_Hz": 1000000000.0,
+    "Qr": 3000.0,
+    "Qi": 6000.0,
+    "kinetic_inductance_fraction": 0.5,
+    "kid_trace_length_m": 0.01,
+    "kid_trace_width_m": 2e-06,
+    "alpha_A": 0.1,
+    "alpha_phi": 60.0,
+    "beta_A": 0.0,
+    "beta_phi": 0.0,
+    "Tc_K": 2.0,
+    "P0_W": 5e-13,
+    "detuning_Hz": 0.0,
+    "f_demod_Hz": 0.0
+  },
+  "model_outputs": {
+    "absorber_volume_m3": 8e-17,
+    "absorber_edge_m": 4.30886938006377e-06,
+    "absorber_length_m": 4.30886938006377e-06,
+    "absorber_width_m": 4.30886938006377e-06,
+    "absorber_thickness_m": 4.30886938006377e-06,
+    "membrane_length_m": 0.0002443088693800638,
+    "membrane_width_m": 0.0002443088693800638,
+    "membrane_span_m": 0.0002443088693800638,
+    "leg_length_m": 0.005,
+    "leg_thickness_m": 1e-06,
+    "C_J_per_K": 6.0000000000000004e-18,
+    "G_W_per_K": 6e-13,
+    "tau_th_s": 1e-05,
+    "tau_target_from_rate_s": 1e-05,
+    "tau_error_fraction": 0.0,
+    "tau_res_s": 9.54929658551372e-07,
+    "tau_ratio_res_over_th": 0.0954929658551372,
+    "L_geo_H": 1.2202373590582704e-07,
+    "L_total_H": 2.440474718116541e-07,
+    "C_res_F": 1.037924946427363e-13,
+    "Z0_res_Ohm": 1533.395489141309,
+    "R0_Ohm": 0.5111318297137697,
+    "sf_over_f0sq_johnson_ref": 6.944444444444444e-27,
+    "sf_over_f0sq_tls_model": 4.4721359549995795e-09,
+    "delta_J": 4.8709296720000005e-23,
+    "eqp_J": 4.8709296720000005e-23,
+    "phonon_power_rms_W": 5.756350927453955e-19,
+    "johnson_voltage_rms_V": 1.6801114838753843e-12,
+    "johnson_sv_V2_per_Hz": 2.822774598249946e-24,
+    "M_e": 5.939696961966999,
+    "N_J_scale": 6.646861515030985e-06,
+    "N_J_thermal_scale": 1.6617153787577462e-18
+  },
+  "tls_ratio_example": {
+    "Sf_over_f0sq_J": 6.944444444444444e-27,
+    "Sf_over_f0sq_TLS": 4.4721359549995795e-09,
+    "M_TLS": 802488365.9717064
+  },
+  "vectors": {
+    "N_ph": [
+      0.0,
+      0.0,
+      5.756350927453955e-19
+    ],
+    "N_J_A": [
+      6.646861515030985e-06,
+      0.0,
+      -1.6617153787577462e-18
+    ],
+    "N_J_phi": [
+      0.0,
+      [
+        0.0,
+        6.646861515030985e-06
+      ],
+      0.0
+    ],
+    "N_g_A": [
+      3.948034314744491e-05,
+      0.0,
+      -9.870085786861227e-18
+    ],
+    "N_g_phi": [
+      0.0,
+      [
+        0.0,
+        3.948034314744491e-05
+      ],
+      0.0
+    ],
+    "N_TLS_phi_example": [
+      0.0,
+      [
+        0.0,
+        5334.0290360374365
+      ],
+      0.0
+    ]
+  },
+  "M_matrix_1Hz": {
+    "frequency_Hz": 1.0,
+    "format": "[real, imag]",
+    "rows": [
+      [
+        [
+          1047197.5511965977,
+          6.283185307179586
+        ],
+        [
+          -0.0,
+          0.0
+        ],
+        [
+          1047197.5511965979,
+          0.0
+        ]
+      ],
+      [
+        [
+          -0.0,
+          0.0
+        ],
+        [
+          1047197.5511965977,
+          6.283185307179586
+        ],
+        [
+          -628318530.7179587,
+          0.0
+        ]
+      ],
+      [
+        [
+          -83333.33333333333,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0
+        ],
+        [
+          16666.666666666657,
+          6.283185307179586
+        ]
+      ]
+    ]
+  }
+}

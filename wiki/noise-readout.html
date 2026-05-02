@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Readout Noise Vector | TKID Neutrino Detector Docs</title>
+<link rel="stylesheet" href="styles.css" />
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script></head>
+<body>
+<header class="hero"><h1>Readout Chain Noise Vector</h1><p>Amplifier and generator noise mapped into source-vector form.</p></header>
+<nav class="nav"><a href="index.html">Home</a><a href="theory.html">Theory</a><a href="noise-sources.html">Noise Sources</a><a href="noise-readout.html" class="active">Readout</a><a href="signal-processing.html">Signal Processing</a></nav>
+<main class="container">
+<section class="card"><h2>Physical Expressions</h2>
+<p>Input-referred sideband voltages:</p>
+<p>\[V_A=\sqrt{k_B T_A Z_0},\qquad V_G\approx |S_{21}|\sqrt{k_B T_G Z_0}.\]</p>
+<p>These enter similarly to external series sideband voltage sources.</p>
+</section>
+<section class="card"><h2>Noise Vector Derivation</h2>
+<p>For a source that is uncorrelated between USB and LSB and uncorrelated with thermal power, use:</p>
+<p>\[n_{RO}=\begin{bmatrix}v_{USB}\\v_{LSB}^*\\0\end{bmatrix},\quad
+\langle|v_{USB}|^2\rangle=\langle|v_{LSB}|^2\rangle=V_A^2+V_G^2.
+\]</p>
+<p>Transform to normalized coordinates with Eq. (12):</p>
+<p>\[N_{RO}=T_V^{-1}d^{-1}n_{RO}.\]</p>
+<p>Equivalent explicit decomposition is:</p>
+<p>\[
+N_{RO,A}=
+\begin{bmatrix}
+\sigma_{RO,A}\\
+0\\
+0
+\end{bmatrix},
+\qquad
+N_{RO,\phi}=
+\begin{bmatrix}
+0\\
+i\sigma_{RO,\phi}\\
+0
+\end{bmatrix},
+\]</p>
+<p>with \(\sigma_{RO,A}\) and \(\sigma_{RO,\phi}\) set from measured or modeled readout PSD levels after demodulation/normalization.</p>
+<p>If readout noise is measured directly in I/Q, it can be added as \\(\mathbf{S}_{amp}(\omega)\\) instead of via explicit \\(N\\) vectors.</p>
+</section>
+<section class="card"><h2>Integration Into Model</h2>
+<p>Include either as vector-propagated term \\(Y_{RO}=M^{-1}N_{RO}\\) or as additive readout PSD block in \\(\mathbf{S}_{IQ}(\omega)\\), but avoid double counting.</p>
+</section>
+</main></body></html>

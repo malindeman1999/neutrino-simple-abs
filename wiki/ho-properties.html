@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Holmium Properties | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Holmium Properties for Ho-163 Source Design</h1>
+    <p>Magnetic behavior, low-temperature heat capacity, and source-property calculations.</p>
+  </header>
+
+    <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="absorber-source.html">Absorber + Source</a>
+    <a href="source-tradeoffs.html">Source Tradeoffs</a>
+    <a href="ho-properties.html" class="active">Ho Properties</a>
+    <a href="capping-properties.html">Capping Properties</a>
+    <a href="membrane-properties.html">Membrane Properties</a>
+    <a href="kid-properties.html">KID Properties</a>
+    <a href="thermalization-times.html">Thermalization Time</a>
+    <a href="electron-phonon-coupling.html">e-ph Coupling</a>
+    <a href="kapitza-coupling.html">Kapitza Coupling</a>
+    <a href="thermal-conductance.html">Thermal Conductance</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Material and Magnetic State</h2>
+      <p>For neutrino-mass operation, assume the radioactive source isotope is \(^{163}\mathrm{Ho}\).</p>
+      <p>At \(100\,\mathrm{mK}\), Ho is a normal (non-superconducting) magnetic material; low-temperature magnetic and hyperfine effects can strongly affect heat capacity.</p>
+      <p>Design implication: source-related magnetic contributions should be treated as first-order terms in the pixel heat-capacity budget.</p>
+    </section>
+
+    <section class="card">
+      <h2>Count Rate from Ho Volume</h2>
+      <p>For source volume \(V_{\mathrm{Ho}}\), activity is</p>
+      <p>\[
+      R_{\mathrm{pixel}}=\lambda N,\quad
+      \lambda=\frac{\ln 2}{T_{1/2}},\quad
+      N=\frac{\rho_{\mathrm{Ho}}V_{\mathrm{Ho}}}{M_{\mathrm{Ho}}}N_A f_{163}.
+      \]</p>
+      <p>Using \(T_{1/2}(^{163}\mathrm{Ho})\approx 4570\,\mathrm{y}\), \(\rho_{\mathrm{Ho}}\approx 8.8\,\mathrm{g/cm^3}\), \(M_{\mathrm{Ho}}\approx163\,\mathrm{g/mol}\):</p>
+      <p>\[
+      R_{\mathrm{pixel}}\approx 1.56\times10^{17}\,V_{\mathrm{Ho}}[\mathrm{m^3}]\,f_{163}\;\mathrm{Hz}.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Heat Capacity from Ho Volume</h2>
+      <p>Volume scaling:</p>
+      <p>\[
+      C_{\mathrm{Ho}}(T)=\rho_{\mathrm{Ho}}V_{\mathrm{Ho}}\,c_{\mathrm{Ho}}(T).
+      \]</p>
+      <p>For \(V_{\mathrm{Ho}}=1\times10^{-16}\,\mathrm{m^3}\):</p>
+      <p>\[
+      m_{\mathrm{Ho}}\approx 8.8\times10^{-10}\,\mathrm{g},
+      \quad
+      C_{\mathrm{Ho}}(T)\approx 8.8\times10^{-10}\,c_{\mathrm{Ho}}(T)\;\mathrm{J/K}.
+      \]</p>
+      <p>Unit conversion:</p>
+      <p>\[
+      1\,\mathrm{J/K}=6.2415\times10^{15}\,\mathrm{eV/mK},
+      \quad
+      C_{\mathrm{Ho}}[\mathrm{eV/mK}]=6.2415\times10^{15}C_{\mathrm{Ho}}[\mathrm{J/K}].
+      \]</p>
+      <p>So for \(V_{\mathrm{Ho}}=1\times10^{-16}\,\mathrm{m^3}\):</p>
+      <p>\[
+      C_{\mathrm{Ho}}(T)[\mathrm{eV/mK}]\approx 5.49\times10^6\;c_{\mathrm{Ho}}(T)[\mathrm{J/(g\,K)}].
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Low-Temperature Example at 100 mK</h2>
+      <p>Using the Ho-metal low-\(T\) fit form reported in the literature,</p>
+      <p>\[
+      C_p = 2.26T^3 + 10T + C_N\quad (\mathrm{mJ/mol\,K}),
+      \]</p>
+      <p>and inserting only the explicit non-nuclear terms at \(T=0.1\,\mathrm{K}\):</p>
+      <p>\[
+      C_{p,\mathrm{Ho}}(100\,\mathrm{mK})\approx 1.00\,\mathrm{mJ/(mol\,K)}
+      \Rightarrow
+      c_{\mathrm{Ho}}(100\,\mathrm{mK})\approx 6.13\times10^{-6}\,\mathrm{J/(g\,K)}.
+      \]</p>
+      <p>For \(V_{\mathrm{Ho}}=1\times10^{-16}\,\mathrm{m^3}\):</p>
+      <p>\[
+      C_{\mathrm{Ho}}(100\,\mathrm{mK})\approx 5.39\times10^{-15}\,\mathrm{J/K}
+      \approx 33.6\,\mathrm{eV/mK}.
+      \]</p>
+      <p><strong>Important:</strong> this numeric example omits \(C_N\); full empirical values near 100 mK including magnetic/hyperfine terms can be larger.</p>
+    </section>
+
+    <section class="card">
+      <h2>References</h2>
+      <ol>
+        <li>Specific Heat of Holmium Metal between 0.38 and 4.2 K: <a href="https://www.osti.gov/biblio/4781304">https://www.osti.gov/biblio/4781304</a></li>
+        <li>Heat capacities of terbium and holmium below 1 K: <a href="https://www.sciencedirect.com/science/article/abs/pii/0031891464902174">https://www.sciencedirect.com/science/article/abs/pii/0031891464902174</a></li>
+        <li>Specific Heat of Holmium in Gold and Silver at Low Temperatures: <a href="https://arxiv.org/abs/1912.09354">https://arxiv.org/abs/1912.09354</a></li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

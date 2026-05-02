@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en"> 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python-Derived Estimates | TKID Neutrino Detector Project Wiki</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <h1>Python-Derived Estimates</h1>
+    <p>Generated from <code>python/sensor.py</code> by <code>python/generate_wiki_estimates.py</code>.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html">Project</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="python-estimates.html" class="active">Python Estimates</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Nominal Settings</h2>
+      <p>All values use nominal <strong>f0 = 1.0 GHz</strong>, demodulated band frequency <strong>0 Hz</strong>, and detuning <strong>0 Hz</strong>.</p>
+      <p>JSON source: <code>../python/outputs/wiki_estimates.json</code></p>
+    </section>
+
+    <section class="card">
+      <h2>Model Inputs</h2>
+    </section>
+    
+    <section class="card">
+      <h3>Source Geometry</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>count_rate_Hz</td><td><code>50</code></td><td>Hz</td></tr>
+<tr><td>pileup_probability_max</td><td><code>5.000000e-04</code></td><td>1</td></tr>
+<tr><td>kid_length_m</td><td><code>2.200000e-04</code></td><td>m</td></tr>
+<tr><td>kid_width_m</td><td><code>2.200000e-04</code></td><td>m</td></tr>
+<tr><td>membrane_margin_m</td><td><code>2.000000e-05</code></td><td>m</td></tr>
+<tr><td>leg_count</td><td><code>4</code></td><td>count</td></tr>
+<tr><td>leg_width_m</td><td><code>5.000000e-07</code></td><td>m</td></tr>
+<tr><td>cap_thickness_m</td><td><code>1.000000e-06</code></td><td>m</td></tr>
+<tr><td>membrane_thickness_m</td><td><code>1.000000e-06</code></td><td>m</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h3>Setpoints</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>T0_K</td><td><code>0.1</code></td><td>K</td></tr>
+<tr><td>Tb_K</td><td><code>0.1</code></td><td>K</td></tr>
+<tr><td>P0_W</td><td><code>5.000000e-13</code></td><td>W</td></tr>
+<tr><td>f0_Hz</td><td><code>1.000000e+09</code></td><td>Hz</td></tr>
+<tr><td>f_demod_Hz</td><td><code>0</code></td><td>Hz</td></tr>
+<tr><td>detuning_Hz</td><td><code>0</code></td><td>Hz</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h3>KID Properties</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>Qr</td><td><code>3000</code></td><td>1</td></tr>
+<tr><td>Qi</td><td><code>6000</code></td><td>1</td></tr>
+<tr><td>kinetic_inductance_fraction</td><td><code>0.5</code></td><td>1</td></tr>
+<tr><td>kid_trace_length_m</td><td><code>0.01</code></td><td>m</td></tr>
+<tr><td>kid_trace_width_m</td><td><code>2.000000e-06</code></td><td>m</td></tr>
+<tr><td>alpha_A</td><td><code>0.1</code></td><td>1</td></tr>
+<tr><td>alpha_phi</td><td><code>60</code></td><td>1</td></tr>
+<tr><td>beta_A</td><td><code>0</code></td><td>1</td></tr>
+<tr><td>beta_phi</td><td><code>0</code></td><td>1</td></tr>
+<tr><td>Tc_K</td><td><code>2</code></td><td>K</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h3>Material and Activity</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>ho_activity_per_m3_Hz</td><td><code>6.250000e+17</code></td><td>Hz/m^3</td></tr>
+<tr><td>cv_absorber_J_per_m3K</td><td><code>0.075</code></td><td>J/(m^3 K)</td></tr>
+<tr><td>kappa_leg_W_per_mK</td><td><code>0.0015</code></td><td>W/(m K)</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h3>Capacitor TLS</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>tls_F_participation</td><td><code>0.002</code></td><td>1</td></tr>
+<tr><td>tls_tan_delta</td><td><code>0.001</code></td><td>1</td></tr>
+<tr><td>tls_beta</td><td><code>0.5</code></td><td>1</td></tr>
+<tr><td>tls_A_scale</td><td><code>1</code></td><td>1</td></tr>
+<tr><td>tls_power_exponent_m</td><td><code>0.5</code></td><td>1</td></tr>
+<tr><td>tls_Pint_W</td><td><code>1.000000e-12</code></td><td>W</td></tr>
+<tr><td>tls_Pc_W</td><td><code>1.000000e-12</code></td><td>W</td></tr>
+<tr><td>tls_nu_Hz</td><td><code>1.000000e+05</code></td><td>Hz</td></tr>
+<tr><td>sphi_j_ref_per_hz</td><td><code>1.000000e-18</code></td><td>rad^2/Hz</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h2>Model Outputs</h2>
+    </section>
+    
+    <section class="card">
+      <h3>Derived Geometry</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>absorber_volume_m3</td><td><code>8.000000e-17</code></td><td>m^3</td></tr>
+<tr><td>absorber_edge_m</td><td><code>4.308869e-06</code></td><td>m</td></tr>
+<tr><td>absorber_length_m</td><td><code>4.308869e-06</code></td><td>m</td></tr>
+<tr><td>absorber_width_m</td><td><code>4.308869e-06</code></td><td>m</td></tr>
+<tr><td>absorber_thickness_m</td><td><code>4.308869e-06</code></td><td>m</td></tr>
+<tr><td>membrane_length_m</td><td><code>2.443089e-04</code></td><td>m</td></tr>
+<tr><td>membrane_width_m</td><td><code>2.443089e-04</code></td><td>m</td></tr>
+<tr><td>membrane_span_m</td><td><code>2.443089e-04</code></td><td>m</td></tr>
+<tr><td>leg_length_m</td><td><code>0.005</code></td><td>m</td></tr>
+<tr><td>leg_thickness_m</td><td><code>1.000000e-06</code></td><td>m</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h3>Derived Thermal</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>C_J_per_K</td><td><code>6.000000e-18</code></td><td>J/K</td></tr>
+<tr><td>G_W_per_K</td><td><code>6.000000e-13</code></td><td>W/K</td></tr>
+<tr><td>tau_th_s</td><td><code>1.000000e-05</code></td><td>s</td></tr>
+<tr><td>tau_target_from_rate_s</td><td><code>1.000000e-05</code></td><td>s</td></tr>
+<tr><td>tau_error_fraction</td><td><code>0</code></td><td>1</td></tr>
+<tr><td>tau_res_s</td><td><code>9.549297e-07</code></td><td>s</td></tr>
+<tr><td>tau_ratio_res_over_th</td><td><code>0.095493</code></td><td>1</td></tr>
+<tr><td>phonon_power_rms_W</td><td><code>5.756351e-19</code></td><td>W</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h3>Derived KID Electrical</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>L_geo_H</td><td><code>1.220237e-07</code></td><td>H</td></tr>
+<tr><td>L_total_H</td><td><code>2.440475e-07</code></td><td>H</td></tr>
+<tr><td>C_res_F</td><td><code>1.037925e-13</code></td><td>F</td></tr>
+<tr><td>Z0_res_Ohm</td><td><code>1533.4</code></td><td>Ohm</td></tr>
+<tr><td>R0_Ohm</td><td><code>0.511132</code></td><td>Ohm</td></tr>
+<tr><td>delta_J</td><td><code>4.870930e-23</code></td><td>J</td></tr>
+<tr><td>eqp_J</td><td><code>4.870930e-23</code></td><td>J</td></tr>
+<tr><td>johnson_voltage_rms_V</td><td><code>1.680111e-12</code></td><td>V</td></tr>
+<tr><td>johnson_sv_V2_per_Hz</td><td><code>2.822775e-24</code></td><td>V^2/Hz</td></tr>
+<tr><td>M_e</td><td><code>5.9397</code></td><td>1</td></tr>
+<tr><td>N_J_scale</td><td><code>6.646862e-06</code></td><td>norm</td></tr>
+<tr><td>N_J_thermal_scale</td><td><code>1.661715e-18</code></td><td>norm</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h3>Derived TLS</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><td>sf_over_f0sq_johnson_ref</td><td><code>6.944444e-27</code></td><td>1/Hz</td></tr>
+<tr><td>sf_over_f0sq_tls_model</td><td><code>4.472136e-09</code></td><td>1/Hz</td></tr>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h3>Rate and Source</h3>
+      <table>
+        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        
+      </table>
+    </section>
+    
+  </main>
+</body>
+</html>
