@@ -40,7 +40,9 @@
         <tr><td>\(f_0\)</td><td><code>1.000000e+09</code> Hz</td></tr>
         <tr><td>Detuning</td><td><code>0</code> Hz</td></tr>
         <tr><td>Demod frequency</td><td><code>0</code> Hz</td></tr>
-        <tr><td>\(P_0\)</td><td><code>5.000000e-13</code> W</td></tr>
+        <tr><td>\((P_0/P_{bif})_{target}\)</td><td><code>0.7</code></td></tr>
+        <tr><td>\(P_0\)</td><td><code>9.773844e-13</code> W</td></tr>
+        <tr><td>\(E_*\)</td><td><code>2.000000e-15</code> J</td></tr>
       </table>
     </section>
 
@@ -82,11 +84,24 @@
       <h2>Design Verification</h2>
       <table>
         <tr><th>Check</th><th>Value</th></tr>
-        <tr><td>Rule 1 pass</td><td><code>1</code></td></tr>
-        <tr><td>Rule 2 pass</td><td><code>1</code></td></tr>
-        <tr><td>\(\max \Re[\lambda(M_t)]\)</td><td><code>-1.000399e+05</code> 1/s</td></tr>
+        <tr><td><strong>Rule Statuses</strong></td><td><strong>Pass/Fail</strong></td></tr>
+        <tr><td>Rule 1</td><td><code>Pass</code></td></tr>
+        <tr><td>Rule 2</td><td><code>Pass</code></td></tr>
+        <tr><td>Rule 3</td><td><code>Pass</code></td></tr>
+        <tr><td>Rule 4</td><td><code>Pass</code></td></tr>
+        <tr><td>Rule 5</td><td><code>Pass</code></td></tr>
+        <tr><td>Rule 6</td><td><code>Pass</code></td></tr>
+        <tr><td>Rule 7</td><td><code>Pass</code></td></tr>
+        <tr><td>Rule 8</td><td><code>Fail</code></td></tr>
+        <tr><td>Rule 9</td><td><code>Pass</code></td></tr>
+        <tr><td><strong>Bifurcation Metrics</strong></td><td></td></tr>
+        <tr><td>\(\Delta T_{event}\)</td><td><code>0.340332</code> K</td></tr>
+        <tr><td>\(P_{bif}\)</td><td><code>1.396263e-12</code> W</td></tr>
+        <tr><td>\(P_{bif,dBm}\)</td><td><code>-88.5503</code> dBm</td></tr>
+        <tr><td>\(P_0/P_{bif}\)</td><td><code>0.7</code></td></tr>
+        <tr><td>\(\max \Re[\lambda(M_t)]\)</td><td><code>-1.000781e+05</code> 1/s</td></tr>
         <tr><td>Stable</td><td><code>1</code></td></tr>
-        <tr><td>\(\rho_{short}\)</td><td><code>0.999601</code></td></tr>
+        <tr><td>\(\rho_{short}\)</td><td><code>0.99922</code></td></tr>
       </table>
       <p>Stability details: <a href="mt-stability.html">Mt Stability</a>.</p>
     </section>

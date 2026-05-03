@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bifurcation Limit | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Bifurcation Limit</h1>
+    <p>Estimate the readout-power limit and operating margin.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="theory.html">Theory</a>
+    <a href="project.html">Project</a>
+    <a href="python-estimates.html">Python Estimates</a>
+    <a href="bifurcation-limit.html" class="active">Bifurcation Limit</a>
+  </nav>
+
+  <main class="container">
+    <section class="card" id="bifurcation-model">
+      <h2>Bifurcation Model</h2>
+      <p>We use the standard kinetic-inductance resonator scaling:</p>
+      <p>\[
+      P_{\mathrm{bif}}=\frac{Q_c\omega_0E_*}{2Q_r^3},
+      \qquad
+      Q_c=\left(\frac{1}{Q_r}-\frac{1}{Q_i}\right)^{-1},
+      \qquad
+      \omega_0=2\pi f_0.
+      \]</p>
+      <p>Here \(E_*\) is the nonlinear energy scale (model input).</p>
+    </section>
+
+    <section class="card" id="operating-margin">
+      <h2>Operating Margin</h2>
+      <p>Define the proximity ratio:</p>
+      <p>\[
+      \frac{P_0}{P_{\mathrm{bif}}}.
+      \]</p>
+      <p>Hard rule: operate below bifurcation, \(P_0<P_{\mathrm{bif}}\).</p>
+      <p>Soft goal: run close to (but below) bifurcation to increase signal response and reduce TLS impact through higher readout field.</p>
+    </section>
+
+    <section class="card">
+      <h2>Code Links</h2>
+      <p>Python implementation: <a href="../python/sensor.py"><code>Sensor.Qc</code></a>, <a href="../python/sensor.py"><code>Sensor.p_bifurcation_W</code></a>, <a href="../python/sensor.py"><code>Sensor.bifurcation_power_ratio</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule4_ok</code></a>.</p>
+      <p>Numerical values are listed in <a href="python-estimates.html">Python Estimates</a>.</p>
+    </section>
+  </main>
+</body>
+</html>

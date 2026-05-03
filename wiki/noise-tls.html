@@ -15,11 +15,19 @@
 <p>In the Lindeman mapping, TLS is treated as an effective fluctuating resonance frequency, aligned with the phase-like direction.</p>
 </section>
 <section class="card" id="design-scaling-and-geometry-controls"><h2>Design Scaling and Geometry Controls</h2>
-<p>A practical scaling model is:</p>
+<p>For this project, TLS is parameterized directly by phase ASD at 100 Hz offset and a spectral exponent:</p>
 <p>\[
-\frac{S_f}{f_0^2}(\nu)\propto\frac{F\,\tan\delta_{TLS}}{\nu^{\beta}},
+\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz}),\qquad \beta_{\mathrm{TLS}}.
 \]</p>
-<p>where \(F\) is dielectric participation and \(\tan\delta_{TLS}\) is effective TLS loss tangent.</p>
+<p>Offset-frequency scaling is:</p>
+<p>\[
+\sqrt{S_{\phi,\mathrm{TLS}}}(\nu)=\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})\left(\frac{\nu}{100\,\mathrm{Hz}}\right)^{-\beta_{\mathrm{TLS}}/2}.
+\]</p>
+<p>Then convert to fractional-frequency noise using the local phase slope:</p>
+<p>\[
+\left(\frac{S_f}{f_0^2}\right)_{\mathrm{TLS}}(\nu)=
+\left(\frac{\sqrt{S_{\phi,\mathrm{TLS}}}(\nu)}{f_0\left|d\phi/df\right|_{\delta f}}\right)^2.
+\]</p>
 <p>IDC design intent is to reduce \(F\) and local electric field. For fixed stored energy \(U\),</p>
 <p>\[
 U=\frac{1}{2}CV^2\Rightarrow V=\sqrt{\frac{2U}{C}},
@@ -42,11 +50,14 @@ M_{TLS}(f)=
 {\left(S_f/f_0^2\right)_{J}(f)}
 }.
 \]</p>
-<p>Using the project models for TLS and Johnson reference scaling:</p>
+<p>Using the project TLS parameterization:</p>
 <p>\[
-\left(\frac{S_f}{f_0^2}\right)_{TLS}
-=A_{TLS}F\tan\delta_{TLS}\,\nu^{-\beta_{TLS}}
-\left(1+\frac{P_{int}}{P_c}\right)^{-m_{TLS}},
+\left(\frac{S_f}{f_0^2}\right)_{\mathrm{TLS}}(\nu)=
+\left(\frac{
+\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})\left(\dfrac{\nu}{100\,\mathrm{Hz}}\right)^{-\beta_{\mathrm{TLS}}/2}
+}{
+f_0\left|d\phi/df\right|_{\delta f}
+}\right)^2.
 \]</p>
 <p>For Johnson phase-noise PSD, use the uncorrelated quadrature sum from the Johnson page:</p>
 <p>\[
@@ -62,8 +73,10 @@ S_{\phi,J}(f)=\left|[Y_{J,A}(f)]_{\phi}\right|^2+\left|[Y_{J,\phi}(f)]_{\phi}\ri
 M_{TLS}=
 \sqrt{
 \frac{
-A_{TLS}F\tan\delta_{TLS}\,\nu^{-\beta_{TLS}}
-\left(1+\frac{P_{int}}{P_c}\right)^{-m_{TLS}}
+\left(\dfrac{
+\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})
+\left(\dfrac{\nu}{100\,\mathrm{Hz}}\right)^{-\beta_{\mathrm{TLS}}/2}
+}{f_0\left|d\phi/df\right|_{\delta f}}\right)^2
 }{
 \left(\left|[Y_{J,A}]_{\phi}\right|^2+\left|[Y_{J,\phi}]_{\phi}\right|^2\right)\Big/\!\left(f_0^2\,\left|d\phi/df\right|_{\delta f}^{\,2}\right)
 }

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from math import log, pi, sqrt
+from math import log, log10, pi, sqrt
 from typing import Dict, Tuple
 import numpy as np
 
@@ -62,15 +62,9 @@ class Sensor:
     cv_absorber_J_per_m3K: float
     kappa_leg_W_per_mK: float
 
-    # Capacitor TLS model inputs (IDC-related)
-    tls_F_participation: float
-    tls_tan_delta: float
+    # Simplified TLS model inputs
+    tls_phi_asd_100hz_per_rtHz: float
     tls_beta: float
-    tls_A_scale: float
-    tls_power_exponent_m: float
-    tls_Pint_W: float
-    tls_Pc_W: float
-    tls_nu_Hz: float
     sphi_j_ref_per_hz: float
 
     # Resonator/electrical operating point
@@ -86,7 +80,11 @@ class Sensor:
     beta_A: float
     beta_phi: float
     Tc_K: float
-    P0_W: float
+    p0_over_pbif_target: float
+    bifurcation_energy_scale_J: float
+    pbif_typical_min_dBm: float
+    pbif_typical_max_dBm: float
+    thermal_energy_resolution_target_eV: float
 
     # Readout condition
     detuning_Hz: float
@@ -255,6 +253,14 @@ class Sensor:
     def R0_Ohm(self) -> float:
         """Series-equivalent resonator resistance from Z0 and Q."""
         return self.Z0_res_Ohm / self.Qr
+
+    @cached_property
+    def Qc(self) -> float:
+        """Coupling Q derived from loaded Qr and internal Qi."""
+        denom = (1.0 / self.Qr) - (1.0 / self.Qi)
+        if denom <= 0.0:
+            return float("nan")
+        return 1.0 / denom
 
     @cached_property
     def phonon_power_rms_W(self) -> float:
@@ -484,26 +490,24 @@ class Sensor:
         return sqrt(sf_over_f2_tls / sf_over_f2_j)
 
     def sf_over_f0sq_tls(self) -> float:
-        """Semi-empirical TLS model used in wiki TLS estimate page."""
-        power_term = (1.0 + (self.tls_Pint_W / self.tls_Pc_W)) ** (-self.tls_power_exponent_m)
-        return (
-            self.tls_A_scale
-            * self.tls_F_participation
-            * self.tls_tan_delta
-            * (self.tls_nu_Hz ** (-self.tls_beta))
-            * power_term
-        )
+        """TLS fractional frequency-noise PSD at model reference offset (1 Hz)."""
+        return self.sf_over_f0sq_tls_at_hz(1.0)
 
     def sf_over_f0sq_tls_at_hz(self, nu_hz: float) -> float:
-        """Gao-style semi-empirical TLS fractional frequency-noise PSD at nu_hz."""
-        power_term = (1.0 + (self.tls_Pint_W / self.tls_Pc_W)) ** (-self.tls_power_exponent_m)
-        return (
-            self.tls_A_scale
-            * self.tls_F_participation
-            * self.tls_tan_delta
-            * (nu_hz ** (-self.tls_beta))
-            * power_term
-        )
+        """TLS fractional frequency-noise PSD from phase ASD anchor at 100 Hz."""
+        if nu_hz <= 0.0:
+            raise ValueError("nu_hz must be > 0")
+        asd_phi_nu = self.tls_phi_asd_at_hz_per_rtHz(nu_hz)
+        gain = abs(self.f0_Hz * self.dphi_df_detuning_per_hz)
+        if gain == 0.0:
+            return float("nan")
+        return (asd_phi_nu / gain) ** 2
+
+    def tls_phi_asd_at_hz_per_rtHz(self, nu_hz: float) -> float:
+        """TLS phase ASD power-law anchored at 100 Hz."""
+        if nu_hz <= 0.0:
+            raise ValueError("nu_hz must be > 0")
+        return self.tls_phi_asd_100hz_per_rtHz * ((nu_hz / 100.0) ** (-self.tls_beta / 2.0))
 
     @cached_property
     def I0_rms_A(self) -> float:
@@ -667,6 +671,92 @@ class Sensor:
             return float("nan")
         return gc_freq / slowest
 
+    @cached_property
+    def asd_phi_phonon_full_per_rtHz(self) -> float:
+        """Full matrix phonon phase ASD at f_demod."""
+        return float(abs(self.y_phonon[1]))
+
+    @cached_property
+    def asd_phi_tls_100hz_model_per_rtHz(self) -> float:
+        """TLS phase ASD at 100 Hz offset from modeled Sf/f0^2 and phase slope."""
+        sf_f2_tls_100hz = self.sf_over_f0sq_tls_at_hz(100.0)
+        return abs(self.f0_Hz * self.dphi_df_detuning_per_hz) * sqrt(sf_f2_tls_100hz)
+
+    @cached_property
+    def m_phonon_over_tls_phi(self) -> float:
+        """Phase-ASD ratio: low-f phonon simple ASD / TLS ASD at 100 Hz offset."""
+        denom = self.asd_phi_tls_100hz_model_per_rtHz
+        if denom == 0.0:
+            return float("nan")
+        return self.asd_phi_phonon_simple_per_rtHz / denom
+
+    @cached_property
+    def core_rule3_ok(self) -> bool:
+        """Rule 3: low-frequency phonon phase ASD should exceed TLS ASD at 100 Hz."""
+        return bool(self.asd_phi_phonon_simple_per_rtHz > self.asd_phi_tls_100hz_model_per_rtHz)
+
+    @cached_property
+    def p_bifurcation_W(self) -> float:
+        """Estimated bifurcation readout power.
+
+        Uses common kinetic-inductance resonator scaling:
+        P_bif ~ Qc * omega0 * E_star / (2 * Qr^3),
+        where E_star is a device nonlinearity energy scale (input).
+        """
+        if self.Qr <= 0.0:
+            return float("nan")
+        w0 = 2.0 * pi * self.f0_Hz
+        return (self.Qc * w0 * self.bifurcation_energy_scale_J) / (2.0 * (self.Qr**3))
+
+    @cached_property
+    def P0_W(self) -> float:
+        """Derived operating power from requested bifurcation fraction."""
+        return self.p0_over_pbif_target * self.p_bifurcation_W
+
+    @cached_property
+    def bifurcation_power_ratio(self) -> float:
+        """How close operating power is to bifurcation: P0 / P_bif."""
+        if self.p_bifurcation_W <= 0.0:
+            return float("nan")
+        return self.P0_W / self.p_bifurcation_W
+
+    @cached_property
+    def p_bifurcation_dBm(self) -> float:
+        """Estimated bifurcation power in dBm."""
+        if self.p_bifurcation_W <= 0.0:
+            return float("nan")
+        return 10.0 * log10(self.p_bifurcation_W / 1.0e-3)
+
+    @cached_property
+    def core_rule4_ok(self) -> bool:
+        """Rule 4: stay below estimated bifurcation limit."""
+        return bool(self.P0_W < self.p_bifurcation_W)
+
+    @cached_property
+    def core_rule5_ok(self) -> bool:
+        """Rule 5: operate at least halfway to bifurcation (soft floor)."""
+        return bool(self.bifurcation_power_ratio > 0.5)
+
+    @cached_property
+    def core_rule6_ok(self) -> bool:
+        """Rule 6: Pbif should fall in a typical 100 mK, ~1 GHz MKID dBm window."""
+        return bool(self.pbif_typical_min_dBm <= self.p_bifurcation_dBm <= self.pbif_typical_max_dBm)
+
+    @cached_property
+    def core_rule7_ok(self) -> bool:
+        """Rule 7: event temperature rise should exceed 1 mK."""
+        return bool(self.deltaT_event_full_absorption_K > 1.0e-3)
+
+    @cached_property
+    def core_rule8_ok(self) -> bool:
+        """Rule 8: event temperature rise should stay below 100 mK."""
+        return bool(self.deltaT_event_full_absorption_K < 1.0e-1)
+
+    @cached_property
+    def core_rule9_ok(self) -> bool:
+        """Rule 9: thermal fluctuation energy scale should be below target."""
+        return bool(self.thermal_energy_fluct_rms_eV < self.thermal_energy_resolution_target_eV)
+
     def estimates(self) -> Dict[str, float]:
         return {
             "f0_Hz": self.f0_Hz,
@@ -721,28 +811,36 @@ class Sensor:
             "core_rule1_ok": float(self.core_rule1_ok),
             "core_rule2_ratio": self.core_rule2_ratio,
             "core_rule2_ok": float(self.core_rule2_ok),
+            "core_rule3_ok": float(self.core_rule3_ok),
+            "core_rule4_ok": float(self.core_rule4_ok),
+            "core_rule5_ok": float(self.core_rule5_ok),
+            "core_rule6_ok": float(self.core_rule6_ok),
+            "core_rule7_ok": float(self.core_rule7_ok),
+            "core_rule8_ok": float(self.core_rule8_ok),
+            "core_rule9_ok": float(self.core_rule9_ok),
             "L_geo_H": self.L_geo_H,
             "L_total_H": self.L_total_H,
             "C_res_F": self.C_res_F,
             "Z0_res_Ohm": self.Z0_res_Ohm,
             "R0_Ohm": self.R0_Ohm,
-            "tls_F_participation": self.tls_F_participation,
-            "tls_tan_delta": self.tls_tan_delta,
+            "Qc": self.Qc,
+            "p_bifurcation_W": self.p_bifurcation_W,
+            "p_bifurcation_dBm": self.p_bifurcation_dBm,
+            "bifurcation_power_ratio": self.bifurcation_power_ratio,
+            "tls_phi_asd_100hz_per_rtHz": self.tls_phi_asd_100hz_per_rtHz,
             "tls_beta": self.tls_beta,
-            "tls_A_scale": self.tls_A_scale,
-            "tls_power_exponent_m": self.tls_power_exponent_m,
-            "tls_Pint_W": self.tls_Pint_W,
-            "tls_Pc_W": self.tls_Pc_W,
-            "tls_nu_Hz": self.tls_nu_Hz,
             "sphi_j_ref_per_hz": self.sphi_j_ref_per_hz,
             "sf_over_f0sq_johnson_ref": self.sf_over_f0sq_johnson_ref,
             "sphi_johnson_full_per_hz": self.sphi_johnson_full_per_hz,
             "sphi_tls_per_hz": self.sphi_tls_per_hz,
             "asd_phi_tls_per_rtHz": self.asd_phi_tls_per_rtHz,
+            "asd_phi_tls_100hz_model_per_rtHz": self.asd_phi_tls_100hz_model_per_rtHz,
+            "asd_phi_phonon_full_per_rtHz": self.asd_phi_phonon_full_per_rtHz,
             "dphi_df_detuning_per_hz": self.dphi_df_detuning_per_hz,
             "sf_over_f0sq_johnson_full": self.sf_over_f0sq_johnson_full,
             "sf_over_f0sq_johnson_simple": self.sf_over_f0sq_johnson_simple,
             "m_phonon_over_johnson_phi": self.m_phonon_over_johnson_phi,
+            "m_phonon_over_tls_phi": self.m_phonon_over_tls_phi,
             "sf_over_f0sq_tls_model": self.sf_over_f0sq_tls_model,
             "sf_over_f0sq_tls_1hz": self.sf_over_f0sq_tls_1hz,
             "I0_rms_A": self.I0_rms_A,
@@ -759,6 +857,7 @@ class Sensor:
             "beta_A": self.beta_A,
             "beta_phi": self.beta_phi,
             "Tc_K": self.Tc_K,
+            "P0_W": self.P0_W,
             "delta_J": self.delta_J,
             "eqp_J": self.eqp_J,
             "phonon_power_rms_W": self.phonon_power_rms_W,
@@ -803,14 +902,8 @@ def nominal_sensor() -> Sensor:
         membrane_thickness_m=1.0e-6,
         cv_absorber_J_per_m3K=0.075,
         kappa_leg_W_per_mK=1.5e-3,
-        tls_F_participation=2.0e-3,
-        tls_tan_delta=1.0e-3,
+        tls_phi_asd_100hz_per_rtHz=1.0e-6,
         tls_beta=0.5,
-        tls_A_scale=1.0,
-        tls_power_exponent_m=0.5,
-        tls_Pint_W=1.0e-12,
-        tls_Pc_W=1.0e-12,
-        tls_nu_Hz=1.0e5,
         sphi_j_ref_per_hz=1.0e-18,
         f0_Hz=1.0e9,
         Qr=3000.0,
@@ -824,7 +917,11 @@ def nominal_sensor() -> Sensor:
         beta_A=0.0,
         beta_phi=0.0,
         Tc_K=2.0,
-        P0_W=5.0e-13,
+        p0_over_pbif_target=0.7,
+        bifurcation_energy_scale_J=2.0e-15,
+        pbif_typical_min_dBm=-95.0,
+        pbif_typical_max_dBm=-70.0,
+        thermal_energy_resolution_target_eV=0.1,
         detuning_Hz=0.0,
         f_demod_Hz=0.0,
     )

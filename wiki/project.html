@@ -27,6 +27,7 @@
     <a href="signal-processing.html">Signal Processing</a>
     <a href="design.html">Design Parameters</a>
     <a href="frequency-multiplexing.html">Frequency + Mux</a>
+    <a href="bifurcation-limit.html">Bifurcation Limit</a>
     <a href="noise-tls.html">TLS + Johnson</a>
     <a href="tls-estimate.html">TLS Estimate</a>
     <a href="idc-geometry.html">IDC Geometry</a>
@@ -74,6 +75,14 @@
       <ol>
         <li>\(\tau_{qp} \ll \tau_{res} \ll \tau_{th}\)</li>
         <li>\(\tau_{res} \le \tau_{th}/3\)</li>
+        <li>Low-frequency phonon phase noise \(>\) obtainable TLS phase noise at 100 Hz offset</li>
+        <li>\(P_0 < P_{\mathrm{bif}}\) (hard limit)</li>
+        <li>\(P_0/P_{\mathrm{bif}} > 0.5\) (Rule 5 soft floor)</li>
+        <li>\(P_{\mathrm{bif,dBm}}\) in typical 100 mK, ~1 GHz MKID range (Rule 6)</li>
+        <li>\(\Delta T_{\mathrm{event}} > 1\,\mathrm{mK}\) (Rule 7)</li>
+        <li>\(\Delta T_{\mathrm{event}} < 100\,\mathrm{mK}\) (Rule 8)</li>
+        <li>\(\sigma_{E,\mathrm{th,eV}} < 0.1\,\mathrm{eV}\) (Rule 9)</li>
+        <li>Operate near bifurcation from below as a soft optimization goal</li>
         <li>\(G_{AK} \gg G_{AB}\)</li>
         <li>Maintain GHz resonator frequency</li>
         <li>Minimize TLS via capacitor design</li>
@@ -94,7 +103,38 @@
       <p>\[
       \frac{\tau_{res}}{\tau_{th}/3}\le 1.
       \]</p>
-      <p>Python: <a href="../python/sensor.py"><code>Sensor.core_rule1_left_ratio</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule1_right_ratio</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule1_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule2_ratio</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule2_ok</code></a>.</p>
+      <p>Rule 3 (margin criterion) requires low-frequency phonon phase ASD to exceed modeled TLS phase ASD at 100 Hz offset:</p>
+      <p>\[
+      \sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}>\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz}).
+      \]</p>
+      <p>Rule 4 enforces the bifurcation limit:</p>
+      <p>\[
+      P_0<P_{\mathrm{bif}},\qquad
+      \frac{P_0}{P_{\mathrm{bif}}}<1.
+      \]</p>
+      <p>Rule 5 applies a soft floor on operating fraction:</p>
+      <p>\[
+      \frac{P_0}{P_{\mathrm{bif}}}>0.5.
+      \]</p>
+      <p>Rule 6 checks that \(P_{\mathrm{bif,dBm}}\) lies in the chosen typical range:</p>
+      <p>\[
+      P_{\mathrm{bif,min}}^{\mathrm{typ}} \le P_{\mathrm{bif,dBm}} \le P_{\mathrm{bif,max}}^{\mathrm{typ}}.
+      \]</p>
+      <p>Rule 7 requires a resolvable event temperature rise:</p>
+      <p>\[
+      \Delta T_{\mathrm{event}} > 1\,\mathrm{mK}.
+      \]</p>
+      <p>Rule 8 caps event temperature rise to stay in a small-signal regime:</p>
+      <p>\[
+      \Delta T_{\mathrm{event}} < 100\,\mathrm{mK}.
+      \]</p>
+      <p>Rule 9 limits the thermal fluctuation energy scale:</p>
+      <p>\[
+      \sigma_{E,\mathrm{th,eV}} < \sigma_{E,\mathrm{target}},
+      \quad \sigma_{E,\mathrm{target}}=0.1\,\mathrm{eV}\ \text{(default)}.
+      \]</p>
+      <p>Soft goal: choose \(P_0/P_{\mathrm{bif}}\) close to 1 from below.</p>
+      <p>Python: <a href="../python/sensor.py"><code>Sensor.core_rule1_left_ratio</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule1_right_ratio</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule1_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule2_ratio</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule2_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule3_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule4_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule5_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule6_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule7_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule8_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.core_rule9_ok</code></a>, <a href="../python/sensor.py"><code>Sensor.bifurcation_power_ratio</code></a>.</p>
     </section>
 
     <section class="card">
