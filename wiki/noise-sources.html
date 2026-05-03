@@ -23,6 +23,7 @@
     <a href="project.html">Project</a>
     <a href="physics.html">Physics</a>
     <a href="theory.html">Theory</a>
+    <a href="m-matrix.html">M Matrix</a>
     <a href="noise-sources.html" class="active">Noise Sources</a>
     <a href="signal-processing.html">Signal Processing</a>
     <a href="design.html">Design Parameters</a>
@@ -35,11 +36,11 @@
     <section class="card">
       <h2>How To Use This Section</h2>
       <p>Each page below gives (1) the physical noise expression, (2) mapping to source vector components, and (3) the normalized vector used in the resonator-bolometer model.</p>
-      <p>Nominal detector frequency for calculations in this section: \(f_0=1.0\,\mathrm{GHz}\).</p>
       <p>All sources are propagated using \\(Y=M^{-1}N\\), then converted to phase-direction NEP using Eq. (20):</p>
       <p>\[
       \mathrm{NEP}_{\phi}(\omega)=\left|\frac{[Y_{\mathrm{RMS}}(\omega)]_{\phi}}{(M^{-1})_{\phi,\,P}}\right|.
       \]</p>
+      <p>For matrix definition and implementation details, see <a href="m-matrix.html">M Matrix</a>.</p>
     </section>
 
     <section class="card">
@@ -52,6 +53,8 @@
         <tr><td>TLS Frequency Noise</td><td>\(N_{TLS}=M_{TLS}(f)N_{J,\phi}\)</td><td><a href="noise-tls.html">TLS Noise Vector</a></td></tr>
         <tr><td>Readout Chain Noise (Amplifier/Generator)</td><td>\(V_A\sim\sqrt{k_BT_A Z_0}\), \(V_G\sim |S_{21}|\sqrt{k_BT_G Z_0}\)</td><td><a href="noise-readout.html">Readout Noise Vector</a></td></tr>
       </table>
+      <p>Johnson \(S_f\) note (full vs simplified): <a href="noise-johnson-sf.html">Johnson Sf: Full vs Simplified</a>.</p>
+      <p>TLS mapping note (capacitor fluctuations to phase noise): <a href="tls-capacitor-to-phase.html">TLS: Capacitor Noise to Phase Noise</a>.</p>
     </section>
 
     <section class="card">

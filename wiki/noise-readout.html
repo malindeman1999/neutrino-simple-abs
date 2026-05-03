@@ -40,6 +40,33 @@ i\sigma_{RO,\phi}\\
 <p>with \(\sigma_{RO,A}\) and \(\sigma_{RO,\phi}\) set from measured or modeled readout PSD levels after demodulation/normalization.</p>
 <p>If readout noise is measured directly in I/Q, it can be added as \\(\mathbf{S}_{amp}(\omega)\\) instead of via explicit \\(N\\) vectors.</p>
 </section>
+<section class="card"><h2>Vector Component Units</h2>
+<p>Sideband-source vector units:</p>
+<p>\[
+\mathrm{units}(n_{RO})=
+\begin{bmatrix}
+\mathrm{V}/\sqrt{\mathrm{Hz}}\\
+\mathrm{V}/\sqrt{\mathrm{Hz}}\\
+0
+\end{bmatrix}.
+\]</p>
+<p>After normalization transform, component units follow the Johnson-style \(N\)-basis:</p>
+<p>\[
+\mathrm{units}(N_{RO,A})=
+\begin{bmatrix}
+1/\sqrt{\mathrm{Hz}}\\
+1/\sqrt{\mathrm{Hz}}\\
+0
+\end{bmatrix},
+\qquad
+\mathrm{units}(N_{RO,\phi})=
+\begin{bmatrix}
+1/\sqrt{\mathrm{Hz}}\\
+1/\sqrt{\mathrm{Hz}}\\
+0
+\end{bmatrix}.
+\]</p>
+</section>
 <section class="card"><h2>Integration Into Model</h2>
 <p>Include either as vector-propagated term \\(Y_{RO}=M^{-1}N_{RO}\\) or as additive readout PSD block in \\(\mathbf{S}_{IQ}(\omega)\\), but avoid double counting.</p>
 </section>

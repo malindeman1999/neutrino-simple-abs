@@ -17,6 +17,7 @@ from sensor import nominal_sensor
 ROOT = Path(__file__).resolve().parents[1]
 OUT_JSON = ROOT / "python" / "outputs" / "wiki_estimates.json"
 OUT_HTML = ROOT / "wiki" / "python-estimates.html"
+OUT_DESIGN_HTML = ROOT / "wiki" / "design.html"
 
 
 def _fmt(x: float) -> str:
@@ -26,6 +27,13 @@ def _fmt(x: float) -> str:
     if 1e-3 <= ax < 1e4:
         return f"{x:.6g}"
     return f"{x:.6e}"
+
+
+def _fmt_complex(z: complex) -> str:
+    r = _fmt(float(z.real))
+    i = _fmt(abs(float(z.imag)))
+    sign = "+" if z.imag >= 0 else "-"
+    return f"{r} {sign} {i}i"
 
 
 def main() -> None:
@@ -38,7 +46,13 @@ def main() -> None:
         "Tb_K": "K",
         "count_rate_Hz": "Hz",
         "pileup_probability_max": "1",
+        "ho_in_au_atomic_fraction": "1",
         "ho_activity_per_m3_Hz": "Hz/m^3",
+        "au_number_density_per_m3": "1/m^3",
+        "ho_number_density_per_m3": "1/m^3",
+        "ho_decay_constant_per_s": "1/s",
+        "ho_decay_energy_J": "J",
+        "ho_decay_energy_eV": "eV",
         "absorber_length_m": "m",
         "absorber_width_m": "m",
         "absorber_thickness_m": "m",
@@ -65,6 +79,7 @@ def main() -> None:
         "f0_Hz": "Hz",
         "Qr": "1",
         "Qi": "1",
+        "tau_qp_s": "s",
         "kinetic_inductance_fraction": "1",
         "kid_trace_length_m": "m",
         "kid_trace_width_m": "m",
@@ -84,29 +99,460 @@ def main() -> None:
         "membrane_span_m": "m",
         "leg_length_m": "m",
         "C_J_per_K": "J/K",
+        "C_eV_per_mK": "eV/mK",
+        "C_ho_eV_per_mK": "eV/mK",
         "G_W_per_K": "W/K",
+        "deltaT_abs_over_bath_K": "K",
+        "deltaT_event_full_absorption_K": "K",
+        "dfr_dT_Hz_per_K": "Hz/K",
+        "dT_dE_K_per_J": "K/J",
+        "dphi_dE_rad_per_J": "rad/J",
+        "deltafr_event_Hz": "Hz",
+        "deltaphi_event_rad": "rad",
+        "phonon_power_asd_device_W_per_rtHz": "W/Hz^(1/2)",
+        "phonon_temp_asd_device_K_per_rtHz": "K/Hz^(1/2)",
+        "phonon_energy_asd_device_J_per_rtHz": "J/Hz^(1/2)",
+        "asd_phi_phonon_simple_per_rtHz": "1/Hz^(1/2)",
+        "thermal_energy_fluct_rms_J": "J",
+        "thermal_energy_fluct_rms_eV": "eV",
         "tau_th_s": "s",
         "tau_target_from_rate_s": "s",
         "tau_error_fraction": "1",
         "tau_res_s": "s",
         "tau_ratio_res_over_th": "1",
+        "core_rule1_left_ratio": "1",
+        "core_rule1_right_ratio": "1",
+        "core_rule1_ok": "1",
+        "core_rule2_ratio": "1",
+        "core_rule2_ok": "1",
         "L_geo_H": "H",
         "L_total_H": "H",
         "C_res_F": "F",
         "Z0_res_Ohm": "Ohm",
         "R0_Ohm": "Ohm",
         "sf_over_f0sq_johnson_ref": "1/Hz",
+        "sphi_johnson_full_per_hz": "1/Hz",
+        "sphi_tls_per_hz": "1/Hz",
+        "asd_phi_tls_per_rtHz": "1/Hz^(1/2)",
+        "dphi_df_detuning_per_hz": "rad/Hz",
+        "sf_over_f0sq_johnson_full": "1/Hz",
+        "sf_over_f0sq_johnson_simple": "1/Hz",
+        "m_phonon_over_johnson_phi": "1",
         "sf_over_f0sq_tls_model": "1/Hz",
+        "sf_over_f0sq_tls_1hz": "1/Hz",
+        "I0_rms_A": "A",
+        "s_deltaC_tls_1hz_F2_per_Hz": "F^2/Hz",
+        "asd_deltaC_tls_1hz_F_per_rtHz": "F/Hz^(1/2)",
+        "sv_usb_tls_1hz_V2_per_Hz": "V^2/Hz",
+        "asd_v_usb_tls_1hz_V_per_rtHz": "V/Hz^(1/2)",
+        "sv_usb_johnson_V2_per_Hz": "V^2/Hz",
+        "asd_v_usb_johnson_V_per_rtHz": "V/Hz^(1/2)",
+        "m_usb_tls_over_johnson_1hz": "1",
+        "m_tls": "1",
         "phonon_power_rms_W": "W",
         "johnson_voltage_rms_V": "V",
         "johnson_sv_V2_per_Hz": "V^2/Hz",
         "M_e": "1",
-        "N_J_scale": "norm",
-        "N_J_thermal_scale": "norm",
+        "N_J_scale": "s^(1/2)",
+        "N_J_thermal_scale": "W s^(1/2)",
+        "mt_eig1_per_s": "1/s",
+        "mt_eig2_per_s": "1/s",
+        "mt_eig3_per_s": "1/s",
+        "mt_max_real_part_per_s": "1/s",
+        "mt_stable": "1",
+        "mt_pulse_shortening_ratio": "1",
+    }
+    symbols = {
+        "T0_K": r"\(T_0\)",
+        "Tb_K": r"\(T_b\)",
+        "count_rate_Hz": r"\(R\)",
+        "pileup_probability_max": r"\(P_{\mathrm{pileup,max}}\)",
+        "ho_in_au_atomic_fraction": r"\(x_{\mathrm{Ho/Au}}\)",
+        "ho_activity_per_m3_Hz": r"\(A_{\mathrm{Ho}}\)",
+        "au_number_density_per_m3": r"\(n_{\mathrm{Au}}\)",
+        "ho_number_density_per_m3": r"\(n_{\mathrm{Ho}}\)",
+        "ho_decay_constant_per_s": r"\(\lambda_{\mathrm{Ho}}\)",
+        "ho_decay_energy_J": r"\(E_{\mathrm{Ho}}\)",
+        "ho_decay_energy_eV": r"\(E_{\mathrm{Ho,eV}}\)",
+        "absorber_length_m": r"\(L_{\mathrm{abs}}\)",
+        "absorber_width_m": r"\(W_{\mathrm{abs}}\)",
+        "absorber_thickness_m": r"\(t_{\mathrm{abs}}\)",
+        "absorber_edge_m": r"\(a_{\mathrm{abs}}\)",
+        "kid_length_m": r"\(L_{\mathrm{KID}}\)",
+        "kid_width_m": r"\(W_{\mathrm{KID}}\)",
+        "membrane_margin_m": r"\(\Delta_{\mathrm{mem}}\)",
+        "leg_count": r"\(N_{\mathrm{leg}}\)",
+        "leg_width_m": r"\(w_{\mathrm{leg}}\)",
+        "leg_thickness_m": r"\(t_{\mathrm{leg}}\)",
+        "cap_thickness_m": r"\(t_{\mathrm{cap}}\)",
+        "membrane_thickness_m": r"\(t_{\mathrm{mem}}\)",
+        "cv_absorber_J_per_m3K": r"\(c_{V,\mathrm{abs}}\)",
+        "kappa_leg_W_per_mK": r"\(\kappa_{\mathrm{leg}}\)",
+        "tls_F_participation": r"\(F\)",
+        "tls_tan_delta": r"\(\tan\delta_{\mathrm{TLS}}\)",
+        "tls_beta": r"\(\beta_{\mathrm{TLS}}\)",
+        "tls_A_scale": r"\(A_{\mathrm{TLS}}\)",
+        "tls_power_exponent_m": r"\(m_{\mathrm{TLS}}\)",
+        "tls_Pint_W": r"\(P_{\mathrm{int}}\)",
+        "tls_Pc_W": r"\(P_c\)",
+        "tls_nu_Hz": r"\(\nu\)",
+        "sphi_j_ref_per_hz": r"\(S_{\phi,J}^{\mathrm{ref}}\)",
+        "f0_Hz": r"\(f_0\)",
+        "Qr": r"\(Q_r\)",
+        "Qi": r"\(Q_i\)",
+        "tau_qp_s": r"\(\tau_{qp}\)",
+        "kinetic_inductance_fraction": r"\(\alpha_k\)",
+        "kid_trace_length_m": r"\(\ell\)",
+        "kid_trace_width_m": r"\(w\)",
+        "alpha_A": r"\(\alpha_A\)",
+        "alpha_phi": r"\(\alpha_{\phi}\)",
+        "beta_A": r"\(\beta_A\)",
+        "beta_phi": r"\(\beta_{\phi}\)",
+        "Tc_K": r"\(T_c\)",
+        "R0_Ohm": r"\(R_0\)",
+        "P0_W": r"\(P_0\)",
+        "delta_J": r"\(\Delta\)",
+        "eqp_J": r"\(E_{qp}\)",
+        "detuning_Hz": r"\(\delta f\)",
+        "f_demod_Hz": r"\(f_{\mathrm{demod}}\)",
+        "absorber_volume_m3": r"\(V_{\mathrm{abs}}\)",
+        "membrane_length_m": r"\(L_{\mathrm{mem}}\)",
+        "membrane_width_m": r"\(W_{\mathrm{mem}}\)",
+        "membrane_span_m": r"\(S_{\mathrm{mem}}\)",
+        "leg_length_m": r"\(L_{\mathrm{leg}}\)",
+        "C_J_per_K": r"\(C\)",
+        "C_eV_per_mK": r"\(C_{\mathrm{eV/mK}}\)",
+        "C_ho_eV_per_mK": r"\(C_{\mathrm{Ho,eV/mK}}\)",
+        "G_W_per_K": r"\(G\)",
+        "deltaT_abs_over_bath_K": r"\(\Delta T_{\mathrm{abs-bath}}\)",
+        "deltaT_event_full_absorption_K": r"\(\Delta T_{\mathrm{event}}\)",
+        "dfr_dT_Hz_per_K": r"\(df_r/dT\)",
+        "dT_dE_K_per_J": r"\(dT/dE\)",
+        "dphi_dE_rad_per_J": r"\(d\phi/dE\)",
+        "deltafr_event_Hz": r"\(\Delta f_{r,\mathrm{event}}\)",
+        "deltaphi_event_rad": r"\(\Delta\phi_{\mathrm{event}}\)",
+        "phonon_power_asd_device_W_per_rtHz": r"\(\sqrt{S_{P,\mathrm{ph}}}(T_0)\)",
+        "phonon_temp_asd_device_K_per_rtHz": r"\(\sqrt{S_{T,\mathrm{ph}}}(T_0)\)",
+        "phonon_energy_asd_device_J_per_rtHz": r"\(\sqrt{S_{E,\mathrm{ph}}}(T_0)\)",
+        "asd_phi_phonon_simple_per_rtHz": r"\(\sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}(T_0)\)",
+        "thermal_energy_fluct_rms_J": r"\(\sigma_{E,\mathrm{th}}\)",
+        "thermal_energy_fluct_rms_eV": r"\(\sigma_{E,\mathrm{th,eV}}\)",
+        "tau_th_s": r"\(\tau_{\mathrm{th}}\)",
+        "tau_target_from_rate_s": r"\(\tau_{\mathrm{target}}\)",
+        "tau_error_fraction": r"\(\epsilon_{\tau}\)",
+        "tau_res_s": r"\(\tau_{\mathrm{res}}\)",
+        "tau_ratio_res_over_th": r"\(\tau_{\mathrm{res}}/\tau_{\mathrm{th}}\)",
+        "core_rule1_left_ratio": r"\(\tau_{qp}/\tau_{\mathrm{res}}\)",
+        "core_rule1_right_ratio": r"\(\tau_{\mathrm{res}}/\tau_{\mathrm{th}}\)",
+        "core_rule1_ok": r"\(\mathbb{1}_{\mathrm{rule1}}\)",
+        "core_rule2_ratio": r"\(\tau_{\mathrm{res}}/(\tau_{\mathrm{th}}/3)\)",
+        "core_rule2_ok": r"\(\mathbb{1}_{\mathrm{rule2}}\)",
+        "L_geo_H": r"\(L_g\)",
+        "L_total_H": r"\(L_{\mathrm{tot}}\)",
+        "C_res_F": r"\(C_{\mathrm{res}}\)",
+        "Z0_res_Ohm": r"\(Z_0\)",
+        "sf_over_f0sq_johnson_ref": r"\(\left(S_f/f_0^2\right)_J\)",
+        "sphi_johnson_full_per_hz": r"\(S_{\phi,J}^{\mathrm{full}}\)",
+        "sphi_tls_per_hz": r"\(S_{\phi,\mathrm{TLS}}\)",
+        "asd_phi_tls_per_rtHz": r"\(\sqrt{S_{\phi,\mathrm{TLS}}}\)",
+        "dphi_df_detuning_per_hz": r"\(\left|d\phi/df\right|_{\delta f}\)",
+        "sf_over_f0sq_johnson_full": r"\(\left(S_f/f_0^2\right)_{J,\mathrm{full}}\)",
+        "sf_over_f0sq_johnson_simple": r"\(\left(S_f/f_0^2\right)_{J,\mathrm{simple}}\)",
+        "m_phonon_over_johnson_phi": r"\(M_{\mathrm{ph}/J,\phi}\)",
+        "sf_over_f0sq_tls_model": r"\(\left(S_f/f_0^2\right)_{\mathrm{TLS}}\)",
+        "sf_over_f0sq_tls_1hz": r"\(\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)",
+        "I0_rms_A": r"\(I_0\)",
+        "s_deltaC_tls_1hz_F2_per_Hz": r"\(S_{\delta C,\mathrm{TLS}}(1\,\mathrm{Hz})\)",
+        "asd_deltaC_tls_1hz_F_per_rtHz": r"\(\sqrt{S_{\delta C,\mathrm{TLS}}}(1\,\mathrm{Hz})\)",
+        "sv_usb_tls_1hz_V2_per_Hz": r"\(S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})\)",
+        "asd_v_usb_tls_1hz_V_per_rtHz": r"\(\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}}(1\,\mathrm{Hz})\)",
+        "sv_usb_johnson_V2_per_Hz": r"\(S_{V,\mathrm{USB},J}\)",
+        "asd_v_usb_johnson_V_per_rtHz": r"\(\sqrt{S_{V,\mathrm{USB},J}}\)",
+        "m_usb_tls_over_johnson_1hz": r"\(M_{\mathrm{USB},\mathrm{TLS}/J}(1\,\mathrm{Hz})\)",
+        "m_tls": r"\(M_{\mathrm{TLS}}\)",
+        "phonon_power_rms_W": r"\(P_{\mathrm{ph,RMS}}\)",
+        "johnson_voltage_rms_V": r"\(V_{e}\)",
+        "johnson_sv_V2_per_Hz": r"\(S_{V,J}\)",
+        "M_e": r"\(M_e\)",
+        "N_J_scale": r"\(N_{J,\mathrm{scale}}\)",
+        "N_J_thermal_scale": r"\(N_{J,\mathrm{th}}\)",
+        "mt_eig1_per_s": r"\(\lambda_1(M_t)\)",
+        "mt_eig2_per_s": r"\(\lambda_2(M_t)\)",
+        "mt_eig3_per_s": r"\(\lambda_3(M_t)\)",
+        "mt_max_real_part_per_s": r"\(\max\Re[\lambda(M_t)]\)",
+        "mt_stable": r"\(\mathbb{1}_{\mathrm{stable}}\)",
+        "mt_pulse_shortening_ratio": r"\(\rho_{\mathrm{short}}\)",
+    }
+    formulas = {
+        "au_number_density_per_m3": r"\(n_{\mathrm{Au}}=\dfrac{\rho_{\mathrm{Au}}}{M_{\mathrm{Au}}}N_A\)",
+        "ho_number_density_per_m3": r"\(n_{\mathrm{Ho}}=x_{\mathrm{Ho/Au}}\,n_{\mathrm{Au}}\)",
+        "ho_decay_constant_per_s": r"\(\lambda_{\mathrm{Ho}}=\dfrac{\ln 2}{T_{1/2}}\)",
+        "ho_activity_per_m3_Hz": r"\(A_{\mathrm{Ho}}=\lambda_{\mathrm{Ho}}\,n_{\mathrm{Ho}}\)",
+        "absorber_volume_m3": r"\(V_{\mathrm{abs}}=\dfrac{R}{A_{\mathrm{Ho}}}\)",
+        "absorber_edge_m": r"\(a_{\mathrm{abs}}=V_{\mathrm{abs}}^{1/3}\)",
+        "absorber_length_m": r"\(L_{\mathrm{abs}}=a_{\mathrm{abs}}\)",
+        "absorber_width_m": r"\(W_{\mathrm{abs}}=a_{\mathrm{abs}}\)",
+        "absorber_thickness_m": r"\(t_{\mathrm{abs}}=a_{\mathrm{abs}}\)",
+        "membrane_length_m": r"\(L_{\mathrm{mem}}=L_{\mathrm{abs}}+L_{\mathrm{KID}}+\Delta_{\mathrm{mem}}\)",
+        "membrane_width_m": r"\(W_{\mathrm{mem}}=W_{\mathrm{abs}}+W_{\mathrm{KID}}+\Delta_{\mathrm{mem}}\)",
+        "membrane_span_m": r"\(S_{\mathrm{mem}}=\max(L_{\mathrm{mem}},W_{\mathrm{mem}})\)",
+        "leg_length_m": r"\(L_{\mathrm{leg}}=\dfrac{N_{\mathrm{leg}}\kappa_{\mathrm{leg}}w_{\mathrm{leg}}t_{\mathrm{leg}}}{G}\)",
+        "leg_thickness_m": r"\(t_{\mathrm{leg}}=t_{\mathrm{mem}}\)",
+        "C_J_per_K": r"\(C=c_{V,\mathrm{abs}}V_{\mathrm{abs}}\)",
+        "C_eV_per_mK": r"\(C_{\mathrm{eV/mK}}=\dfrac{C}{q_e\cdot 10^3}\)",
+        "C_ho_eV_per_mK": r"\(C_{\mathrm{Ho,eV/mK}}=\dfrac{C_{\mathrm{Ho}}}{q_e\cdot 10^3}\)",
+        "G_W_per_K": r"\(G=\dfrac{C}{\tau_{\mathrm{th}}}\)",
+        "deltaT_abs_over_bath_K": r"\(\Delta T_{\mathrm{abs-bath}}=\dfrac{P_0}{G}\)",
+        "deltaT_event_full_absorption_K": r"\(\Delta T_{\mathrm{event}}=\dfrac{E_{\mathrm{Ho}}}{C}\)",
+        "dfr_dT_Hz_per_K": r"\(\dfrac{df_r}{dT}=-\dfrac{\alpha_\phi f_r}{2Q_iT_0}\approx-\dfrac{\alpha_\phi f_0}{2Q_iT_0}\)",
+        "dT_dE_K_per_J": r"\(\dfrac{dT}{dE}=\dfrac{1}{C}\)",
+        "dphi_dE_rad_per_J": r"\(\dfrac{d\phi}{dE}=\dfrac{d\phi}{df}\dfrac{df_r}{dT}\dfrac{dT}{dE}\)",
+        "deltafr_event_Hz": r"\(\Delta f_{r,\mathrm{event}}=\dfrac{df_r}{dT}\Delta T_{\mathrm{event}}\)",
+        "deltaphi_event_rad": r"\(\Delta\phi_{\mathrm{event}}=\dfrac{d\phi}{dE}E_{\mathrm{Ho}}\)",
+        "phonon_power_asd_device_W_per_rtHz": r"\(\sqrt{S_{P,\mathrm{ph}}}(T_0)=\sqrt{4k_BT_0^2G}\)",
+        "phonon_temp_asd_device_K_per_rtHz": r"\(\sqrt{S_{T,\mathrm{ph}}}(T_0)=\dfrac{\sqrt{S_{P,\mathrm{ph}}}(T_0)}{G}\)",
+        "phonon_energy_asd_device_J_per_rtHz": r"\(\sqrt{S_{E,\mathrm{ph}}}(T_0)=C\sqrt{S_{T,\mathrm{ph}}}(T_0)\)",
+        "asd_phi_phonon_simple_per_rtHz": r"\(\sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}(T_0)=\left|\dfrac{d\phi}{dE}\right|\sqrt{S_{E,\mathrm{ph}}}(T_0)\)",
+        "thermal_energy_fluct_rms_J": r"\(\sigma_{E,\mathrm{th}}=\sqrt{k_BT_0^2C}\)",
+        "thermal_energy_fluct_rms_eV": r"\(\sigma_{E,\mathrm{th,eV}}=\sigma_{E,\mathrm{th}}/q_e\)",
+        "ho_decay_energy_eV": r"\(E_{\mathrm{Ho,eV}}=\dfrac{E_{\mathrm{Ho}}}{q_e}\)",
+        "tau_th_s": r"\(\tau_{\mathrm{th}}=\dfrac{P_{\mathrm{pileup,max}}}{R}\)",
+        "tau_target_from_rate_s": r"\(\tau_{\mathrm{target}}=\dfrac{P_{\mathrm{pileup,max}}}{R}\)",
+        "tau_error_fraction": r"\(\epsilon_{\tau}=0\)",
+        "tau_res_s": r"\(\tau_{\mathrm{res}}=\dfrac{Q_r}{\pi f_0}\)",
+        "tau_ratio_res_over_th": r"\(\dfrac{\tau_{\mathrm{res}}}{\tau_{\mathrm{th}}}\)",
+        "core_rule1_left_ratio": r"\(\dfrac{\tau_{qp}}{\tau_{\mathrm{res}}}\)",
+        "core_rule1_right_ratio": r"\(\dfrac{\tau_{\mathrm{res}}}{\tau_{\mathrm{th}}}\)",
+        "core_rule1_ok": r"\(1\ \mathrm{if}\ \tau_{qp}/\tau_{\mathrm{res}}<0.1\ \mathrm{and}\ \tau_{\mathrm{res}}/\tau_{\mathrm{th}}<0.1\)",
+        "core_rule2_ratio": r"\(\dfrac{\tau_{\mathrm{res}}}{\tau_{\mathrm{th}}/3}\)",
+        "core_rule2_ok": r"\(1\ \mathrm{if}\ \tau_{\mathrm{res}}\le \tau_{\mathrm{th}}/3\)",
+        "phonon_power_rms_W": r"\(P_{\mathrm{ph,RMS}}=\sqrt{4k_BT_b^2G}\)",
+        "L_geo_H": r"\(L_g\approx \mu_0\ell\left[\ln\!\left(\dfrac{2\ell}{w}\right)+0.5\right]\)",
+        "L_total_H": r"\(L_{\mathrm{tot}}=\dfrac{L_g}{1-\alpha_k}\)",
+        "C_res_F": r"\(C_{\mathrm{res}}=\dfrac{1}{(2\pi f_0)^2L_{\mathrm{tot}}}\)",
+        "Z0_res_Ohm": r"\(Z_0=(2\pi f_0)L_{\mathrm{tot}}\)",
+        "R0_Ohm": r"\(R_0=\dfrac{Z_0}{Q_r}\)",
+        "delta_J": r"\(\Delta=1.764\,k_BT_c\)",
+        "eqp_J": r"\(E_{qp}=\Delta\)",
+        "johnson_voltage_rms_V": r"\(V_e=\sqrt{4k_BT_0R_0}\)",
+        "johnson_sv_V2_per_Hz": r"\(S_{V,J}=4k_BT_0R_0\)",
+        "M_e": r"\(M_e=\sqrt{\dfrac{E_{qp}}{k_BT_0}}\)",
+        "N_J_scale": r"\(N_{J,\mathrm{scale}}=\sqrt{\dfrac{16k_BT_0}{P_0}}\)",
+        "N_J_thermal_scale": r"\(N_{J,\mathrm{th}}=\sqrt{4k_BT_0P_0}\)",
+        "mt_eig1_per_s": r"\(\lambda_1(M_t)\)",
+        "mt_eig2_per_s": r"\(\lambda_2(M_t)\)",
+        "mt_eig3_per_s": r"\(\lambda_3(M_t)\)",
+        "mt_max_real_part_per_s": r"\(\max\Re[\lambda(M_t)]\)",
+        "mt_stable": r"\(1\ \mathrm{if}\ \Re[\lambda_i(M_t)]<0\ \forall i\)",
+        "mt_pulse_shortening_ratio": r"\(\rho_{\mathrm{short}}=\dfrac{G/C}{\min_i|\lambda_i(M_t)|}\ \mathrm{if\ stable}\)",
+        "sf_over_f0sq_johnson_ref": r"\(\left(S_f/f_0^2\right)_J=\dfrac{S_{\phi,J}^{\mathrm{ref}}}{(4Q_r)^2}\)",
+        "sphi_johnson_full_per_hz": r"\(S_{\phi,J}^{\mathrm{full}}=\left|[Y_{J,A}]_{\phi}\right|^2+\left|[Y_{J,\phi}]_{\phi}\right|^2\)",
+        "sphi_tls_per_hz": r"\(S_{\phi,\mathrm{TLS}}=\left|[Y_{\mathrm{TLS}}]_{\phi}\right|^2\)",
+        "asd_phi_tls_per_rtHz": r"\(\sqrt{S_{\phi,\mathrm{TLS}}}\)",
+        "dphi_df_detuning_per_hz": r"\(\left|d\phi/df\right|_{\delta f}\approx\dfrac{4Q_r/f_0}{1+(2Q_r\delta f/f_0)^2}\)",
+        "sf_over_f0sq_johnson_full": r"\(\left(S_f/f_0^2\right)_{J,\mathrm{full}}=\dfrac{S_{\phi,J}^{\mathrm{full}}}{f_0^2\left|d\phi/df\right|_{\delta f}^2}\)",
+        "sf_over_f0sq_johnson_simple": r"\(\left(S_f/f_0^2\right)_{J,\mathrm{simple}}=\dfrac{S_{\phi,J}^{\mathrm{full}}}{(4Q_r)^2}\)",
+        "m_phonon_over_johnson_phi": r"\(M_{\mathrm{ph}/J,\phi}=\dfrac{|[Y_{ph}]_{\phi}|}{|[Y_{J,\phi}]_{\phi}|}\)",
+        "sf_over_f0sq_tls_model": r"\(\left(S_f/f_0^2\right)_{\mathrm{TLS}}=A_{\mathrm{TLS}}F\tan\delta_{\mathrm{TLS}}\nu^{-\beta_{\mathrm{TLS}}}\left(1+\dfrac{P_{\mathrm{int}}}{P_c}\right)^{-m_{\mathrm{TLS}}}\)",
+        "sf_over_f0sq_tls_1hz": r"\(\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}=A_{\mathrm{TLS}}F\tan\delta_{\mathrm{TLS}}(1\,\mathrm{Hz})^{-\beta_{\mathrm{TLS}}}\left(1+\dfrac{P_{\mathrm{int}}}{P_c}\right)^{-m_{\mathrm{TLS}}}\)",
+        "I0_rms_A": r"\(I_0=\sqrt{P_0/R_0}\)",
+        "s_deltaC_tls_1hz_F2_per_Hz": r"\(S_{\delta C,\mathrm{TLS}}(1\,\mathrm{Hz})=4C_0^2\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)",
+        "asd_deltaC_tls_1hz_F_per_rtHz": r"\(\sqrt{S_{\delta C,\mathrm{TLS}}}(1\,\mathrm{Hz})\)",
+        "sv_usb_tls_1hz_V2_per_Hz": r"\(S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})=\dfrac{I_0^2}{\omega_0^2C_0^2}\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)",
+        "asd_v_usb_tls_1hz_V_per_rtHz": r"\(\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}}(1\,\mathrm{Hz})\)",
+        "sv_usb_johnson_V2_per_Hz": r"\(S_{V,\mathrm{USB},J}=\dfrac{1}{2}S_{V,J}\)",
+        "asd_v_usb_johnson_V_per_rtHz": r"\(\sqrt{S_{V,\mathrm{USB},J}}\)",
+        "m_usb_tls_over_johnson_1hz": r"\(M_{\mathrm{USB},\mathrm{TLS}/J}(1\,\mathrm{Hz})=\dfrac{\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})}}{\sqrt{S_{V,\mathrm{USB},J}}}\)",
+        "m_tls": r"\(M_{\mathrm{TLS}}=\sqrt{\dfrac{(S_f/f_0^2)_{\mathrm{TLS}}}{(S_f/f_0^2)_{J,\mathrm{full}}}}\)",
+    }
+    # Enforce: every non-constant symbol in an output formula must correspond
+    # to an input or output quantity key in this model.
+    formula_dependencies = {
+        "au_number_density_per_m3": set(),
+        "ho_number_density_per_m3": {"ho_in_au_atomic_fraction", "au_number_density_per_m3"},
+        "ho_decay_constant_per_s": set(),
+        "ho_activity_per_m3_Hz": {"ho_decay_constant_per_s", "ho_number_density_per_m3"},
+        "absorber_volume_m3": {"count_rate_Hz", "ho_activity_per_m3_Hz"},
+        "absorber_edge_m": {"absorber_volume_m3"},
+        "absorber_length_m": {"absorber_edge_m"},
+        "absorber_width_m": {"absorber_edge_m"},
+        "absorber_thickness_m": {"absorber_edge_m"},
+        "membrane_length_m": {"absorber_length_m", "kid_length_m", "membrane_margin_m"},
+        "membrane_width_m": {"absorber_width_m", "kid_width_m", "membrane_margin_m"},
+        "membrane_span_m": {"membrane_length_m", "membrane_width_m"},
+        "leg_length_m": {"leg_count", "kappa_leg_W_per_mK", "leg_width_m", "leg_thickness_m", "G_W_per_K"},
+        "leg_thickness_m": {"membrane_thickness_m"},
+        "C_J_per_K": {"cv_absorber_J_per_m3K", "absorber_volume_m3"},
+        "C_eV_per_mK": {"C_J_per_K"},
+        "C_ho_eV_per_mK": {"C_J_per_K"},
+        "G_W_per_K": {"C_J_per_K", "tau_th_s"},
+        "deltaT_abs_over_bath_K": {"P0_W", "G_W_per_K"},
+        "deltaT_event_full_absorption_K": {"ho_decay_energy_J", "C_J_per_K"},
+        "dfr_dT_Hz_per_K": {"alpha_phi", "f0_Hz", "Qi", "T0_K"},
+        "dT_dE_K_per_J": {"C_J_per_K"},
+        "dphi_dE_rad_per_J": {"dphi_df_detuning_per_hz", "dfr_dT_Hz_per_K", "dT_dE_K_per_J"},
+        "deltafr_event_Hz": {"dfr_dT_Hz_per_K", "deltaT_event_full_absorption_K"},
+        "deltaphi_event_rad": {"dphi_dE_rad_per_J", "ho_decay_energy_J"},
+        "phonon_power_asd_device_W_per_rtHz": {"T0_K", "G_W_per_K"},
+        "phonon_temp_asd_device_K_per_rtHz": {"phonon_power_asd_device_W_per_rtHz", "G_W_per_K"},
+        "phonon_energy_asd_device_J_per_rtHz": {"C_J_per_K", "phonon_temp_asd_device_K_per_rtHz"},
+        "asd_phi_phonon_simple_per_rtHz": {"dphi_dE_rad_per_J", "phonon_energy_asd_device_J_per_rtHz"},
+        "thermal_energy_fluct_rms_J": {"T0_K", "C_J_per_K"},
+        "thermal_energy_fluct_rms_eV": {"thermal_energy_fluct_rms_J"},
+        "ho_decay_energy_eV": {"ho_decay_energy_J"},
+        "tau_th_s": {"pileup_probability_max", "count_rate_Hz"},
+        "tau_target_from_rate_s": {"pileup_probability_max", "count_rate_Hz"},
+        "tau_error_fraction": set(),
+        "tau_res_s": {"Qr", "f0_Hz"},
+        "tau_ratio_res_over_th": {"tau_res_s", "tau_th_s"},
+        "phonon_power_rms_W": {"Tb_K", "G_W_per_K"},
+        "L_geo_H": {"kid_trace_length_m", "kid_trace_width_m"},
+        "L_total_H": {"L_geo_H", "kinetic_inductance_fraction"},
+        "C_res_F": {"f0_Hz", "L_total_H"},
+        "Z0_res_Ohm": {"f0_Hz", "L_total_H"},
+        "R0_Ohm": {"Z0_res_Ohm", "Qr"},
+        "delta_J": {"Tc_K"},
+        "eqp_J": {"delta_J"},
+        "johnson_voltage_rms_V": {"T0_K", "R0_Ohm"},
+        "johnson_sv_V2_per_Hz": {"T0_K", "R0_Ohm"},
+        "M_e": {"eqp_J", "T0_K"},
+        "N_J_scale": {"T0_K", "P0_W"},
+        "N_J_thermal_scale": {"T0_K", "P0_W"},
+        "mt_eig1_per_s": set(),
+        "mt_eig2_per_s": set(),
+        "mt_eig3_per_s": set(),
+        "mt_max_real_part_per_s": set(),
+        "mt_stable": set(),
+        "mt_pulse_shortening_ratio": {
+            "mt_stable",
+            "mt_eig1_per_s",
+            "mt_eig2_per_s",
+            "mt_eig3_per_s",
+            "G_W_per_K",
+            "C_J_per_K",
+        },
+        "sf_over_f0sq_johnson_ref": {"sphi_j_ref_per_hz", "Qr"},
+        "sphi_johnson_full_per_hz": set(),
+        "sphi_tls_per_hz": set(),
+        "asd_phi_tls_per_rtHz": {"sphi_tls_per_hz"},
+        "dphi_df_detuning_per_hz": {"Qr", "f0_Hz", "detuning_Hz"},
+        "sf_over_f0sq_johnson_full": {"sphi_johnson_full_per_hz", "f0_Hz", "dphi_df_detuning_per_hz"},
+        "sf_over_f0sq_johnson_simple": {"sphi_johnson_full_per_hz", "Qr"},
+        "m_phonon_over_johnson_phi": set(),
+        "sf_over_f0sq_tls_model": {
+            "tls_A_scale",
+            "tls_F_participation",
+            "tls_tan_delta",
+            "tls_nu_Hz",
+            "tls_beta",
+            "tls_Pint_W",
+            "tls_Pc_W",
+            "tls_power_exponent_m",
+        },
+        "sf_over_f0sq_tls_1hz": {
+            "tls_A_scale",
+            "tls_F_participation",
+            "tls_tan_delta",
+            "tls_beta",
+            "tls_Pint_W",
+            "tls_Pc_W",
+            "tls_power_exponent_m",
+        },
+        "I0_rms_A": {"P0_W", "R0_Ohm"},
+        "s_deltaC_tls_1hz_F2_per_Hz": {"C_res_F", "sf_over_f0sq_tls_1hz"},
+        "asd_deltaC_tls_1hz_F_per_rtHz": {"s_deltaC_tls_1hz_F2_per_Hz"},
+        "sv_usb_tls_1hz_V2_per_Hz": {"I0_rms_A", "f0_Hz", "C_res_F", "sf_over_f0sq_tls_1hz"},
+        "asd_v_usb_tls_1hz_V_per_rtHz": {"sv_usb_tls_1hz_V2_per_Hz"},
+        "sv_usb_johnson_V2_per_Hz": {"johnson_sv_V2_per_Hz"},
+        "asd_v_usb_johnson_V_per_rtHz": {"sv_usb_johnson_V2_per_Hz"},
+        "m_usb_tls_over_johnson_1hz": {"asd_v_usb_tls_1hz_V_per_rtHz", "asd_v_usb_johnson_V_per_rtHz"},
+        "m_tls": {"sf_over_f0sq_tls_model", "sf_over_f0sq_johnson_full"},
+    }
+    wiki_links = {
+        "au_number_density_per_m3": "project.html#source-activity-formulas",
+        "ho_number_density_per_m3": "project.html#source-activity-formulas",
+        "ho_decay_constant_per_s": "project.html#source-activity-formulas",
+        "ho_activity_per_m3_Hz": "project.html#source-activity-formulas",
+        "absorber_volume_m3": "project.html#source-activity-formulas",
+        "absorber_edge_m": "project.html#source-activity-formulas",
+        "absorber_length_m": "project.html#source-activity-formulas",
+        "absorber_width_m": "project.html#source-activity-formulas",
+        "absorber_thickness_m": "project.html#source-activity-formulas",
+        "membrane_length_m": "project.html#membrane-geometry-formulas",
+        "membrane_width_m": "project.html#membrane-geometry-formulas",
+        "membrane_span_m": "project.html#membrane-geometry-formulas",
+        "leg_length_m": "physics.html#leg-geometry-formulas",
+        "leg_thickness_m": "physics.html#leg-geometry-formulas",
+        "C_J_per_K": "physics.html#thermal-derived-formulas",
+        "C_eV_per_mK": "physics.html#thermal-derived-formulas",
+        "C_ho_eV_per_mK": "physics.html#thermal-derived-formulas",
+        "G_W_per_K": "physics.html#thermal-derived-formulas",
+        "deltaT_abs_over_bath_K": "physics.html#thermal-derived-formulas",
+        "deltaT_event_full_absorption_K": "physics.html#thermal-derived-formulas",
+        "dfr_dT_Hz_per_K": "simple-estimates.html",
+        "dT_dE_K_per_J": "simple-estimates.html",
+        "dphi_dE_rad_per_J": "simple-estimates.html",
+        "deltafr_event_Hz": "simple-estimates.html",
+        "deltaphi_event_rad": "simple-estimates.html",
+        "phonon_power_asd_device_W_per_rtHz": "simple-estimates.html",
+        "phonon_temp_asd_device_K_per_rtHz": "simple-estimates.html",
+        "phonon_energy_asd_device_J_per_rtHz": "simple-estimates.html",
+        "asd_phi_phonon_simple_per_rtHz": "simple-estimates.html",
+        "thermal_energy_fluct_rms_J": "simple-estimates.html",
+        "thermal_energy_fluct_rms_eV": "simple-estimates.html",
+        "ho_decay_energy_eV": "physics.html#thermal-derived-formulas",
+        "tau_th_s": "physics.html#thermal-derived-formulas",
+        "tau_target_from_rate_s": "physics.html#thermal-derived-formulas",
+        "tau_error_fraction": "physics.html#thermal-derived-formulas",
+        "tau_res_s": "physics.html#resonator-derived-formulas",
+        "tau_ratio_res_over_th": "physics.html#resonator-derived-formulas",
+        "core_rule1_left_ratio": "project.html#core-rule-checks",
+        "core_rule1_right_ratio": "project.html#core-rule-checks",
+        "core_rule1_ok": "project.html#core-rule-checks",
+        "core_rule2_ratio": "project.html#core-rule-checks",
+        "core_rule2_ok": "project.html#core-rule-checks",
+        "phonon_power_rms_W": "noise-phonon.html#physical-expression",
+        "L_geo_H": "theory.html#kid-lumped-formulas",
+        "L_total_H": "theory.html#kid-lumped-formulas",
+        "C_res_F": "theory.html#kid-lumped-formulas",
+        "Z0_res_Ohm": "theory.html#kid-lumped-formulas",
+        "R0_Ohm": "theory.html#kid-lumped-formulas",
+        "delta_J": "theory.html#gap-formulas",
+        "eqp_J": "theory.html#gap-formulas",
+        "johnson_voltage_rms_V": "noise-johnson.html#physical-expression",
+        "johnson_sv_V2_per_Hz": "noise-johnson.html#physical-expression",
+        "M_e": "noise-electronic.html#noise-vector-derivation-eq-19",
+        "N_J_scale": "noise-johnson.html#normalized-vector-derivation-eq-18",
+        "N_J_thermal_scale": "noise-johnson.html#normalized-vector-derivation-eq-18",
+        "mt_eig1_per_s": "mt-stability.html#stability-criterion",
+        "mt_eig2_per_s": "mt-stability.html#stability-criterion",
+        "mt_eig3_per_s": "mt-stability.html#stability-criterion",
+        "mt_max_real_part_per_s": "mt-stability.html#stability-criterion",
+        "mt_stable": "mt-stability.html#stability-criterion",
+        "mt_pulse_shortening_ratio": "mt-stability.html#pulse-shortening",
+        "sf_over_f0sq_johnson_ref": "noise-johnson.html#role-in-nep-and-electronic-noise-scaling",
+        "sphi_johnson_full_per_hz": "noise-johnson.html#role-in-nep-and-electronic-noise-scaling",
+        "sphi_tls_per_hz": "noise-tls.html#use-in-total-budget",
+        "asd_phi_tls_per_rtHz": "noise-tls.html#use-in-total-budget",
+        "dphi_df_detuning_per_hz": "noise-johnson-sf.html",
+        "sf_over_f0sq_johnson_full": "noise-johnson-sf.html",
+        "sf_over_f0sq_johnson_simple": "noise-johnson-sf.html",
+        "m_phonon_over_johnson_phi": "noise-phonon.html#physical-expression",
+        "sf_over_f0sq_tls_model": "noise-tls.html#design-scaling-and-geometry-controls",
+        "sf_over_f0sq_tls_1hz": "tls-capacitor-to-phase.html#practical-c-to-usb-mapping",
+        "I0_rms_A": "tls-capacitor-to-phase.html#practical-c-to-usb-mapping",
+        "s_deltaC_tls_1hz_F2_per_Hz": "tls-capacitor-to-phase.html#practical-c-to-usb-mapping",
+        "asd_deltaC_tls_1hz_F_per_rtHz": "tls-capacitor-to-phase.html#practical-c-to-usb-mapping",
+        "sv_usb_tls_1hz_V2_per_Hz": "tls-capacitor-to-phase.html#practical-c-to-usb-mapping",
+        "asd_v_usb_tls_1hz_V_per_rtHz": "tls-capacitor-to-phase.html#practical-c-to-usb-mapping",
+        "sv_usb_johnson_V2_per_Hz": "noise-johnson.html#sideband-vector-derivation-eq-17",
+        "asd_v_usb_johnson_V_per_rtHz": "noise-johnson.html#sideband-vector-derivation-eq-17",
+        "m_usb_tls_over_johnson_1hz": "tls-capacitor-to-phase.html#practical-c-to-usb-mapping",
+        "m_tls": "noise-tls.html#design-scaling-and-geometry-controls",
     }
 
     # TLS multiplier from modeled TLS PSD and reference Johnson PSD.
-    sf_f2_j = s.sf_over_f0sq_johnson_ref()
+    sf_f2_j = s.sf_over_f0sq_johnson_ref
     sf_f2_tls = s.sf_over_f0sq_tls()
     m_tls = s.m_tls_from_ratio(sf_f2_tls, sf_f2_j)
 
@@ -118,11 +564,37 @@ def main() -> None:
         "N_g_phi": [complex(v).real if complex(v).imag == 0 else [complex(v).real, complex(v).imag] for v in s.n_electronic_phi()],
         "N_TLS_phi_example": [complex(v).real if complex(v).imag == 0 else [complex(v).real, complex(v).imag] for v in s.n_tls_phi(m_tls)],
     }
+    vector_component_units = {
+        "basis": ["r-channel", "phi-channel", "thermal-channel"],
+        "N_ph": ["r-units", "phi-units", "W/Hz^(1/2)"],
+        "N_J_A": ["r-units", "phi-units", "W/Hz^(1/2)"],
+        "N_J_phi": ["r-units", "phi-units", "thermal-units"],
+        "N_g_A": ["r-units", "phi-units", "W/Hz^(1/2)"],
+        "N_g_phi": ["r-units", "phi-units", "thermal-units"],
+        "N_TLS_phi_example": ["r-units", "phi-units", "thermal-units"],
+    }
     m_1hz = s.m_matrix(1.0)
     m_1hz_serialized = [[[z.real, z.imag] for z in row] for row in m_1hz]
+    mt_matrix_serialized = [[[z.real, z.imag] for z in row] for row in s.mt_matrix]
+    mt_eigs_serialized = [[complex(v).real, complex(v).imag] for v in s.mt_eigenvalues]
 
     model_inputs = {k: getattr(s, k) for k in input_keys}
     model_outputs = {k: v for k, v in est.items() if k not in model_inputs}
+    eigs = s.mt_eigenvalues_sorted
+    model_outputs["mt_eig1_per_s"] = _fmt_complex(complex(eigs[0]))
+    model_outputs["mt_eig2_per_s"] = _fmt_complex(complex(eigs[1]))
+    model_outputs["mt_eig3_per_s"] = _fmt_complex(complex(eigs[2]))
+
+    # Validate formula dependencies against available model quantities.
+    allowed = set(model_inputs.keys()) | set(model_outputs.keys())
+    missing_deps = {}
+    for out_key, deps in formula_dependencies.items():
+        missing = sorted(d for d in deps if d not in allowed)
+        if missing:
+            missing_deps[out_key] = missing
+    if missing_deps:
+        lines = [f"{k}: {', '.join(v)}" for k, v in missing_deps.items()]
+        raise ValueError("Formula dependency check failed:\n" + "\n".join(lines))
 
     payload = {
         "notes": {
@@ -140,10 +612,22 @@ def main() -> None:
             "M_TLS": m_tls,
         },
         "vectors": vectors,
+        "vector_component_units": vector_component_units,
         "M_matrix_1Hz": {
             "frequency_Hz": 1.0,
             "format": "[real, imag]",
             "rows": m_1hz_serialized,
+        },
+        "Mt_matrix": {
+            "definition": "Mt = -inv(D1) @ D0; D0=M(0); D1=-i dM/domega",
+            "format": "[real, imag]",
+            "rows": mt_matrix_serialized,
+        },
+        "Mt_eigenvalues": {
+            "format": "[real, imag]",
+            "values": mt_eigs_serialized,
+            "max_real_part_per_s": s.mt_max_real_part,
+            "stable": s.mt_stable,
         },
     }
 
@@ -172,6 +656,7 @@ def main() -> None:
         "KID Properties": [
             "Qr",
             "Qi",
+            "tau_qp_s",
             "kinetic_inductance_fraction",
             "kid_trace_length_m",
             "kid_trace_width_m",
@@ -182,7 +667,8 @@ def main() -> None:
             "Tc_K",
         ],
         "Material and Activity": [
-            "ho_activity_per_m3_Hz",
+            "ho_in_au_atomic_fraction",
+            "ho_decay_energy_J",
             "cv_absorber_J_per_m3K",
             "kappa_leg_W_per_mK",
         ],
@@ -201,7 +687,7 @@ def main() -> None:
 
     def _rows_for_keys(keys: list[str]) -> str:
         return "\n".join(
-            f"<tr><td>{k}</td><td><code>{_fmt(float(model_inputs[k]))}</code></td><td>{units.get(k,'')}</td></tr>"
+            f"<tr><td>{k}</td><td>{symbols.get(k,'')}</td><td><code>{_fmt(float(model_inputs[k]))}</code></td><td>{units.get(k,'')}</td></tr>"
             for k in keys
             if k in model_inputs
         )
@@ -211,7 +697,7 @@ def main() -> None:
     <section class=\"card\">
       <h3>{group_name}</h3>
       <table>
-        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><th>Quantity</th><th>Symbol</th><th>Value</th><th>Units</th></tr>
         {_rows_for_keys(keys)}
       </table>
     </section>
@@ -219,7 +705,24 @@ def main() -> None:
         for group_name, keys in input_groups.items()
     )
     output_groups = {
+        "Simple Estimates": [
+            "dfr_dT_Hz_per_K",
+            "dT_dE_K_per_J",
+            "dphi_dE_rad_per_J",
+            "deltafr_event_Hz",
+            "deltaphi_event_rad",
+            "phonon_power_asd_device_W_per_rtHz",
+            "phonon_temp_asd_device_K_per_rtHz",
+            "phonon_energy_asd_device_J_per_rtHz",
+            "asd_phi_phonon_simple_per_rtHz",
+            "thermal_energy_fluct_rms_J",
+            "thermal_energy_fluct_rms_eV",
+        ],
         "Derived Geometry": [
+            "au_number_density_per_m3",
+            "ho_number_density_per_m3",
+            "ho_decay_constant_per_s",
+            "ho_activity_per_m3_Hz",
             "absorber_volume_m3",
             "absorber_edge_m",
             "absorber_length_m",
@@ -233,7 +736,12 @@ def main() -> None:
         ],
         "Derived Thermal": [
             "C_J_per_K",
+            "C_eV_per_mK",
+            "C_ho_eV_per_mK",
             "G_W_per_K",
+            "deltaT_abs_over_bath_K",
+            "deltaT_event_full_absorption_K",
+            "ho_decay_energy_eV",
             "tau_th_s",
             "tau_target_from_rate_s",
             "tau_error_fraction",
@@ -261,34 +769,69 @@ def main() -> None:
             "eqp_J",
             "johnson_voltage_rms_V",
             "johnson_sv_V2_per_Hz",
-            "M_e",
             "N_J_scale",
             "N_J_thermal_scale",
         ],
         "Derived TLS": [
+            "sphi_johnson_full_per_hz",
+            "sphi_tls_per_hz",
+            "asd_phi_tls_per_rtHz",
+            "dphi_df_detuning_per_hz",
+            "sf_over_f0sq_johnson_full",
+            "sf_over_f0sq_johnson_simple",
             "sf_over_f0sq_johnson_ref",
             "sf_over_f0sq_tls_model",
+            "sf_over_f0sq_tls_1hz",
+            "I0_rms_A",
+            "s_deltaC_tls_1hz_F2_per_Hz",
+            "asd_deltaC_tls_1hz_F_per_rtHz",
+            "sv_usb_tls_1hz_V2_per_Hz",
+            "asd_v_usb_tls_1hz_V_per_rtHz",
+            "sv_usb_johnson_V2_per_Hz",
+            "asd_v_usb_johnson_V_per_rtHz",
         ],
-        "Rate and Source": [
-            "count_rate_Hz",
-            "pileup_probability_max",
-            "ho_activity_per_m3_Hz",
+        "Noise M Ratios": [
+            "M_e",
+            "m_phonon_over_johnson_phi",
+            "m_usb_tls_over_johnson_1hz",
+            "m_tls",
+        ],
+        "Design Verification": [
+            "core_rule1_left_ratio",
+            "core_rule1_right_ratio",
+            "core_rule1_ok",
+            "core_rule2_ratio",
+            "core_rule2_ok",
+            "mt_eig1_per_s",
+            "mt_eig2_per_s",
+            "mt_eig3_per_s",
+            "mt_max_real_part_per_s",
+            "mt_stable",
+            "mt_pulse_shortening_ratio",
         ],
     }
 
     def _output_rows_for_keys(keys: list[str]) -> str:
-        return "\n".join(
-            f"<tr><td>{k}</td><td><code>{_fmt(model_outputs[k])}</code></td><td>{units.get(k,'')}</td></tr>"
-            for k in keys
-            if k in model_outputs
-        )
+        rows = []
+        for k in keys:
+            if k not in model_outputs:
+                continue
+            sym = symbols.get(k, "")
+            if k in wiki_links:
+                sym = f'<a href="{wiki_links[k]}">{sym}</a>'
+            val = model_outputs[k]
+            val_s = _fmt(float(val)) if isinstance(val, (int, float)) else str(val)
+            rows.append(
+                f"<tr><td>{k}</td><td>{sym}</td><td>{formulas.get(k,'')}</td><td><code>{val_s}</code></td><td>{units.get(k,'')}</td></tr>"
+            )
+        return "\n".join(rows)
 
     output_sections = "\n".join(
         f"""
     <section class=\"card\">
       <h3>{group_name}</h3>
       <table>
-        <tr><th>Quantity</th><th>Value</th><th>Units</th></tr>
+        <tr><th>Quantity</th><th>Symbol</th><th>Formula</th><th>Value</th><th>Units</th></tr>
         {_output_rows_for_keys(keys)}
       </table>
     </section>
@@ -303,11 +846,17 @@ def main() -> None:
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
   <title>Python-Derived Estimates | TKID Neutrino Detector Project Wiki</title>
   <link rel=\"stylesheet\" href=\"styles.css\" />
+  <script>
+    window.MathJax = {{
+      tex: {{ inlineMath: [['\\\\(', '\\\\)'], ['$', '$']] }}
+    }};
+  </script>
+  <script defer src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js\"></script>
 </head>
 <body>
   <header class=\"hero\">
     <h1>Python-Derived Estimates</h1>
-    <p>Generated from <code>python/sensor.py</code> by <code>python/generate_wiki_estimates.py</code>.</p>
+    <p style=\"color:#000;opacity:1;\">Values computed by python/sensor.py; page generated by python/generate_wiki_estimates.py.</p>
   </header>
 
   <nav class=\"nav\">
@@ -316,6 +865,7 @@ def main() -> None:
     <a href=\"theory.html\">Theory</a>
     <a href=\"noise-sources.html\">Noise Sources</a>
     <a href=\"python-estimates.html\" class=\"active\">Python Estimates</a>
+    <a href=\"mt-stability.html\">Mt Stability</a>
   </nav>
 
   <main class=\"container\">
@@ -339,6 +889,104 @@ def main() -> None:
 </html>
 """
     OUT_HTML.write_text(html, encoding="utf-8")
+
+    design_html = f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Parameters | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {{
+      tex: {{ inlineMath: [['\\\\(', '\\\\)'], ['$', '$']] }}
+    }};
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Design Parameters</h1>
+    <p>Auto-generated from <code>python/sensor.py</code> by <code>python/generate_wiki_estimates.py</code>.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html">Project</a>
+    <a href="physics.html">Physics</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="design.html" class="active">Design Parameters</a>
+    <a href="python-estimates.html">Python Estimates</a>
+    <a href="mt-stability.html">Mt Stability</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Setpoints and Readout</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>\\(T_0\\)</td><td><code>{_fmt(model_inputs['T0_K'])}</code> K</td></tr>
+        <tr><td>\\(T_b\\)</td><td><code>{_fmt(model_inputs['Tb_K'])}</code> K</td></tr>
+        <tr><td>\\(f_0\\)</td><td><code>{_fmt(model_inputs['f0_Hz'])}</code> Hz</td></tr>
+        <tr><td>Detuning</td><td><code>{_fmt(model_inputs['detuning_Hz'])}</code> Hz</td></tr>
+        <tr><td>Demod frequency</td><td><code>{_fmt(model_inputs['f_demod_Hz'])}</code> Hz</td></tr>
+        <tr><td>\\(P_0\\)</td><td><code>{_fmt(model_inputs['P0_W'])}</code> W</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Source and Geometry Inputs</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Count rate \\(R\\)</td><td><code>{_fmt(model_inputs['count_rate_Hz'])}</code> Hz</td></tr>
+        <tr><td>Pileup probability max</td><td><code>{_fmt(model_inputs['pileup_probability_max'])}</code></td></tr>
+        <tr><td>Ho/Au atomic fraction \\(x_{{Ho/Au}}\\)</td><td><code>{_fmt(model_inputs['ho_in_au_atomic_fraction'])}</code></td></tr>
+        <tr><td>Ho activity \\(A_{{Ho}}\\)</td><td><code>{_fmt(model_outputs['ho_activity_per_m3_Hz'])}</code> Hz/m^3</td></tr>
+        <tr><td>Ho event energy \\(E_{{Ho}}\\)</td><td><code>{_fmt(model_inputs['ho_decay_energy_J'])}</code> J (<code>{_fmt(model_outputs['ho_decay_energy_eV'])}</code> eV)</td></tr>
+        <tr><td>KID footprint \\(L_{{KID}},W_{{KID}}\\)</td><td><code>{_fmt(model_inputs['kid_length_m'])}</code> m, <code>{_fmt(model_inputs['kid_width_m'])}</code> m</td></tr>
+        <tr><td>Membrane margin \\(\\Delta_{{mem}}\\)</td><td><code>{_fmt(model_inputs['membrane_margin_m'])}</code> m</td></tr>
+        <tr><td>Leg count \\(N_{{leg}}\\)</td><td><code>{int(model_inputs['leg_count'])}</code></td></tr>
+        <tr><td>Leg width \\(w_{{leg}}\\)</td><td><code>{_fmt(model_inputs['leg_width_m'])}</code> m</td></tr>
+        <tr><td>Membrane thickness \\(t_{{mem}}\\)</td><td><code>{_fmt(model_inputs['membrane_thickness_m'])}</code> m</td></tr>
+        <tr><td>Cap thickness \\(t_{{cap}}\\)</td><td><code>{_fmt(model_inputs['cap_thickness_m'])}</code> m</td></tr>
+      </table>
+      <p>Reference for percent-level alloy loading guidance: M. B. Sisti et al., <em>Specific Heat of Holmium in Gold and Silver at Low Temperatures</em> (see discussion of x_Ho >= 1% as a practical regime), <a href="https://arxiv.org/abs/1912.09354">arXiv:1912.09354</a>.</p>
+      <p>Related pages: <a href="absorber-source.html">Absorber + Source</a>, <a href="idc-geometry.html">IDC Geometry</a>, <a href="thermal-conductance.html">Thermal Conductance</a>.</p>
+      <p>Related page: <a href="frequency-multiplexing.html">Frequency + Mux</a>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Derived Thermal Nominals</h2>
+      <table>
+        <tr><th>Quantity</th><th>Value</th></tr>
+        <tr><td>\\(C\\)</td><td><code>{_fmt(model_outputs['C_J_per_K'])}</code> J/K</td></tr>
+        <tr><td>\\(C_{{eV/mK}}\\)</td><td><code>{_fmt(model_outputs['C_eV_per_mK'])}</code> eV/mK</td></tr>
+        <tr><td>\\(C_{{Ho,eV/mK}}\\)</td><td><code>{_fmt(model_outputs['C_ho_eV_per_mK'])}</code> eV/mK</td></tr>
+        <tr><td>\\(G\\)</td><td><code>{_fmt(model_outputs['G_W_per_K'])}</code> W/K</td></tr>
+        <tr><td>\\(\\tau_{{th}}\\)</td><td><code>{_fmt(model_outputs['tau_th_s'])}</code> s</td></tr>
+        <tr><td>\\(\\Delta T_{{event}}\\)</td><td><code>{_fmt(model_outputs['deltaT_event_full_absorption_K'])}</code> K</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Design Verification</h2>
+      <table>
+        <tr><th>Check</th><th>Value</th></tr>
+        <tr><td>Rule 1 pass</td><td><code>{int(model_outputs['core_rule1_ok'])}</code></td></tr>
+        <tr><td>Rule 2 pass</td><td><code>{int(model_outputs['core_rule2_ok'])}</code></td></tr>
+        <tr><td>\\(\\max \\Re[\\lambda(M_t)]\\)</td><td><code>{_fmt(model_outputs['mt_max_real_part_per_s'])}</code> 1/s</td></tr>
+        <tr><td>Stable</td><td><code>{int(model_outputs['mt_stable'])}</code></td></tr>
+        <tr><td>\\(\\rho_{{short}}\\)</td><td><code>{_fmt(model_outputs['mt_pulse_shortening_ratio'])}</code></td></tr>
+      </table>
+      <p>Stability details: <a href="mt-stability.html">Mt Stability</a>.</p>
+    </section>
+  </main>
+</body>
+</html>
+"""
+    OUT_DESIGN_HTML.write_text(design_html, encoding="utf-8")
 
 
 if __name__ == "__main__":

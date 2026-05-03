@@ -9,7 +9,7 @@
 <header class="hero"><h1>Phonon Noise Vector</h1><p>Eq. (16) source term and mapping into normalized coordinates.</p></header>
 <nav class="nav"><a href="index.html">Home</a><a href="theory.html">Theory</a><a href="noise-sources.html">Noise Sources</a><a href="noise-phonon.html" class="active">Phonon</a><a href="signal-processing.html">Signal Processing</a></nav>
 <main class="container">
-<section class="card"><h2>Physical Expression</h2>
+<section class="card" id="physical-expression"><h2>Physical Expression</h2>
 <p>Thermal-link fluctuation power RMS:</p>
 <p>\[P_{ph,\mathrm{RMS}}=\sqrt{4k_B T_b^2 G}.\]</p>
 <p>This source is purely thermal-band power injection.</p></section>
@@ -18,6 +18,18 @@
 <p>So the source vector is:</p>
 <p>\[N_{ph}=\begin{bmatrix}0\\0\\\sqrt{4k_B T_b^2 G}\end{bmatrix}.\]</p>
 <p>This is Eq. (16), already in the normalized model coordinate system used with \\(Y=M^{-1}N\\).</p></section>
+<section class="card"><h2>Vector Component Units</h2>
+<p>Noise vectors are mixed-unit objects in the \((r,\phi,T)\) basis, so units are component-wise:</p>
+<p>\[
+\mathrm{units}(N_{ph})=
+\begin{bmatrix}
+1/\sqrt{\mathrm{Hz}}\\
+1/\sqrt{\mathrm{Hz}}\\
+\mathrm{W}/\sqrt{\mathrm{Hz}}
+\end{bmatrix}.
+\]</p>
+<p>In this model, phonon source is introduced directly in normalized coordinates (no separate sideband \(n\)-vector stage).</p>
+</section>
 <section class="card"><h2>Propagation and NEP</h2>
 <p>Output from this source alone:</p><p>\[Y_{ph}=M^{-1}N_{ph}.\]</p>
 <p>Phase-direction contribution:</p><p>\[\mathrm{NEP}_{\phi,ph}(\omega)=\left|\frac{[Y_{ph}(\omega)]_{\phi}}{(M^{-1})_{\phi,\,P}}\right|.\]</p>

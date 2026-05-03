@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simple Estimates | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Simple Estimates</h1>
+    <p>Back-of-the-envelope chain from \(\alpha_\phi\) to event phase response.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="theory.html">Theory</a>
+    <a href="python-estimates.html">Python Estimates</a>
+    <a href="simple-estimates.html" class="active">Simple Estimates</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>1) Thermal Frequency Slope from \(\alpha_\phi\)</h2>
+      <p>From the Eq. (4) definition used in the theory page:</p>
+      <p>\[
+      \alpha_\phi=-2Q_i\frac{T}{f_r}\frac{df_r}{dT}.
+      \]</p>
+      <p>At the operating point (\(T\approx T_0\), \(f_r\approx f_0\)):</p>
+      <p>\[
+      \frac{df_r}{dT}\approx-\frac{\alpha_\phi f_0}{2Q_iT_0}.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>2) Temperature Rise per Absorbed Energy</h2>
+      <p>Using island heat capacity \(C\):</p>
+      <p>\[
+      \frac{dT}{dE}=\frac{1}{C}.
+      \]</p>
+      <p>For one absorbed Ho event of energy \(E_{\mathrm{Ho}}\):</p>
+      <p>\[
+      \Delta T_{\mathrm{event}}=\frac{E_{\mathrm{Ho}}}{C}.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>3) Convert Frequency Shift to Phase Shift</h2>
+      <p>Use the small-signal phase slope:</p>
+      <p>\[
+      \frac{d\phi}{df}\approx\frac{4Q_r/f_0}{1+(2Q_r\delta f/f_0)^2},
+      \]</p>
+      <p>which reduces on resonance (\(\delta f=0\)) to \(d\phi/df\approx 4Q_r/f_0\).</p>
+      <p>Chain rule:</p>
+      <p>\[
+      \frac{d\phi}{dE}=\frac{d\phi}{df}\frac{df_r}{dT}\frac{dT}{dE}.
+      \]</p>
+      <p>Event-level estimates:</p>
+      <p>\[
+      \Delta f_{r,\mathrm{event}}=\frac{df_r}{dT}\Delta T_{\mathrm{event}},
+      \qquad
+      \Delta\phi_{\mathrm{event}}=\frac{d\phi}{dE}E_{\mathrm{Ho}}.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>4) Simple Phonon-Noise Estimate in Phase Units</h2>
+      <p>At device temperature \(T_0\), use the low-frequency phonon power ASD:</p>
+      <p>\[
+      \sqrt{S_{P,\mathrm{ph}}}(T_0)=\sqrt{4k_BT_0^2G}\quad [\mathrm{W}/\sqrt{\mathrm{Hz}}].
+      \]</p>
+      <p>Convert to temperature ASD with thermal conductance:</p>
+      <p>\[
+      \sqrt{S_{T,\mathrm{ph}}}(T_0)=\frac{\sqrt{S_{P,\mathrm{ph}}}(T_0)}{G}\quad [\mathrm{K}/\sqrt{\mathrm{Hz}}].
+      \]</p>
+      <p>Convert to energy ASD with island heat capacity:</p>
+      <p>\[
+      \sqrt{S_{E,\mathrm{ph}}}(T_0)=C\,\sqrt{S_{T,\mathrm{ph}}}(T_0)\quad [\mathrm{J}/\sqrt{\mathrm{Hz}}].
+      \]</p>
+      <p>Then apply the same \(d\phi/dE\) chain to estimate low-frequency phase ASD:</p>
+      <p>\[
+      \sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}(T_0)=
+      \left|\frac{d\phi}{dE}\right|\,\sqrt{S_{E,\mathrm{ph}}}(T_0)
+      \quad [\mathrm{rad}/\sqrt{\mathrm{Hz}}].
+      \]</p>
+      <p>This is a compact scaling estimate; the full model remains \(Y=M^{-1}N\).</p>
+      <p><strong>Verification note:</strong> for the current nominal settings (\(f_0=1\,\mathrm{GHz}\), \(\delta f=0\), \(f_{\mathrm{demod}}=0\)), this simple phonon phase-ASD estimate matches the full matrix-propagated value \(|[Y_{ph}]_\phi|\) to numerical precision.</p>
+    </section>
+
+    <section class="card">
+      <h2>5) Thermal Energy-Fluctuation Scale</h2>
+      <p>A simple island thermal-energy fluctuation scale is</p>
+      <p>\[
+      \sigma_{E,\mathrm{th}}=\sqrt{k_B T_0^2 C}.
+      \]</p>
+      <p>In electron-volts:</p>
+      <p>\[
+      \sigma_{E,\mathrm{th,eV}}=\frac{\sigma_{E,\mathrm{th}}}{q_e}.
+      \]</p>
+      <p>Numerical values are reported in <a href="python-estimates.html">Python Estimates</a> under <strong>Simple Estimates</strong>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Code Link</h2>
+      <p>These are computed in <a href="../python/sensor.py"><code>Sensor.dfr_dT_Hz_per_K</code></a>, <a href="../python/sensor.py"><code>Sensor.dT_dE_K_per_J</code></a>, <a href="../python/sensor.py"><code>Sensor.dphi_dE_rad_per_J</code></a>, <a href="../python/sensor.py"><code>Sensor.deltafr_event_Hz</code></a>, and <a href="../python/sensor.py"><code>Sensor.deltaphi_event_rad</code></a>.</p>
+      <p>Numerical values are listed in <a href="python-estimates.html">Python Estimates</a> under <strong>Simple Estimates</strong>.</p>
+    </section>
+  </main>
+</body>
+</html>

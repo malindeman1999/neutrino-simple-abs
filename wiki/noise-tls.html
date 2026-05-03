@@ -13,9 +13,8 @@
 <p>Common fractional frequency-noise form:</p>
 <p>\[S_{TLS}(f)=A_{TLS}f^{-\beta}.\]</p>
 <p>In the Lindeman mapping, TLS is treated as an effective fluctuating resonance frequency, aligned with the phase-like direction.</p>
-<p>Nominal detector frequency for this page: \(f_0=1.0\,\mathrm{GHz}\).</p>
 </section>
-<section class="card"><h2>Design Scaling and Geometry Controls</h2>
+<section class="card" id="design-scaling-and-geometry-controls"><h2>Design Scaling and Geometry Controls</h2>
 <p>A practical scaling model is:</p>
 <p>\[
 \frac{S_f}{f_0^2}(\nu)\propto\frac{F\,\tan\delta_{TLS}}{\nu^{\beta}},
@@ -43,6 +42,33 @@ M_{TLS}(f)=
 {\left(S_f/f_0^2\right)_{J}(f)}
 }.
 \]</p>
+<p>Using the project models for TLS and Johnson reference scaling:</p>
+<p>\[
+\left(\frac{S_f}{f_0^2}\right)_{TLS}
+=A_{TLS}F\tan\delta_{TLS}\,\nu^{-\beta_{TLS}}
+\left(1+\frac{P_{int}}{P_c}\right)^{-m_{TLS}},
+\]</p>
+<p>For Johnson phase-noise PSD, use the uncorrelated quadrature sum from the Johnson page:</p>
+<p>\[
+S_{\phi,J}(f)=\left|[Y_{J,A}(f)]_{\phi}\right|^2+\left|[Y_{J,\phi}(f)]_{\phi}\right|^2.
+\]</p>
+<p>Then use the general (detuning-capable) conversion:</p>
+<p>\[
+\left(\frac{S_f}{f_0^2}\right)_{J}(f,\delta f)=
+\frac{S_{\phi,J}(f,\delta f)}{f_0^2\,\left|d\phi/df\right|_{\delta f}^{\,2}}.
+\]</p>
+<p>So \(M_{TLS}\) becomes</p>
+<p>\[
+M_{TLS}=
+\sqrt{
+\frac{
+A_{TLS}F\tan\delta_{TLS}\,\nu^{-\beta_{TLS}}
+\left(1+\frac{P_{int}}{P_c}\right)^{-m_{TLS}}
+}{
+\left(\left|[Y_{J,A}]_{\phi}\right|^2+\left|[Y_{J,\phi}]_{\phi}\right|^2\right)\Big/\!\left(f_0^2\,\left|d\phi/df\right|_{\delta f}^{\,2}\right)
+}
+}.
+\]</p>
 <p>Using \(N_{J,\phi}\) from the Johnson page, the explicit TLS vector is:</p>
 <p>\[
 N_{TLS}(f)=
@@ -53,9 +79,24 @@ i\,M_{TLS}(f)\sqrt{16k_BT_0/P_0}\\
 \end{bmatrix}.
 \]</p>
 </section>
-<section class="card"><h2>Use In Total Budget</h2>
+<section class="card"><h2>Vector Component Units</h2>
+<p>\(N_{TLS}\) is also a mixed-unit \((r,\phi,T)\) vector, with component units:</p>
+<p>\[
+\mathrm{units}(N_{TLS})=
+\begin{bmatrix}
+0\\
+1/\sqrt{\mathrm{Hz}}\\
+0
+\end{bmatrix}.
+\]</p>
+<p>Because \(N_{TLS}=M_{TLS}N_{J,\phi}\), the units follow directly from \(N_{J,\phi}\).</p>
+</section>
+<section class="card" id="use-in-total-budget"><h2>Use In Total Budget</h2>
 <p>Compute \\(Y_{TLS}=M^{-1}N_{TLS}\\), then combine in quadrature with other sources (and include correlations if measured).</p>
-<p>Project criterion: in-band TLS phase noise should remain below the phonon-noise-equivalent floor over the analysis band (including 100-200 kHz).</p>
+<p>Project criterion: in-band TLS phase noise should remain below the phonon-noise-equivalent floor over the analysis band.</p>
+</section>
+<section class="card"><h2>Capacitor-to-Phase Mapping</h2>
+<p>For the non-Lindeman literature path (TLS dielectric/capacitance fluctuations \(\rightarrow\) frequency noise \(\rightarrow\) phase noise), see <a href="tls-capacitor-to-phase.html">TLS: Capacitor Noise to Phase Noise</a>.</p>
 </section>
 <section class="card"><h2>Python Function Links</h2>
 <p>Code references: <a href="../python/sensor.py"><code>Sensor.m_tls_from_ratio()</code></a> and <a href="../python/sensor.py"><code>Sensor.n_tls_phi()</code></a>.</p>

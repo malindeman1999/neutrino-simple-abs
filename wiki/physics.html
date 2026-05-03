@@ -39,15 +39,10 @@
       <h2>Critical Timescale Hierarchy</h2>
       <p>Required ordering:</p>
       <p>\(\tau_{qp} \ll \tau_{res} \ll \tau_{th}\)</p>
-      <table>
-        <tr><th>Quantity</th><th>Meaning</th><th>Target</th></tr>
-        <tr><td>\(\tau_{qp}\)</td><td>Quasiparticle lifetime</td><td>\(&lt; 1\,\mu s\)</td></tr>
-        <tr><td>\(\tau_{res}\)</td><td>Resonator response time</td><td>\(1{-}2\,\mu s\)</td></tr>
-        <tr><td>\(\tau_{th}\)</td><td>Thermal decay time</td><td>\(5{-}10\,\mu s\)</td></tr>
-      </table>
+      <p>This ordering is used as the design-rule basis for stable operation and pulse reconstruction.</p>
     </section>
 
-    <section class="card">
+    <section class="card" id="resonator-derived-formulas">
       <h2>Resonator Dynamics</h2>
       <p>\(\tau_{res} = \dfrac{Q}{\pi f_0}\)</p>
       <p>Constraint: \(\tau_{res} \le \tau_{th}/3\)</p>
@@ -59,13 +54,34 @@
       </ul>
     </section>
 
-    <section class="card">
+    <section class="card" id="thermal-derived-formulas">
       <h2>Thermal Physics</h2>
       <p>\(\tau_{th} = C/G\)</p>
-      <p>For \(\tau_{th} \approx 5{-}8\,\mu s\), required conductance is \(G \approx 1\times10^{-10}\,\mathrm{W/K}\).</p>
       <p>Coupling hierarchy requirement:</p>
       <p>\(G_{AK} \ge 10\,G_{AB}\) and therefore \(G_{AK} \gg G_{AB}\).</p>
       <p>This enforces single-node thermal behavior and suppresses internal thermal fluctuation noise.</p>
+      <p>Code-derived model formulas used by this wiki:</p>
+      <p>\[
+      \tau_{\mathrm{th}}=\frac{P_{\mathrm{pileup,max}}}{R},\qquad
+      G=\frac{C}{\tau_{\mathrm{th}}},\qquad
+      \Delta T_{\mathrm{abs-bath}}=\frac{P_0}{G},\qquad
+      \Delta T_{\mathrm{event}}=\frac{E_{\mathrm{Ho}}}{C},\qquad
+      E_{\mathrm{Ho,eV}}=\frac{E_{\mathrm{Ho}}}{q_e},\qquad
+      C_{\mathrm{eV/mK}}=\frac{C}{q_e\cdot 10^3},\qquad
+      C_{\mathrm{Ho,eV/mK}}=\frac{C_{\mathrm{Ho}}}{q_e\cdot 10^3},\qquad
+      P_{\mathrm{ph,RMS}}=\sqrt{4k_BT_b^2G}.
+      \]</p>
+      <p>Python: <a href="../python/sensor.py"><code>Sensor.tau_th_s</code></a>, <a href="../python/sensor.py"><code>Sensor.G_W_per_K</code></a>, <a href="../python/sensor.py"><code>Sensor.phonon_power_rms_W</code></a>.</p>
+    </section>
+
+    <section class="card" id="leg-geometry-formulas">
+      <h2>Leg Geometry Formula</h2>
+      <p>With leg thickness tied to membrane thickness, leg length is derived from target conductance:</p>
+      <p>\[
+      t_{\mathrm{leg}}=t_{\mathrm{mem}},\qquad
+      L_{\mathrm{leg}}=\frac{N_{\mathrm{leg}}\kappa_{\mathrm{leg}}w_{\mathrm{leg}}t_{\mathrm{leg}}}{G}.
+      \]</p>
+      <p>Python: <a href="../python/sensor.py"><code>Sensor.leg_thickness_m</code></a>, <a href="../python/sensor.py"><code>Sensor.leg_length_m</code></a>.</p>
     </section>
 
     <section class="card">
@@ -74,11 +90,6 @@
       <p>\(\Delta E \approx \sqrt{k_B T^2 C}\)</p>
       <p>With responsivity alpha:</p>
       <p>\(\Delta E \propto \dfrac{1}{\sqrt{\alpha}}\sqrt{k_B T^2 C}\)</p>
-      <table>
-        <tr><th>Case</th><th>Expected DeltaE</th></tr>
-        <tr><td>Ideal</td><td>3-5 meV</td></tr>
-        <tr><td>Realistic</td><td>20-100 meV</td></tr>
-      </table>
     </section>
 
     <section class="card">
@@ -86,7 +97,7 @@
       <p>TLS contribution scaling:</p>
       <p>\(\dfrac{S_f}{f^2} \propto \dfrac{F\,\tan(\delta_{TLS})}{f^{\beta}}\)</p>
       <p>TLS depends on capacitor geometry and dielectric quality, not on thermal design.</p>
-      <p>Design condition at \(100{-}200\,\mathrm{kHz}\): keep fractional frequency noise below \(\sim 10^{-18}\).</p>
+      <p>Design condition: keep fractional frequency noise below the phonon-noise-equivalent floor over the analysis band.</p>
     </section>
   </main>
 </body>

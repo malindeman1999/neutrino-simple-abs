@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TLS Capacitor Fluctuations to Phase Noise | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>TLS: Capacitor Noise to Phase Noise</h1>
+    <p>Standard resonator-literature mapping used outside the Lindeman vector formalism.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="noise-tls.html">TLS</a>
+    <a href="tls-capacitor-to-phase.html" class="active">TLS Mapping</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>1) Dielectric/TLS Fluctuations in the Capacitor</h2>
+      <p>TLS in dielectric regions cause fluctuations in effective permittivity and capacitance:</p>
+      <p>\[
+      \delta \epsilon(t)\rightarrow \delta C(t).
+      \]</p>
+      <p>For an LC resonator, first-order frequency shift is</p>
+      <p>\[
+      \frac{\delta f_r}{f_r}\approx -\frac{1}{2}\frac{\delta C}{C_{\mathrm{eff}}},
+      \]</p>
+      <p>with participation/filling-factor weighting for where TLS-hosting dielectrics store electric energy.</p>
+    </section>
+
+    <section class="card">
+      <h2>2) Frequency-Noise PSD Model</h2>
+      <p>Define fractional-frequency-noise PSD</p>
+      <p>\[
+      S_y(\nu)\equiv S_{\delta f_r/f_r}(\nu)=\frac{S_f(\nu)}{f_r^2}.
+      \]</p>
+      <p>Gao-style semi-empirical modeling fits</p>
+      <p>\[
+      S_y(\nu)\propto \nu^{-\beta}
+      \left(1+\frac{P_{\mathrm{int}}}{P_c}\right)^{-m},
+      \]</p>
+      <p>and in practical MKID parameterizations includes participation/loss terms such as \(F\tan\delta_{\mathrm{TLS}}\).</p>
+    </section>
+
+    <section class="card">
+      <h2>3) Map to Demodulated Phase Noise</h2>
+      <p>Phase responds to resonance-frequency motion through local slope:</p>
+      <p>\[
+      \delta\phi\approx \left(\frac{d\phi}{df}\right)\delta f_r
+      \quad\Rightarrow\quad
+      S_\phi(\nu)\approx \left|\frac{d\phi}{df}\right|^2 S_f(\nu).
+      \]</p>
+      <p>Equivalent fractional form:</p>
+      <p>\[
+      S_y(\nu)=\frac{S_\phi(\nu)}{f_r^2\left|d\phi/df\right|^2}.
+      \]</p>
+      <p>On resonance, small-signal slope gives \(\left|d\phi/df\right|\approx 4Q_r/f_r\), so</p>
+      <p>\[
+      S_\phi(\nu)\approx (4Q_r)^2 S_y(\nu).
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>4) Sideband Interpretation</h2>
+      <p>In I/Q language, phase modulation corresponds to antisymmetric USB/LSB sidebands (opposite sign), while amplitude modulation is symmetric. This is why TLS frequency fluctuations appear primarily in the phase quadrature.</p>
+    </section>
+
+    <section class="card" id="practical-c-to-usb-mapping">
+      <h2>5) Practical Mapping: \(C\)-Fluctuations \(\rightarrow\) TLS Noise \(\rightarrow\) USB Voltage</h2>
+      <p>This section gives the direct algebra used to convert a TLS fractional-frequency-noise model into equivalent capacitor sideband voltage noise.</p>
+      <p><strong>Step A: frequency shift from capacitance shift</strong></p>
+      <p>\[
+      \frac{\delta f}{f_0}\approx -\frac{1}{2}\frac{\delta C}{C_0}.
+      \]</p>
+      <p><strong>Step B: PSD mapping</strong></p>
+      <p>Define \(S_y(\delta\omega)\equiv S_f(\delta\omega)/f_0^2\). Then</p>
+      <p>\[
+      S_{\delta C/C_0}(\delta\omega)=4\,S_y(\delta\omega),\qquad
+      S_{\delta C}(\delta\omega)=4C_0^2\,S_y(\delta\omega).
+      \]</p>
+      <p>Equivalent capacitance ASD:</p>
+      <p>\[
+      \sqrt{S_{\delta C}}=2C_0\sqrt{S_y}.
+      \]</p>
+      <p><strong>Step C: sideband voltage from capacitance fluctuation</strong></p>
+      <p>Using carrier angular frequency \(\omega_0=2\pi f_0\), carrier RMS current \(I_0\), and sideband offset \(\delta\omega\), with sideband convention \([V_{USB},V_{LSB}^*]\):</p>
+      <p>\[
+      V_{USB}= i\,\frac{I_0}{2\omega_0 C_0^2}\,\delta C_{\delta\omega},
+      \qquad
+      V_{LSB}^{*}= -i\,\frac{I_0}{2\omega_0 C_0^2}\,\delta C_{\delta\omega}.
+      \]</p>
+      <p>So the source is fully correlated and phase-like (antisymmetric sidebands).</p>
+      <p><strong>Step D: equivalent USB/LSB voltage PSD</strong></p>
+      <p>\[
+      S_{V,USB}=S_{V,LSB}
+      =\frac{I_0^2}{4\omega_0^2C_0^4}S_{\delta C}
+      =\frac{I_0^2}{\omega_0^2C_0^2}S_y.
+      \]</p>
+      <p>Equivalent ASD form:</p>
+      <p>\[
+      \sqrt{S_{V,USB}}=\sqrt{S_{V,LSB}}
+      =\frac{I_0}{\omega_0 C_0}\sqrt{S_y}
+      =V_0\sqrt{S_y},
+      \]</p>
+      <p>where \(V_0=I_0/(\omega_0 C_0)\) is the carrier RMS capacitor voltage.</p>
+    </section>
+
+    <section class="card">
+      <h2>References</h2>
+      <ul>
+        <li>J. Gao, M. Daal, A. Vayonakis, et al., <em>A semi-empirical model for two-level system noise in superconducting microresonators</em>, Appl. Phys. Lett. 92, 152505 (2008). Preprint: <a href="https://arxiv.org/abs/0804.0467">arXiv:0804.0467</a>.</li>
+        <li>J. Gao, M. Daal, J. M. Martinis, et al., <em>Noise properties of superconducting coplanar waveguide microwave resonators</em> (2008). Preprint: <a href="https://arxiv.org/abs/cond-mat/0609614">arXiv:cond-mat/0609614</a>.</li>
+        <li>J. Gao, M. Daal, A. Vayonakis, et al., <em>Temperature dependence of the frequency and noise of superconducting coplanar waveguide resonators</em> (2008). Preprint: <a href="https://arxiv.org/abs/0802.4268">arXiv:0802.4268</a>.</li>
+        <li>J. Gao, <em>The Physics of Superconducting Microwave Resonators</em>, PhD Thesis, California Institute of Technology (2008), especially Ch. 5 and Eq. 5.80-5.81 for the semi-empirical TLS noise model. <a href="https://thesis.caltech.edu/2530/">CaltechTHESIS:2530</a>.</li>
+        <li>J. Zmuidzinas, <em>Superconducting Microresonators: Physics and Applications</em>, Annual Review of Condensed Matter Physics 3, 169-214 (2012). DOI: <a href="https://doi.org/10.1146/annurev-conmatphys-020911-125022">10.1146/annurev-conmatphys-020911-125022</a>.</li>
+        <li>J. Burnett, T. Lindstrom, M. Oxborrow, et al., <em>Slow noise processes in superconducting resonators</em>, Phys. Rev. B 87, 140501(R) (2013). DOI: <a href="https://doi.org/10.1103/PhysRevB.87.140501">10.1103/PhysRevB.87.140501</a>.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

@@ -13,7 +13,7 @@
 <p>The paper models excess electronic noise from microwave-driven quasiparticle generation as:</p>
 <p>\[P_D=\sqrt{4E_{qp}P_0},\qquad M_e\approx\sqrt{\frac{E_{qp}}{k_B T_0}}.\]</p>
 </section>
-<section class="card"><h2>Noise Vector Derivation (Eq. 19)</h2>
+<section class="card" id="noise-vector-derivation-eq-19"><h2>Noise Vector Derivation (Eq. 19)</h2>
 <p>Assumption: this source has the same component structure as Johnson noise (electrical sidebands plus correlated thermal-power component), but larger magnitude.</p>
 <p>Therefore:</p>
 <p>\[N_{g,A}=M_eN_{J,A},\qquad N_{g,\phi}=M_eN_{J,\phi}.\]</p>
@@ -34,6 +34,25 @@ iM_e\sqrt{16k_BT_0/P_0}\\
 \end{bmatrix}.
 \]</p>
 <p>Total excess electronic contribution is obtained by quadrature sum of propagated outputs from these two vectors.</p>
+</section>
+<section class="card"><h2>Vector Component Units</h2>
+<p>As with Johnson vectors, \(N_g\) vectors live in the mixed-unit \((r,\phi,T)\) basis:</p>
+<p>\[
+\mathrm{units}(N_{g,A})=
+\begin{bmatrix}
+1/\sqrt{\mathrm{Hz}}\\
+1/\sqrt{\mathrm{Hz}}\\
+\mathrm{W}/\sqrt{\mathrm{Hz}}
+\end{bmatrix},
+\qquad
+\mathrm{units}(N_{g,\phi})=
+\begin{bmatrix}
+1/\sqrt{\mathrm{Hz}}\\
+1/\sqrt{\mathrm{Hz}}\\
+0
+\end{bmatrix}.
+\]</p>
+<p>Because \(N_{g,A}=M_eN_{J,A}\) and \(N_{g,\phi}=M_eN_{J,\phi}\), units are identical to the Johnson \(N\)-vectors.</p>
 </section>
 <section class="card"><h2>Propagation and Comparison</h2>
 <p>\[Y_{g,A}=M^{-1}N_{g,A},\qquad Y_{g,\phi}=M^{-1}N_{g,\phi}.\]</p>

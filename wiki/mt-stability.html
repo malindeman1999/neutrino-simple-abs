@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>M_t Stability | TKID Neutrino Detector Project Wiki</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>M_t and Stability</h1>
+    <p>Time-domain matrix extraction from M(\omega) and eigenvalue stability criterion.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html">Project</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="python-estimates.html">Python Estimates</a>
+    <a href="mt-stability.html" class="active">Mt Stability</a>
+  </nav>
+
+  <main class="container">
+    <section class="card" id="mt-from-momega">
+      <h2>From M(\omega) to M_t</h2>
+      <p>Following the resonator-bolometer paper (Eq. 14 discussion), define:</p>
+      <p>\[
+      D_0 = M(0),\qquad D_1 = -i\,\frac{\partial M}{\partial \omega}.
+      \]</p>
+      <p>The linear time-domain dynamics matrix is then:</p>
+      <p>\[
+      M_t = -D_1^{-1}D_0.
+      \]</p>
+      <p>Paper in this repo: <a href="../papers/2014-Resonator-bolometer_theory_microwave_read_out_and_kinetic_inductance_bolometers.pdf">2014 resonator-bolometer theory PDF</a>.</p>
+      <p>Python: <a href="../python/sensor.py"><code>Sensor.d0_matrix</code></a>, <a href="../python/sensor.py"><code>Sensor.d1_matrix</code></a>, <a href="../python/sensor.py"><code>Sensor.mt_matrix</code></a>.</p>
+    </section>
+
+    <section class="card" id="stability-criterion">
+      <h2>Stability Criterion</h2>
+      <p>Let \(\lambda_i\) be eigenvalues of \(M_t\). The system is stable if all real parts are negative:</p>
+      <p>\[
+      \Re[\lambda_i(M_t)] < 0\quad \forall i.
+      \]</p>
+      <p>Reported outputs from code:</p>
+      <ul>
+        <li>\(\max\Re[\lambda(M_t)]\)</li>
+        <li>Boolean pass flag \(\mathbb{1}_{\mathrm{stable}}\)</li>
+      </ul>
+      <p>Python: <a href="../python/sensor.py"><code>Sensor.mt_eigenvalues</code></a>, <a href="../python/sensor.py"><code>Sensor.mt_max_real_part</code></a>, <a href="../python/sensor.py"><code>Sensor.mt_stable</code></a>.</p>
+    </section>
+
+    <section class="card" id="pulse-shortening">
+      <h2>Pulse Shortening Metric</h2>
+      <p>If the system is stable, define the pulse-shortening ratio as thermal \(G/C\) normalized to the slowest modal rate:</p>
+      <p>\[
+      \rho_{\mathrm{short}}=\frac{G/C}{\min_i|\lambda_i(M_t)|}.
+      \]</p>
+      <p>This is reported only when \(\Re[\lambda_i(M_t)]<0\ \forall i\). Values below 1 indicate shortening.</p>
+      <p>Python: <a href="../python/sensor.py"><code>Sensor.mt_pulse_shortening_ratio</code></a>.</p>
+    </section>
+  </main>
+</body>
+</html>

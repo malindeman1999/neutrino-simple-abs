@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Johnson Sf: Full vs Simplified | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Johnson \(S_f\): Full vs Simplified</h1>
+    <p>General detuning-capable expression and zero-detuning approximation.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="noise-johnson.html">Johnson</a>
+    <a href="noise-johnson-sf.html" class="active">Johnson Sf</a>
+    <a href="noise-tls.html">TLS</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Full (General) Expression</h2>
+      <p>In this project, Johnson phase-noise PSD is computed from the full matrix model \(Y=M^{-1}N\):</p>
+      <p>\[
+      S_{\phi,J}(f,\delta f)=\left|[Y_{J,A}(f,\delta f)]_{\phi}\right|^2+\left|[Y_{J,\phi}(f,\delta f)]_{\phi}\right|^2,
+      \]</p>
+      <p>with uncorrelated amplitude-like and phase-like Johnson source terms.</p>
+      <p>Then fractional-frequency PSD is</p>
+      <p>\[
+      \left(\frac{S_f}{f_0^2}\right)_J(f,\delta f)=
+      \frac{S_{\phi,J}(f,\delta f)}{f_0^2\,\left|d\phi/df\right|_{\delta f}^{\,2}}.
+      \]</p>
+    </section>
+
+    <section class="card">
+      <h2>Simplified (On-Resonance) Expression</h2>
+      <p>Using \(\left|d\phi/df\right|\approx 4Q_r/f_0\),</p>
+      <p>\[
+      \left(\frac{S_f}{f_0^2}\right)_J(f,0)\approx\frac{S_{\phi,J}(f,0)}{(4Q_r)^2}.
+      \]</p>
+      <p>This is the compact form used for quick checks and scaling arguments.</p>
+    </section>
+
+    <section class="card">
+      <h2>Expected Convergence Limits</h2>
+      <p>The simplified form is expected to converge to the full model in the limit of:</p>
+      <ul>
+        <li>on-resonance operation (\(\delta f\to 0\));</li>
+        <li>small electrothermal-feedback-induced distortion of local phase slope (weak ETF around operating point);</li>
+        <li>small-signal linear response about the bias point.</li>
+      </ul>
+      <p>Outside those limits, use the full matrix-based expression above.</p>
+      <p><strong>Verification status:</strong> convergence behavior has been checked in code: full and simplified forms coincide on resonance and diverge off resonance, as expected.</p>
+      <p><strong>Next check:</strong> run a full sweep over detuning and ETF strength to map quantitative error bounds for simplified-form validity.</p>
+    </section>
+
+    <section class="card">
+      <h2>Links</h2>
+      <p>See <a href="noise-johnson.html">Johnson Noise Vectors</a> for source-vector definitions and <a href="noise-tls.html">TLS Noise Vector</a> for use in \(M_{TLS}\).</p>
+      <p>Code references: <a href="../python/sensor.py"><code>Sensor.n_johnson_A()</code></a>, <a href="../python/sensor.py"><code>Sensor.n_johnson_phi()</code></a>, <a href="../python/sensor.py"><code>Sensor.m_matrix()</code></a>.</p>
+    </section>
+  </main>
+</body>
+</html>
