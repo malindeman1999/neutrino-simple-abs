@@ -11,7 +11,7 @@ from dataclasses import fields
 import json
 from pathlib import Path
 
-from sensor import nominal_sensor
+from sensor import triple_count_rate_sensor
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,10 +36,14 @@ def _fmt_complex(z: complex) -> str:
     return f"{r} {sign} {i}i"
 
 
+def _pf_html(x: float) -> str:
+    return '<span class="pass">Pass</span>' if float(x) >= 0.5 else '<span class="fail">Fail</span>'
+
+
 def main() -> None:
-    s = nominal_sensor()
+    s = triple_count_rate_sensor()
     est = s.estimates()
-    input_keys = [f.name for f in fields(s)]
+    input_keys = [f.name for f in fields(s.inputs)]
 
     units = {
         "T0_K": "K",
@@ -102,6 +106,7 @@ def main() -> None:
         "C_ho_eV_per_mK": "eV/mK",
         "G_W_per_K": "W/K",
         "deltaT_abs_over_bath_K": "K",
+        "tbath_from_link_K": "K",
         "deltaT_event_full_absorption_K": "K",
         "dfr_dT_Hz_per_K": "Hz/K",
         "dT_dE_K_per_J": "K/J",
@@ -131,6 +136,9 @@ def main() -> None:
         "core_rule7_ok": "1",
         "core_rule8_ok": "1",
         "core_rule9_ok": "1",
+        "core_rule10_ok": "1",
+        "core_rule11_ok": "1",
+        "core_rule12_ok": "1",
         "L_geo_H": "H",
         "L_total_H": "H",
         "C_res_F": "F",
@@ -237,6 +245,7 @@ def main() -> None:
         "C_ho_eV_per_mK": r"\(C_{\mathrm{Ho,eV/mK}}\)",
         "G_W_per_K": r"\(G\)",
         "deltaT_abs_over_bath_K": r"\(\Delta T_{\mathrm{abs-bath}}\)",
+        "tbath_from_link_K": r"\(T_{\mathrm{bath}}\)",
         "deltaT_event_full_absorption_K": r"\(\Delta T_{\mathrm{event}}\)",
         "dfr_dT_Hz_per_K": r"\(df_r/dT\)",
         "dT_dE_K_per_J": r"\(dT/dE\)",
@@ -266,6 +275,9 @@ def main() -> None:
         "core_rule7_ok": r"\(\mathbb{1}_{\mathrm{rule7}}\)",
         "core_rule8_ok": r"\(\mathbb{1}_{\mathrm{rule8}}\)",
         "core_rule9_ok": r"\(\mathbb{1}_{\mathrm{rule9}}\)",
+        "core_rule10_ok": r"\(\mathbb{1}_{\mathrm{rule10}}\)",
+        "core_rule11_ok": r"\(\mathbb{1}_{\mathrm{rule11}}\)",
+        "core_rule12_ok": r"\(\mathbb{1}_{\mathrm{rule12}}\)",
         "L_geo_H": r"\(L_g\)",
         "L_total_H": r"\(L_{\mathrm{tot}}\)",
         "C_res_F": r"\(C_{\mathrm{res}}\)",
@@ -330,6 +342,7 @@ def main() -> None:
         "C_ho_eV_per_mK": r"\(C_{\mathrm{Ho,eV/mK}}=\dfrac{C_{\mathrm{Ho}}}{q_e\cdot 10^3}\)",
         "G_W_per_K": r"\(G=\dfrac{C}{\tau_{\mathrm{th}}}\)",
         "deltaT_abs_over_bath_K": r"\(\Delta T_{\mathrm{abs-bath}}=\dfrac{P_0}{G}\)",
+        "tbath_from_link_K": r"\(T_{\mathrm{bath}}=T_0-\Delta T_{\mathrm{abs-bath}}\)",
         "deltaT_event_full_absorption_K": r"\(\Delta T_{\mathrm{event}}=\dfrac{E_{\mathrm{Ho}}}{C}\)",
         "dfr_dT_Hz_per_K": r"\(\dfrac{df_r}{dT}=-\dfrac{\alpha_\phi f_r}{2Q_iT_0}\approx-\dfrac{\alpha_\phi f_0}{2Q_iT_0}\)",
         "dT_dE_K_per_J": r"\(\dfrac{dT}{dE}=\dfrac{1}{C}\)",
@@ -350,16 +363,19 @@ def main() -> None:
         "tau_ratio_res_over_th": r"\(\dfrac{\tau_{\mathrm{res}}}{\tau_{\mathrm{th}}}\)",
         "core_rule1_left_ratio": r"\(\dfrac{\tau_{qp}}{\tau_{\mathrm{res}}}\)",
         "core_rule1_right_ratio": r"\(\dfrac{\tau_{\mathrm{res}}}{\tau_{\mathrm{th}}}\)",
-        "core_rule1_ok": r"\(1\ \mathrm{if}\ \tau_{qp}/\tau_{\mathrm{res}}<0.1\ \mathrm{and}\ \tau_{\mathrm{res}}/\tau_{\mathrm{th}}<0.1\)",
+        "core_rule1_ok": r"\(\text{Pass if } \tau_{qp}/\tau_{\mathrm{res}}<0.1\)",
         "core_rule2_ratio": r"\(\dfrac{\tau_{\mathrm{res}}}{\tau_{\mathrm{th}}/3}\)",
-        "core_rule2_ok": r"\(1\ \mathrm{if}\ \tau_{\mathrm{res}}\le \tau_{\mathrm{th}}/3\)",
-        "core_rule3_ok": r"\(1\ \mathrm{if}\ \sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}>\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})\)",
+        "core_rule2_ok": r"\(\text{Pass if } \tau_{\mathrm{res}}/\tau_{\mathrm{th}}<1\)",
+        "core_rule3_ok": r"\(\text{Pass if } \sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}>\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})\)",
         "core_rule4_ok": r"\(\text{Pass if } P_0 \lt P_{\mathrm{bif}}\)",
         "core_rule5_ok": r"\(\text{Pass if } P_0/P_{\mathrm{bif}} \gt 0.5\)",
         "core_rule6_ok": r"\(\text{Pass if } P_{\mathrm{bif,min}}^{\mathrm{typ}} \le P_{\mathrm{bif,dBm}} \le P_{\mathrm{bif,max}}^{\mathrm{typ}}\)",
         "core_rule7_ok": r"\(\text{Pass if } \Delta T_{\mathrm{event}} \gt 1\,\mathrm{mK}\)",
         "core_rule8_ok": r"\(\text{Pass if } \Delta T_{\mathrm{event}} \lt 100\,\mathrm{mK}\)",
         "core_rule9_ok": r"\(\text{Pass if } \sigma_{E,\mathrm{th,eV}} \lt \sigma_{E,\mathrm{target}}\)",
+        "core_rule10_ok": r"\(\text{Pass if } T_{\mathrm{bath}} \gt 10\,\mathrm{mK}\)",
+        "core_rule11_ok": r"\(\text{Pass if } \Delta T_{\mathrm{event}} \lt \Delta T_{\mathrm{abs-bath}}\)",
+        "core_rule12_ok": r"\(\text{Pass if } \Re[\lambda_i(M_t)]<0,\ \forall i\)",
         "phonon_power_rms_W": r"\(P_{\mathrm{ph,RMS}}=\sqrt{4k_BT_b^2G}\)",
         "L_geo_H": r"\(L_g\approx \mu_0\ell\left[\ln\!\left(\dfrac{2\ell}{w}\right)+0.5\right]\)",
         "L_total_H": r"\(L_{\mathrm{tot}}=\dfrac{L_g}{1-\alpha_k}\)",
@@ -429,6 +445,7 @@ def main() -> None:
         "C_ho_eV_per_mK": {"C_J_per_K"},
         "G_W_per_K": {"C_J_per_K", "tau_th_s"},
         "deltaT_abs_over_bath_K": {"P0_W", "G_W_per_K"},
+        "tbath_from_link_K": {"T0_K", "deltaT_abs_over_bath_K"},
         "deltaT_event_full_absorption_K": {"ho_decay_energy_J", "C_J_per_K"},
         "dfr_dT_Hz_per_K": {"alpha_phi", "f0_Hz", "Qi", "T0_K"},
         "dT_dE_K_per_J": {"C_J_per_K"},
@@ -485,6 +502,9 @@ def main() -> None:
         "core_rule7_ok": {"deltaT_event_full_absorption_K"},
         "core_rule8_ok": {"deltaT_event_full_absorption_K"},
         "core_rule9_ok": {"thermal_energy_fluct_rms_eV", "thermal_energy_resolution_target_eV"},
+        "core_rule10_ok": {"tbath_from_link_K"},
+        "core_rule11_ok": {"deltaT_event_full_absorption_K", "deltaT_abs_over_bath_K"},
+        "core_rule12_ok": {"mt_stable"},
         "sf_over_f0sq_johnson_ref": {"sphi_j_ref_per_hz", "Qr"},
         "sphi_johnson_full_per_hz": set(),
         "sphi_tls_per_hz": set(),
@@ -540,6 +560,7 @@ def main() -> None:
         "C_ho_eV_per_mK": "physics.html#thermal-derived-formulas",
         "G_W_per_K": "physics.html#thermal-derived-formulas",
         "deltaT_abs_over_bath_K": "physics.html#thermal-derived-formulas",
+        "tbath_from_link_K": "physics.html#thermal-derived-formulas",
         "deltaT_event_full_absorption_K": "physics.html#thermal-derived-formulas",
         "dfr_dT_Hz_per_K": "simple-estimates.html",
         "dT_dE_K_per_J": "simple-estimates.html",
@@ -570,6 +591,9 @@ def main() -> None:
         "core_rule7_ok": "project.html#core-rule-checks",
         "core_rule8_ok": "project.html#core-rule-checks",
         "core_rule9_ok": "project.html#core-rule-checks",
+        "core_rule10_ok": "project.html#core-rule-checks",
+        "core_rule11_ok": "project.html#core-rule-checks",
+        "core_rule12_ok": "project.html#core-rule-checks",
         "phonon_power_rms_W": "noise-phonon.html#physical-expression",
         "L_geo_H": "theory.html#kid-lumped-formulas",
         "L_total_H": "theory.html#kid-lumped-formulas",
@@ -806,6 +830,7 @@ def main() -> None:
             "C_ho_eV_per_mK",
             "G_W_per_K",
             "deltaT_abs_over_bath_K",
+            "tbath_from_link_K",
             "deltaT_event_full_absorption_K",
             "ho_decay_energy_eV",
             "tau_th_s",
@@ -870,6 +895,7 @@ def main() -> None:
             "core_rule1_left_ratio",
             "core_rule1_right_ratio",
             "core_rule2_ratio",
+            "thermal_energy_fluct_rms_eV",
             "deltaT_event_full_absorption_K",
             "p_bifurcation_W",
             "mt_eig1_per_s",
@@ -889,21 +915,23 @@ def main() -> None:
             "core_rule7_ok",
             "core_rule8_ok",
             "core_rule9_ok",
-            "mt_stable",
+            "core_rule10_ok",
+            "core_rule11_ok",
+            "core_rule12_ok",
         ],
     }
 
-    def _output_rows_for_keys(keys: list[str]) -> str:
+    def _output_rows_for_keys(keys: list[str], outputs: dict[str, object]) -> str:
         rows = []
         for k in keys:
-            if k not in model_outputs:
+            if k not in outputs:
                 continue
             sym = symbols.get(k, "")
             if k in wiki_links:
                 sym = f'<a href="{wiki_links[k]}">{sym}</a>'
-            val = model_outputs[k]
+            val = outputs[k]
             if k.endswith("_ok") or k == "mt_stable":
-                val_s = "Pass" if float(val) >= 0.5 else "Fail"
+                val_s = _pf_html(float(val))
             else:
                 val_s = _fmt(float(val)) if isinstance(val, (int, float)) else str(val)
             rows.append(
@@ -917,7 +945,7 @@ def main() -> None:
       <h3>{group_name}</h3>
       <table>
         <tr><th>Quantity</th><th>Symbol</th><th>Formula</th><th>Value</th><th>Units</th></tr>
-        {_output_rows_for_keys(keys)}
+        {_output_rows_for_keys(keys, model_outputs)}
       </table>
     </section>
     """
@@ -931,6 +959,10 @@ def main() -> None:
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
   <title>Python-Derived Estimates | TKID Neutrino Detector Project Wiki</title>
   <link rel=\"stylesheet\" href=\"styles.css\" />
+  <style>
+    .pass {{ color: #0b8a2a; font-weight: 700; }}
+    .fail {{ color: #b42318; font-weight: 700; }}
+  </style>
   <script>
     window.MathJax = {{
       tex: {{ inlineMath: [['\\\\(', '\\\\)'], ['$', '$']] }}
@@ -956,7 +988,7 @@ def main() -> None:
   <main class=\"container\">
     <section class=\"card\">
       <h2>Nominal Settings</h2>
-      <p>All values use nominal <strong>f0 = 1.0 GHz</strong>, demodulated band frequency <strong>0 Hz</strong>, and detuning <strong>0 Hz</strong>.</p>
+      <p>All values use the <strong>high-count-rate preset</strong> (\(R={_fmt(model_inputs['count_rate_Hz'])}\,\mathrm{{Hz}}\)) with nominal <strong>f0 = 1.0 GHz</strong>, demodulated band frequency <strong>0 Hz</strong>, and detuning <strong>0 Hz</strong>.</p>
       <p>JSON source: <code>../python/outputs/wiki_estimates.json</code></p>
     </section>
 
@@ -969,6 +1001,7 @@ def main() -> None:
       <h2>Model Outputs</h2>
     </section>
     {output_sections}
+
   </main>
 </body>
 </html>
@@ -982,6 +1015,10 @@ def main() -> None:
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Design Parameters | TKID Neutrino Detector Docs</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .pass {{ color: #0b8a2a; font-weight: 700; }}
+    .fail {{ color: #b42318; font-weight: 700; }}
+  </style>
   <script>
     window.MathJax = {{
       tex: {{ inlineMath: [['\\\\(', '\\\\)'], ['$', '$']] }}
@@ -1062,22 +1099,24 @@ def main() -> None:
       <table>
         <tr><th>Check</th><th>Value</th></tr>
         <tr><td><strong>Rule Statuses</strong></td><td><strong>Pass/Fail</strong></td></tr>
-        <tr><td>Rule 1</td><td><code>{"Pass" if float(model_outputs['core_rule1_ok']) >= 0.5 else "Fail"}</code></td></tr>
-        <tr><td>Rule 2</td><td><code>{"Pass" if float(model_outputs['core_rule2_ok']) >= 0.5 else "Fail"}</code></td></tr>
-        <tr><td>Rule 3</td><td><code>{"Pass" if float(model_outputs['core_rule3_ok']) >= 0.5 else "Fail"}</code></td></tr>
-        <tr><td>Rule 4</td><td><code>{"Pass" if float(model_outputs['core_rule4_ok']) >= 0.5 else "Fail"}</code></td></tr>
-        <tr><td>Rule 5</td><td><code>{"Pass" if float(model_outputs['core_rule5_ok']) >= 0.5 else "Fail"}</code></td></tr>
-        <tr><td>Rule 6</td><td><code>{"Pass" if float(model_outputs['core_rule6_ok']) >= 0.5 else "Fail"}</code></td></tr>
-        <tr><td>Rule 7</td><td><code>{"Pass" if float(model_outputs['core_rule7_ok']) >= 0.5 else "Fail"}</code></td></tr>
-        <tr><td>Rule 8</td><td><code>{"Pass" if float(model_outputs['core_rule8_ok']) >= 0.5 else "Fail"}</code></td></tr>
-        <tr><td>Rule 9</td><td><code>{"Pass" if float(model_outputs['core_rule9_ok']) >= 0.5 else "Fail"}</code></td></tr>
+        <tr><td>Rule 1</td><td><code>{_pf_html(model_outputs['core_rule1_ok'])}</code></td></tr>
+        <tr><td>Rule 2</td><td><code>{_pf_html(model_outputs['core_rule2_ok'])}</code></td></tr>
+        <tr><td>Rule 3</td><td><code>{_pf_html(model_outputs['core_rule3_ok'])}</code></td></tr>
+        <tr><td>Rule 4</td><td><code>{_pf_html(model_outputs['core_rule4_ok'])}</code></td></tr>
+        <tr><td>Rule 5</td><td><code>{_pf_html(model_outputs['core_rule5_ok'])}</code></td></tr>
+        <tr><td>Rule 6</td><td><code>{_pf_html(model_outputs['core_rule6_ok'])}</code></td></tr>
+        <tr><td>Rule 7</td><td><code>{_pf_html(model_outputs['core_rule7_ok'])}</code></td></tr>
+        <tr><td>Rule 8</td><td><code>{_pf_html(model_outputs['core_rule8_ok'])}</code></td></tr>
+        <tr><td>Rule 9</td><td><code>{_pf_html(model_outputs['core_rule9_ok'])}</code></td></tr>
+        <tr><td>Rule 10</td><td><code>{_pf_html(model_outputs['core_rule10_ok'])}</code></td></tr>
+        <tr><td>Rule 11</td><td><code>{_pf_html(model_outputs['core_rule11_ok'])}</code></td></tr>
+        <tr><td>Rule 12</td><td><code>{_pf_html(model_outputs['core_rule12_ok'])}</code></td></tr>
         <tr><td><strong>Bifurcation Metrics</strong></td><td></td></tr>
         <tr><td>\\(\\Delta T_{{event}}\\)</td><td><code>{_fmt(model_outputs['deltaT_event_full_absorption_K'])}</code> K</td></tr>
         <tr><td>\\(P_{{bif}}\\)</td><td><code>{_fmt(model_outputs['p_bifurcation_W'])}</code> W</td></tr>
         <tr><td>\\(P_{{bif,dBm}}\\)</td><td><code>{_fmt(model_outputs['p_bifurcation_dBm'])}</code> dBm</td></tr>
         <tr><td>\\(P_0/P_{{bif}}\\)</td><td><code>{_fmt(model_outputs['bifurcation_power_ratio'])}</code></td></tr>
         <tr><td>\\(\\max \\Re[\\lambda(M_t)]\\)</td><td><code>{_fmt(model_outputs['mt_max_real_part_per_s'])}</code> 1/s</td></tr>
-        <tr><td>Stable</td><td><code>{int(model_outputs['mt_stable'])}</code></td></tr>
         <tr><td>\\(\\rho_{{short}}\\)</td><td><code>{_fmt(model_outputs['mt_pulse_shortening_ratio'])}</code></td></tr>
       </table>
       <p>Stability details: <a href="mt-stability.html">Mt Stability</a>.</p>

@@ -27,19 +27,8 @@ SECONDS_PER_YEAR = 365.25 * 24.0 * 3600.0
 
 
 @dataclass(frozen=True)
-class Sensor:
-    """Primary project parameters only (no derived fields).
-
-    Basic inputs are geometry + count-rate requirements, plus independent
-    electrical/material constants. Leg width is a basic geometry parameter.
-    Tau derives from count rate, G derives from C/tau, and leg length derives
-    from G and leg geometry/material parameters.
-
-    Notes:
-    - Noise estimates are evaluated in phase direction at demodulated frequency 0 Hz.
-    - Modulated-band frequency at this point is the carrier f0.
-    - Zero detuning is currently assumed and stored as a project parameter.
-    """
+class SensorInputs:
+    """Primary model inputs only (no derived fields)."""
 
     # Operating temperatures
     T0_K: float
@@ -89,6 +78,77 @@ class Sensor:
     # Readout condition
     detuning_Hz: float
     f_demod_Hz: float = 0.0
+
+
+@dataclass(frozen=True)
+class NominalSensorInputs(SensorInputs):
+    """Named preset for the current project nominal configuration."""
+
+    T0_K: float = 0.100
+    Tb_K: float = 0.100
+    count_rate_Hz: float = 50.0
+    pileup_probability_max: float = 5.0e-4
+    ho_in_au_atomic_fraction: float = 0.01
+    ho_decay_energy_J: float = 4.5e-16
+    kid_length_m: float = 220e-6
+    kid_width_m: float = 220e-6
+    membrane_margin_m: float = 20e-6
+    leg_count: int = 4
+    leg_width_m: float = 0.50e-6
+    cap_thickness_m: float = 1.0e-6
+    membrane_thickness_m: float = 1.0e-6
+    cv_absorber_J_per_m3K: float = 0.075
+    kappa_leg_W_per_mK: float = 1.5e-3
+    tls_phi_asd_100hz_per_rtHz: float = 1.0e-6
+    tls_beta: float = 0.5
+    sphi_j_ref_per_hz: float = 1.0e-18
+    f0_Hz: float = 1.0e9
+    Qr: float = 3000.0
+    Qi: float = 6000.0
+    tau_qp_s: float = 5.0e-8
+    kinetic_inductance_fraction: float = 0.5
+    kid_trace_length_m: float = 10.0e-3
+    kid_trace_width_m: float = 2.0e-6
+    alpha_A: float = 0.1
+    alpha_phi: float = 60.0
+    beta_A: float = 0.0
+    beta_phi: float = 0.0
+    Tc_K: float = 2.0
+    p0_over_pbif_target: float = 0.7
+    bifurcation_energy_scale_J: float = 2.0e-15
+    pbif_typical_min_dBm: float = -95.0
+    pbif_typical_max_dBm: float = -70.0
+    thermal_energy_resolution_target_eV: float = 0.1
+    detuning_Hz: float = 0.0
+    f_demod_Hz: float = 0.0
+
+
+@dataclass(frozen=True)
+class TripleCountRateSensorInputs(NominalSensorInputs):
+    """Preset with 3x count rate relative to nominal inputs."""
+
+    count_rate_Hz: float = 300.0
+    bifurcation_energy_scale_J: float = 1.4323944878270582e-13
+
+
+@dataclass(frozen=True)
+class Sensor:
+    """Sensor model instantiated from a SensorInputs object.
+
+    Basic inputs are geometry + count-rate requirements, plus independent
+    electrical/material constants. Leg width is a basic geometry parameter.
+    Tau derives from count rate, G derives from C/tau, and leg length derives
+    from G and leg geometry/material parameters.
+
+    Notes:
+    - Noise estimates are evaluated in phase direction at demodulated frequency 0 Hz.
+    - Modulated-band frequency at this point is the carrier f0.
+    - Zero detuning is currently assumed and stored as a project parameter.
+    """
+    inputs: SensorInputs
+
+    def __getattr__(self, name: str):
+        return getattr(self.inputs, name)
 
     @cached_property
     def au_number_density_per_m3(self) -> float:
@@ -177,6 +237,11 @@ class Sensor:
     def deltaT_abs_over_bath_K(self) -> float:
         """Absorber/KID operating-point temperature elevation over bath."""
         return self.P0_W / self.G_W_per_K
+
+    @cached_property
+    def tbath_from_link_K(self) -> float:
+        """Bath temperature inferred from KID temperature minus thermal-link rise."""
+        return self.T0_K - self.deltaT_abs_over_bath_K
 
     @cached_property
     def deltaT_event_full_absorption_K(self) -> float:
@@ -757,6 +822,21 @@ class Sensor:
         """Rule 9: thermal fluctuation energy scale should be below target."""
         return bool(self.thermal_energy_fluct_rms_eV < self.thermal_energy_resolution_target_eV)
 
+    @cached_property
+    def core_rule10_ok(self) -> bool:
+        """Rule 10: inferred bath temperature should exceed 10 mK."""
+        return bool(self.tbath_from_link_K > 1.0e-2)
+
+    @cached_property
+    def core_rule11_ok(self) -> bool:
+        """Rule 11: event temperature rise should be below operating elevation."""
+        return bool(self.deltaT_event_full_absorption_K < self.deltaT_abs_over_bath_K)
+
+    @cached_property
+    def core_rule12_ok(self) -> bool:
+        """Rule 12: Mt eigenvalues must all have negative real part."""
+        return bool(self.mt_stable)
+
     def estimates(self) -> Dict[str, float]:
         return {
             "f0_Hz": self.f0_Hz,
@@ -788,6 +868,7 @@ class Sensor:
             "C_ho_eV_per_mK": self.C_ho_eV_per_mK,
             "G_W_per_K": self.G_W_per_K,
             "deltaT_abs_over_bath_K": self.deltaT_abs_over_bath_K,
+            "tbath_from_link_K": self.tbath_from_link_K,
             "deltaT_event_full_absorption_K": self.deltaT_event_full_absorption_K,
             "dfr_dT_Hz_per_K": self.dfr_dT_Hz_per_K,
             "dT_dE_K_per_J": self.dT_dE_K_per_J,
@@ -808,9 +889,9 @@ class Sensor:
             "tau_ratio_res_over_th": self.tau_ratio_res_over_th,
             "core_rule1_left_ratio": self.core_rule1_left_ratio,
             "core_rule1_right_ratio": self.core_rule1_right_ratio,
-            "core_rule1_ok": float(self.core_rule1_ok),
+            "core_rule1_ok": float(self.core_rule1_left_ratio < 0.1),
             "core_rule2_ratio": self.core_rule2_ratio,
-            "core_rule2_ok": float(self.core_rule2_ok),
+            "core_rule2_ok": float(self.core_rule1_right_ratio < 1.0),
             "core_rule3_ok": float(self.core_rule3_ok),
             "core_rule4_ok": float(self.core_rule4_ok),
             "core_rule5_ok": float(self.core_rule5_ok),
@@ -818,6 +899,9 @@ class Sensor:
             "core_rule7_ok": float(self.core_rule7_ok),
             "core_rule8_ok": float(self.core_rule8_ok),
             "core_rule9_ok": float(self.core_rule9_ok),
+            "core_rule10_ok": float(self.core_rule10_ok),
+            "core_rule11_ok": float(self.core_rule11_ok),
+            "core_rule12_ok": float(self.core_rule12_ok),
             "L_geo_H": self.L_geo_H,
             "L_total_H": self.L_total_H,
             "C_res_F": self.C_res_F,
@@ -878,6 +962,11 @@ class Sensor:
         }
 
 
+def nominal_inputs() -> SensorInputs:
+    """Current project nominal input set as a reusable preset."""
+    return NominalSensorInputs()
+
+
 def nominal_sensor() -> Sensor:
     """Project nominal parameter set for wiki calculations.
 
@@ -886,42 +975,14 @@ def nominal_sensor() -> Sensor:
     - wiki/physics.html (timing scales)
     - wiki/noise-*.html (noise vectors)
     """
-    return Sensor(
-        T0_K=0.100,
-        Tb_K=0.100,
-        count_rate_Hz=50.0,
-        pileup_probability_max=5.0e-4,
-        ho_in_au_atomic_fraction=0.01,
-        ho_decay_energy_J=4.5e-16,
-        kid_length_m=220e-6,
-        kid_width_m=220e-6,
-        membrane_margin_m=20e-6,
-        leg_count=4,
-        leg_width_m=0.50e-6,
-        cap_thickness_m=1.0e-6,
-        membrane_thickness_m=1.0e-6,
-        cv_absorber_J_per_m3K=0.075,
-        kappa_leg_W_per_mK=1.5e-3,
-        tls_phi_asd_100hz_per_rtHz=1.0e-6,
-        tls_beta=0.5,
-        sphi_j_ref_per_hz=1.0e-18,
-        f0_Hz=1.0e9,
-        Qr=3000.0,
-        Qi=6000.0,
-        tau_qp_s=5.0e-8,
-        kinetic_inductance_fraction=0.5,
-        kid_trace_length_m=10.0e-3,
-        kid_trace_width_m=2.0e-6,
-        alpha_A=0.1,
-        alpha_phi=60.0,
-        beta_A=0.0,
-        beta_phi=0.0,
-        Tc_K=2.0,
-        p0_over_pbif_target=0.7,
-        bifurcation_energy_scale_J=2.0e-15,
-        pbif_typical_min_dBm=-95.0,
-        pbif_typical_max_dBm=-70.0,
-        thermal_energy_resolution_target_eV=0.1,
-        detuning_Hz=0.0,
-        f_demod_Hz=0.0,
-    )
+    return Sensor(inputs=nominal_inputs())
+
+
+def triple_count_rate_inputs() -> SensorInputs:
+    """3x-count-rate input set for scaling studies."""
+    return TripleCountRateSensorInputs()
+
+
+def triple_count_rate_sensor() -> Sensor:
+    """Sensor built from the 3x-count-rate preset."""
+    return Sensor(inputs=triple_count_rate_inputs())

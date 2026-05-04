@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Design Parameters | TKID Neutrino Detector Docs</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .pass { color: #0b8a2a; font-weight: 700; }
+    .fail { color: #b42318; font-weight: 700; }
+  </style>
   <script>
     window.MathJax = {
       tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
@@ -41,8 +45,8 @@
         <tr><td>Detuning</td><td><code>0</code> Hz</td></tr>
         <tr><td>Demod frequency</td><td><code>0</code> Hz</td></tr>
         <tr><td>\((P_0/P_{bif})_{target}\)</td><td><code>0.7</code></td></tr>
-        <tr><td>\(P_0\)</td><td><code>9.773844e-13</code> W</td></tr>
-        <tr><td>\(E_*\)</td><td><code>2.000000e-15</code> J</td></tr>
+        <tr><td>\(P_0\)</td><td><code>7.000000e-11</code> W</td></tr>
+        <tr><td>\(E_*\)</td><td><code>1.432394e-13</code> J</td></tr>
       </table>
     </section>
 
@@ -50,7 +54,7 @@
       <h2>Source and Geometry Inputs</h2>
       <table>
         <tr><th>Parameter</th><th>Value</th></tr>
-        <tr><td>Count rate \(R\)</td><td><code>50</code> Hz</td></tr>
+        <tr><td>Count rate \(R\)</td><td><code>300</code> Hz</td></tr>
         <tr><td>Pileup probability max</td><td><code>5.000000e-04</code></td></tr>
         <tr><td>Ho/Au atomic fraction \(x_{Ho/Au}\)</td><td><code>0.01</code></td></tr>
         <tr><td>Ho activity \(A_{Ho}\)</td><td><code>2.836096e+15</code> Hz/m^3</td></tr>
@@ -71,12 +75,12 @@
       <h2>Derived Thermal Nominals</h2>
       <table>
         <tr><th>Quantity</th><th>Value</th></tr>
-        <tr><td>\(C\)</td><td><code>1.322240e-15</code> J/K</td></tr>
-        <tr><td>\(C_{eV/mK}\)</td><td><code>8.25277</code> eV/mK</td></tr>
-        <tr><td>\(C_{Ho,eV/mK}\)</td><td><code>8.25277</code> eV/mK</td></tr>
-        <tr><td>\(G\)</td><td><code>1.322240e-10</code> W/K</td></tr>
-        <tr><td>\(\tau_{th}\)</td><td><code>1.000000e-05</code> s</td></tr>
-        <tr><td>\(\Delta T_{event}\)</td><td><code>0.340332</code> K</td></tr>
+        <tr><td>\(C\)</td><td><code>7.933440e-15</code> J/K</td></tr>
+        <tr><td>\(C_{eV/mK}\)</td><td><code>49.5166</code> eV/mK</td></tr>
+        <tr><td>\(C_{Ho,eV/mK}\)</td><td><code>49.5166</code> eV/mK</td></tr>
+        <tr><td>\(G\)</td><td><code>4.760064e-09</code> W/K</td></tr>
+        <tr><td>\(\tau_{th}\)</td><td><code>1.666667e-06</code> s</td></tr>
+        <tr><td>\(\Delta T_{event}\)</td><td><code>0.0567219</code> K</td></tr>
       </table>
     </section>
 
@@ -85,23 +89,25 @@
       <table>
         <tr><th>Check</th><th>Value</th></tr>
         <tr><td><strong>Rule Statuses</strong></td><td><strong>Pass/Fail</strong></td></tr>
-        <tr><td>Rule 1</td><td><code>Pass</code></td></tr>
-        <tr><td>Rule 2</td><td><code>Pass</code></td></tr>
-        <tr><td>Rule 3</td><td><code>Pass</code></td></tr>
-        <tr><td>Rule 4</td><td><code>Pass</code></td></tr>
-        <tr><td>Rule 5</td><td><code>Pass</code></td></tr>
-        <tr><td>Rule 6</td><td><code>Pass</code></td></tr>
-        <tr><td>Rule 7</td><td><code>Pass</code></td></tr>
-        <tr><td>Rule 8</td><td><code>Fail</code></td></tr>
-        <tr><td>Rule 9</td><td><code>Pass</code></td></tr>
+        <tr><td>Rule 1</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 2</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 3</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 4</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 5</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 6</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 7</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 8</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 9</td><td><code><span class="fail">Fail</span></code></td></tr>
+        <tr><td>Rule 10</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 11</td><td><code><span class="fail">Fail</span></code></td></tr>
+        <tr><td>Rule 12</td><td><code><span class="pass">Pass</span></code></td></tr>
         <tr><td><strong>Bifurcation Metrics</strong></td><td></td></tr>
-        <tr><td>\(\Delta T_{event}\)</td><td><code>0.340332</code> K</td></tr>
-        <tr><td>\(P_{bif}\)</td><td><code>1.396263e-12</code> W</td></tr>
-        <tr><td>\(P_{bif,dBm}\)</td><td><code>-88.5503</code> dBm</td></tr>
+        <tr><td>\(\Delta T_{event}\)</td><td><code>0.0567219</code> K</td></tr>
+        <tr><td>\(P_{bif}\)</td><td><code>1.000000e-10</code> W</td></tr>
+        <tr><td>\(P_{bif,dBm}\)</td><td><code>-70</code> dBm</td></tr>
         <tr><td>\(P_0/P_{bif}\)</td><td><code>0.7</code></td></tr>
-        <tr><td>\(\max \Re[\lambda(M_t)]\)</td><td><code>-1.000781e+05</code> 1/s</td></tr>
-        <tr><td>Stable</td><td><code>1</code></td></tr>
-        <tr><td>\(\rho_{short}\)</td><td><code>0.99922</code></td></tr>
+        <tr><td>\(\max \Re[\lambda(M_t)]\)</td><td><code>-6.124289e+05</code> 1/s</td></tr>
+        <tr><td>\(\rho_{short}\)</td><td><code>0.979706</code></td></tr>
       </table>
       <p>Stability details: <a href="mt-stability.html">Mt Stability</a>.</p>
     </section>
