@@ -76,17 +76,17 @@ class SensorInputs:
     thermal_energy_resolution_target_eV: float
 
     # Readout condition
-    detuning_Hz: float
+    detuning_widths: float
     f_demod_Hz: float = 0.0
 
 
 @dataclass(frozen=True)
-class NominalSensorInputs(SensorInputs):
-    """Named preset for the current project nominal configuration."""
+class Version1SensorInputs(SensorInputs):
+    """Primary project preset (version 1 configuration)."""
 
     T0_K: float = 0.100
     Tb_K: float = 0.100
-    count_rate_Hz: float = 50.0
+    count_rate_Hz: float = 300.0
     pileup_probability_max: float = 5.0e-4
     ho_in_au_atomic_fraction: float = 0.01
     ho_decay_energy_J: float = 4.5e-16
@@ -115,21 +115,12 @@ class NominalSensorInputs(SensorInputs):
     beta_phi: float = 0.0
     Tc_K: float = 2.0
     p0_over_pbif_target: float = 0.7
-    bifurcation_energy_scale_J: float = 2.0e-15
+    bifurcation_energy_scale_J: float = 1.4323944878270582e-13
     pbif_typical_min_dBm: float = -95.0
     pbif_typical_max_dBm: float = -70.0
     thermal_energy_resolution_target_eV: float = 0.1
-    detuning_Hz: float = 0.0
+    detuning_widths: float = 0.5
     f_demod_Hz: float = 0.0
-
-
-@dataclass(frozen=True)
-class TripleCountRateSensorInputs(NominalSensorInputs):
-    """Preset with 3x count rate relative to nominal inputs."""
-
-    count_rate_Hz: float = 300.0
-    bifurcation_energy_scale_J: float = 1.4323944878270582e-13
-
 
 @dataclass(frozen=True)
 class Sensor:
@@ -149,6 +140,11 @@ class Sensor:
 
     def __getattr__(self, name: str):
         return getattr(self.inputs, name)
+
+    @cached_property
+    def detuning_Hz(self) -> float:
+        """Readout detuning derived from resonator-width units (fr/Qr)."""
+        return self.detuning_widths * (self.f0_Hz / self.Qr)
 
     @cached_property
     def au_number_density_per_m3(self) -> float:
@@ -840,6 +836,7 @@ class Sensor:
     def estimates(self) -> Dict[str, float]:
         return {
             "f0_Hz": self.f0_Hz,
+            "detuning_widths": self.detuning_widths,
             "detuning_Hz": self.detuning_Hz,
             "f_demod_Hz": self.f_demod_Hz,
             "count_rate_Hz": self.count_rate_Hz,
@@ -962,27 +959,12 @@ class Sensor:
         }
 
 
-def nominal_inputs() -> SensorInputs:
-    """Current project nominal input set as a reusable preset."""
-    return NominalSensorInputs()
+def version_1_inputs() -> SensorInputs:
+    """Primary project input set."""
+    return Version1SensorInputs()
 
 
-def nominal_sensor() -> Sensor:
-    """Project nominal parameter set for wiki calculations.
-
-    Wiki references:
-    - wiki/project.html (f0=1.0 GHz spec)
-    - wiki/physics.html (timing scales)
-    - wiki/noise-*.html (noise vectors)
-    """
-    return Sensor(inputs=nominal_inputs())
-
-
-def triple_count_rate_inputs() -> SensorInputs:
-    """3x-count-rate input set for scaling studies."""
-    return TripleCountRateSensorInputs()
-
-
-def triple_count_rate_sensor() -> Sensor:
+def version_1_sensor() -> Sensor:
     """Sensor built from the 3x-count-rate preset."""
-    return Sensor(inputs=triple_count_rate_inputs())
+    return Sensor(inputs=version_1_inputs())
+

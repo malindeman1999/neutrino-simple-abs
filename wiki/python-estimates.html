@@ -34,7 +34,7 @@
   <main class="container">
     <section class="card">
       <h2>Nominal Settings</h2>
-      <p>All values use the <strong>high-count-rate preset</strong> (\(R=300\,\mathrm{Hz}\)) with nominal <strong>f0 = 1.0 GHz</strong>, demodulated band frequency <strong>0 Hz</strong>, and detuning <strong>0 Hz</strong>.</p>
+      <p>All values use the <strong>version 1 preset</strong> (\(R=300\,\mathrm{Hz}\)) with nominal <strong>f0 = 1.0 GHz</strong>, demodulated band frequency <strong>0 Hz</strong>, detuning <strong>0.5 widths</strong>, and derived detuning <strong>1.666667e+05 Hz</strong>.</p>
       <p>JSON source: <code>../python/outputs/wiki_estimates.json</code></p>
     </section>
 
@@ -68,7 +68,7 @@
 <tr><td>p0_over_pbif_target</td><td>\((P_0/P_{\mathrm{bif}})_{\mathrm{target}}\)</td><td><code>0.7</code></td><td>1</td></tr>
 <tr><td>f0_Hz</td><td>\(f_0\)</td><td><code>1.000000e+09</code></td><td>Hz</td></tr>
 <tr><td>f_demod_Hz</td><td>\(f_{\mathrm{demod}}\)</td><td><code>0</code></td><td>Hz</td></tr>
-<tr><td>detuning_Hz</td><td>\(\delta f\)</td><td><code>0</code></td><td>Hz</td></tr>
+<tr><td>detuning_widths</td><td>\(\delta f/(f_r/Q_r)\)</td><td><code>0.5</code></td><td>fr/Qr</td></tr>
 <tr><td>pbif_typical_min_dBm</td><td>\(P_{\mathrm{bif,min}}^{\mathrm{typ}}\)</td><td><code>-95</code></td><td>dBm</td></tr>
 <tr><td>pbif_typical_max_dBm</td><td>\(P_{\mathrm{bif,max}}^{\mathrm{typ}}\)</td><td><code>-70</code></td><td>dBm</td></tr>
 <tr><td>thermal_energy_resolution_target_eV</td><td>\(\sigma_{E,\mathrm{target}}\)</td><td><code>0.1</code></td><td>eV</td></tr>
@@ -137,13 +137,13 @@
         <tr><th>Quantity</th><th>Symbol</th><th>Formula</th><th>Value</th><th>Units</th></tr>
         <tr><td>dfr_dT_Hz_per_K</td><td><a href="simple-estimates.html">\(df_r/dT\)</a></td><td>\(\dfrac{df_r}{dT}=-\dfrac{\alpha_\phi f_r}{2Q_iT_0}\approx-\dfrac{\alpha_\phi f_0}{2Q_iT_0}\)</td><td><code>-5.000000e+07</code></td><td>Hz/K</td></tr>
 <tr><td>dT_dE_K_per_J</td><td><a href="simple-estimates.html">\(dT/dE\)</a></td><td>\(\dfrac{dT}{dE}=\dfrac{1}{C}\)</td><td><code>1.260487e+14</code></td><td>K/J</td></tr>
-<tr><td>dphi_dE_rad_per_J</td><td><a href="simple-estimates.html">\(d\phi/dE\)</a></td><td>\(\dfrac{d\phi}{dE}=\dfrac{d\phi}{df}\dfrac{df_r}{dT}\dfrac{dT}{dE}\)</td><td><code>-7.562924e+16</code></td><td>rad/J</td></tr>
+<tr><td>dphi_dE_rad_per_J</td><td><a href="simple-estimates.html">\(d\phi/dE\)</a></td><td>\(\dfrac{d\phi}{dE}=\dfrac{d\phi}{df}\dfrac{df_r}{dT}\dfrac{dT}{dE}\)</td><td><code>-3.781462e+16</code></td><td>rad/J</td></tr>
 <tr><td>deltafr_event_Hz</td><td><a href="simple-estimates.html">\(\Delta f_{r,\mathrm{event}}\)</a></td><td>\(\Delta f_{r,\mathrm{event}}=\dfrac{df_r}{dT}\Delta T_{\mathrm{event}}\)</td><td><code>-2.836096e+06</code></td><td>Hz</td></tr>
-<tr><td>deltaphi_event_rad</td><td><a href="simple-estimates.html">\(\Delta\phi_{\mathrm{event}}\)</a></td><td>\(\Delta\phi_{\mathrm{event}}=\dfrac{d\phi}{dE}E_{\mathrm{Ho}}\)</td><td><code>-34.0332</code></td><td>rad</td></tr>
+<tr><td>deltaphi_event_rad</td><td><a href="simple-estimates.html">\(\Delta\phi_{\mathrm{event}}\)</a></td><td>\(\Delta\phi_{\mathrm{event}}=\dfrac{d\phi}{dE}E_{\mathrm{Ho}}\)</td><td><code>-17.0166</code></td><td>rad</td></tr>
 <tr><td>phonon_power_asd_device_W_per_rtHz</td><td><a href="simple-estimates.html">\(\sqrt{S_{P,\mathrm{ph}}}(T_0)\)</a></td><td>\(\sqrt{S_{P,\mathrm{ph}}}(T_0)=\sqrt{4k_BT_0^2G}\)</td><td><code>5.127174e-17</code></td><td>W/Hz^(1/2)</td></tr>
 <tr><td>phonon_temp_asd_device_K_per_rtHz</td><td><a href="simple-estimates.html">\(\sqrt{S_{T,\mathrm{ph}}}(T_0)\)</a></td><td>\(\sqrt{S_{T,\mathrm{ph}}}(T_0)=\dfrac{\sqrt{S_{P,\mathrm{ph}}}(T_0)}{G}\)</td><td><code>1.077123e-08</code></td><td>K/Hz^(1/2)</td></tr>
 <tr><td>phonon_energy_asd_device_J_per_rtHz</td><td><a href="simple-estimates.html">\(\sqrt{S_{E,\mathrm{ph}}}(T_0)\)</a></td><td>\(\sqrt{S_{E,\mathrm{ph}}}(T_0)=C\sqrt{S_{T,\mathrm{ph}}}(T_0)\)</td><td><code>8.545289e-23</code></td><td>J/Hz^(1/2)</td></tr>
-<tr><td>asd_phi_phonon_simple_per_rtHz</td><td><a href="simple-estimates.html">\(\sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}(T_0)\)</a></td><td>\(\sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}(T_0)=\left|\dfrac{d\phi}{dE}\right|\sqrt{S_{E,\mathrm{ph}}}(T_0)\)</td><td><code>6.462737e-06</code></td><td>1/Hz^(1/2)</td></tr>
+<tr><td>asd_phi_phonon_simple_per_rtHz</td><td><a href="simple-estimates.html">\(\sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}(T_0)\)</a></td><td>\(\sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}(T_0)=\left|\dfrac{d\phi}{dE}\right|\sqrt{S_{E,\mathrm{ph}}}(T_0)\)</td><td><code>3.231369e-06</code></td><td>1/Hz^(1/2)</td></tr>
 <tr><td>thermal_energy_fluct_rms_J</td><td><a href="simple-estimates.html">\(\sigma_{E,\mathrm{th}}\)</a></td><td>\(\sigma_{E,\mathrm{th}}=\sqrt{k_BT_0^2C}\)</td><td><code>3.309576e-20</code></td><td>J</td></tr>
 <tr><td>thermal_energy_fluct_rms_eV</td><td><a href="simple-estimates.html">\(\sigma_{E,\mathrm{th,eV}}\)</a></td><td>\(\sigma_{E,\mathrm{th,eV}}=\sigma_{E,\mathrm{th}}/q_e\)</td><td><code>0.206568</code></td><td>eV</td></tr>
 <tr><td>p_bifurcation_dBm</td><td><a href="bifurcation-limit.html#operating-margin">\(P_{\mathrm{bif,dBm}}\)</a></td><td>\(P_{\mathrm{bif,dBm}}=10\log_{10}(P_{\mathrm{bif}}/1\,\mathrm{mW})\)</td><td><code>-70</code></td><td>dBm</td></tr>
@@ -220,21 +220,21 @@
       <h3>Derived TLS</h3>
       <table>
         <tr><th>Quantity</th><th>Symbol</th><th>Formula</th><th>Value</th><th>Units</th></tr>
-        <tr><td>sphi_johnson_full_per_hz</td><td><a href="noise-johnson.html#role-in-nep-and-electronic-noise-scaling">\(S_{\phi,J}^{\mathrm{full}}\)</a></td><td>\(S_{\phi,J}^{\mathrm{full}}=\left|[Y_{J,A}]_{\phi}\right|^2+\left|[Y_{J,\phi}]_{\phi}\right|^2\)</td><td><code>7.889423e-14</code></td><td>1/Hz</td></tr>
-<tr><td>sphi_tls_per_hz</td><td><a href="noise-tls.html#use-in-total-budget">\(S_{\phi,\mathrm{TLS}}\)</a></td><td>\(S_{\phi,\mathrm{TLS}}=\left|[Y_{\mathrm{TLS}}]_{\phi}\right|^2\)</td><td><code>1.000000e-11</code></td><td>1/Hz</td></tr>
-<tr><td>asd_phi_tls_per_rtHz</td><td><a href="noise-tls.html#use-in-total-budget">\(\sqrt{S_{\phi,\mathrm{TLS}}}\)</a></td><td>\(\sqrt{S_{\phi,\mathrm{TLS}}}\)</td><td><code>3.162278e-06</code></td><td>1/Hz^(1/2)</td></tr>
+        <tr><td>sphi_johnson_full_per_hz</td><td><a href="noise-johnson.html#role-in-nep-and-electronic-noise-scaling">\(S_{\phi,J}^{\mathrm{full}}\)</a></td><td>\(S_{\phi,J}^{\mathrm{full}}=\left|[Y_{J,A}]_{\phi}\right|^2+\left|[Y_{J,\phi}]_{\phi}\right|^2\)</td><td><code>1.380890e-14</code></td><td>1/Hz</td></tr>
+<tr><td>sphi_tls_per_hz</td><td><a href="noise-tls.html#use-in-total-budget">\(S_{\phi,\mathrm{TLS}}\)</a></td><td>\(S_{\phi,\mathrm{TLS}}=\left|[Y_{\mathrm{TLS}}]_{\phi}\right|^2\)</td><td><code>4.818684e-13</code></td><td>1/Hz</td></tr>
+<tr><td>asd_phi_tls_per_rtHz</td><td><a href="noise-tls.html#use-in-total-budget">\(\sqrt{S_{\phi,\mathrm{TLS}}}\)</a></td><td>\(\sqrt{S_{\phi,\mathrm{TLS}}}\)</td><td><code>6.941674e-07</code></td><td>1/Hz^(1/2)</td></tr>
 <tr><td>asd_phi_tls_100hz_model_per_rtHz</td><td><a href="project.html#core-rule-checks">\(\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})\)</a></td><td>\(\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})=f_0\left|d\phi/df\right|_{\delta f}\sqrt{\left(S_f/f_0^2\right)_{\mathrm{TLS}}(100\,\mathrm{Hz})}\)</td><td><code>1.000000e-06</code></td><td>1/Hz^(1/2)</td></tr>
-<tr><td>dphi_df_detuning_per_hz</td><td><a href="noise-johnson-sf.html">\(\left|d\phi/df\right|_{\delta f}\)</a></td><td>\(\left|d\phi/df\right|_{\delta f}\approx\dfrac{4Q_r/f_0}{1+(2Q_r\delta f/f_0)^2}\)</td><td><code>1.200000e-05</code></td><td>rad/Hz</td></tr>
-<tr><td>sf_over_f0sq_johnson_full</td><td><a href="noise-johnson-sf.html">\(\left(S_f/f_0^2\right)_{J,\mathrm{full}}\)</a></td><td>\(\left(S_f/f_0^2\right)_{J,\mathrm{full}}=\dfrac{S_{\phi,J}^{\mathrm{full}}}{f_0^2\left|d\phi/df\right|_{\delta f}^2}\)</td><td><code>5.478766e-22</code></td><td>1/Hz</td></tr>
-<tr><td>sf_over_f0sq_johnson_simple</td><td><a href="noise-johnson-sf.html">\(\left(S_f/f_0^2\right)_{J,\mathrm{simple}}\)</a></td><td>\(\left(S_f/f_0^2\right)_{J,\mathrm{simple}}=\dfrac{S_{\phi,J}^{\mathrm{full}}}{(4Q_r)^2}\)</td><td><code>5.478766e-22</code></td><td>1/Hz</td></tr>
+<tr><td>dphi_df_detuning_per_hz</td><td><a href="noise-johnson-sf.html">\(\left|d\phi/df\right|_{\delta f}\)</a></td><td>\(\left|d\phi/df\right|_{\delta f}\approx\dfrac{4Q_r/f_0}{1+(2Q_r\delta f/f_0)^2}\)</td><td><code>6.000000e-06</code></td><td>rad/Hz</td></tr>
+<tr><td>sf_over_f0sq_johnson_full</td><td><a href="noise-johnson-sf.html">\(\left(S_f/f_0^2\right)_{J,\mathrm{full}}\)</a></td><td>\(\left(S_f/f_0^2\right)_{J,\mathrm{full}}=\dfrac{S_{\phi,J}^{\mathrm{full}}}{f_0^2\left|d\phi/df\right|_{\delta f}^2}\)</td><td><code>3.835807e-22</code></td><td>1/Hz</td></tr>
+<tr><td>sf_over_f0sq_johnson_simple</td><td><a href="noise-johnson-sf.html">\(\left(S_f/f_0^2\right)_{J,\mathrm{simple}}\)</a></td><td>\(\left(S_f/f_0^2\right)_{J,\mathrm{simple}}=\dfrac{S_{\phi,J}^{\mathrm{full}}}{(4Q_r)^2}\)</td><td><code>9.589517e-23</code></td><td>1/Hz</td></tr>
 <tr><td>sf_over_f0sq_johnson_ref</td><td><a href="noise-johnson.html#role-in-nep-and-electronic-noise-scaling">\(\left(S_f/f_0^2\right)_J\)</a></td><td>\(\left(S_f/f_0^2\right)_J=\dfrac{S_{\phi,J}^{\mathrm{ref}}}{(4Q_r)^2}\)</td><td><code>6.944444e-27</code></td><td>1/Hz</td></tr>
-<tr><td>sf_over_f0sq_tls_model</td><td><a href="noise-tls.html#design-scaling-and-geometry-controls">\(\left(S_f/f_0^2\right)_{\mathrm{TLS}}\)</a></td><td>\(\left(S_f/f_0^2\right)_{\mathrm{TLS}}=\left(\dfrac{\sqrt{S_{\phi,\mathrm{TLS}}}(\nu)}{f_0\left|d\phi/df\right|_{\delta f}}\right)^2\)</td><td><code>6.944444e-20</code></td><td>1/Hz</td></tr>
-<tr><td>sf_over_f0sq_tls_1hz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)</a></td><td>\(\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}=\left(\dfrac{\sqrt{S_{\phi,\mathrm{TLS}}}(1\,\mathrm{Hz})}{f_0\left|d\phi/df\right|_{\delta f}}\right)^2\)</td><td><code>6.944444e-20</code></td><td>1/Hz</td></tr>
+<tr><td>sf_over_f0sq_tls_model</td><td><a href="noise-tls.html#design-scaling-and-geometry-controls">\(\left(S_f/f_0^2\right)_{\mathrm{TLS}}\)</a></td><td>\(\left(S_f/f_0^2\right)_{\mathrm{TLS}}=\left(\dfrac{\sqrt{S_{\phi,\mathrm{TLS}}}(\nu)}{f_0\left|d\phi/df\right|_{\delta f}}\right)^2\)</td><td><code>2.777778e-19</code></td><td>1/Hz</td></tr>
+<tr><td>sf_over_f0sq_tls_1hz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)</a></td><td>\(\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}=\left(\dfrac{\sqrt{S_{\phi,\mathrm{TLS}}}(1\,\mathrm{Hz})}{f_0\left|d\phi/df\right|_{\delta f}}\right)^2\)</td><td><code>2.777778e-19</code></td><td>1/Hz</td></tr>
 <tr><td>I0_rms_A</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(I_0\)</a></td><td>\(I_0=\sqrt{P_0/R_0}\)</td><td><code>1.170261e-05</code></td><td>A</td></tr>
-<tr><td>s_deltaC_tls_1hz_F2_per_Hz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(S_{\delta C,\mathrm{TLS}}(1\,\mathrm{Hz})\)</a></td><td>\(S_{\delta C,\mathrm{TLS}}(1\,\mathrm{Hz})=4C_0^2\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)</td><td><code>2.992467e-45</code></td><td>F^2/Hz</td></tr>
-<tr><td>asd_deltaC_tls_1hz_F_per_rtHz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(\sqrt{S_{\delta C,\mathrm{TLS}}}(1\,\mathrm{Hz})\)</a></td><td>\(\sqrt{S_{\delta C,\mathrm{TLS}}}(1\,\mathrm{Hz})\)</td><td><code>5.470345e-23</code></td><td>F/Hz^(1/2)</td></tr>
-<tr><td>sv_usb_tls_1hz_V2_per_Hz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})\)</a></td><td>\(S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})=\dfrac{I_0^2}{\omega_0^2C_0^2}\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)</td><td><code>2.236202e-23</code></td><td>V^2/Hz</td></tr>
-<tr><td>asd_v_usb_tls_1hz_V_per_rtHz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}}(1\,\mathrm{Hz})\)</a></td><td>\(\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}}(1\,\mathrm{Hz})\)</td><td><code>4.728849e-12</code></td><td>V/Hz^(1/2)</td></tr>
+<tr><td>s_deltaC_tls_1hz_F2_per_Hz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(S_{\delta C,\mathrm{TLS}}(1\,\mathrm{Hz})\)</a></td><td>\(S_{\delta C,\mathrm{TLS}}(1\,\mathrm{Hz})=4C_0^2\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)</td><td><code>1.196987e-44</code></td><td>F^2/Hz</td></tr>
+<tr><td>asd_deltaC_tls_1hz_F_per_rtHz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(\sqrt{S_{\delta C,\mathrm{TLS}}}(1\,\mathrm{Hz})\)</a></td><td>\(\sqrt{S_{\delta C,\mathrm{TLS}}}(1\,\mathrm{Hz})\)</td><td><code>1.094069e-22</code></td><td>F/Hz^(1/2)</td></tr>
+<tr><td>sv_usb_tls_1hz_V2_per_Hz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})\)</a></td><td>\(S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})=\dfrac{I_0^2}{\omega_0^2C_0^2}\left(S_f/f_0^2\right)_{\mathrm{TLS},1\mathrm{Hz}}\)</td><td><code>8.944807e-23</code></td><td>V^2/Hz</td></tr>
+<tr><td>asd_v_usb_tls_1hz_V_per_rtHz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}}(1\,\mathrm{Hz})\)</a></td><td>\(\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}}(1\,\mathrm{Hz})\)</td><td><code>9.457699e-12</code></td><td>V/Hz^(1/2)</td></tr>
 <tr><td>sv_usb_johnson_V2_per_Hz</td><td><a href="noise-johnson.html#sideband-vector-derivation-eq-17">\(S_{V,\mathrm{USB},J}\)</a></td><td>\(S_{V,\mathrm{USB},J}=\dfrac{1}{2}S_{V,J}\)</td><td><code>1.411387e-24</code></td><td>V^2/Hz</td></tr>
 <tr><td>asd_v_usb_johnson_V_per_rtHz</td><td><a href="noise-johnson.html#sideband-vector-derivation-eq-17">\(\sqrt{S_{V,\mathrm{USB},J}}\)</a></td><td>\(\sqrt{S_{V,\mathrm{USB},J}}\)</td><td><code>1.188018e-12</code></td><td>V/Hz^(1/2)</td></tr>
       </table>
@@ -246,10 +246,10 @@
       <table>
         <tr><th>Quantity</th><th>Symbol</th><th>Formula</th><th>Value</th><th>Units</th></tr>
         <tr><td>M_e</td><td><a href="noise-electronic.html#noise-vector-derivation-eq-19">\(M_e\)</a></td><td>\(M_e=\sqrt{\dfrac{E_{qp}}{k_BT_0}}\)</td><td><code>5.9397</code></td><td>1</td></tr>
-<tr><td>m_phonon_over_johnson_phi</td><td><a href="noise-phonon.html#physical-expression">\(M_{\mathrm{ph}/J,\phi}\)</a></td><td>\(M_{\mathrm{ph}/J,\phi}=\dfrac{|[Y_{ph}]_{\phi}|}{|[Y_{J,\phi}]_{\phi}|}\)</td><td><code>23.0088</code></td><td>1</td></tr>
-<tr><td>m_phonon_over_tls_phi</td><td><a href="project.html#core-rule-checks">\(M_{\mathrm{ph}/\mathrm{TLS},\phi}\)</a></td><td>\(M_{\mathrm{ph}/\mathrm{TLS},\phi}=\dfrac{\sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}}{\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})}\)</td><td><code>6.46274</code></td><td>1</td></tr>
-<tr><td>m_usb_tls_over_johnson_1hz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(M_{\mathrm{USB},\mathrm{TLS}/J}(1\,\mathrm{Hz})\)</a></td><td>\(M_{\mathrm{USB},\mathrm{TLS}/J}(1\,\mathrm{Hz})=\dfrac{\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})}}{\sqrt{S_{V,\mathrm{USB},J}}}\)</td><td><code>3.98045</code></td><td>1</td></tr>
-<tr><td>m_tls</td><td><a href="noise-tls.html#design-scaling-and-geometry-controls">\(M_{\mathrm{TLS}}\)</a></td><td>\(M_{\mathrm{TLS}}=\sqrt{\dfrac{(S_f/f_0^2)_{\mathrm{TLS}}}{(S_f/f_0^2)_{J,\mathrm{full}}}}\)</td><td><code>11.2584</code></td><td>1</td></tr>
+<tr><td>m_phonon_over_johnson_phi</td><td><a href="noise-phonon.html#physical-expression">\(M_{\mathrm{ph}/J,\phi}\)</a></td><td>\(M_{\mathrm{ph}/J,\phi}=\dfrac{|[Y_{ph}]_{\phi}|}{|[Y_{J,\phi}]_{\phi}|}\)</td><td><code>23.1792</code></td><td>1</td></tr>
+<tr><td>m_phonon_over_tls_phi</td><td><a href="project.html#core-rule-checks">\(M_{\mathrm{ph}/\mathrm{TLS},\phi}\)</a></td><td>\(M_{\mathrm{ph}/\mathrm{TLS},\phi}=\dfrac{\sqrt{S_{\phi,\mathrm{ph}}}^{\,\mathrm{simple}}}{\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})}\)</td><td><code>3.23137</code></td><td>1</td></tr>
+<tr><td>m_usb_tls_over_johnson_1hz</td><td><a href="tls-capacitor-to-phase.html#practical-c-to-usb-mapping">\(M_{\mathrm{USB},\mathrm{TLS}/J}(1\,\mathrm{Hz})\)</a></td><td>\(M_{\mathrm{USB},\mathrm{TLS}/J}(1\,\mathrm{Hz})=\dfrac{\sqrt{S_{V,\mathrm{USB},\mathrm{TLS}}(1\,\mathrm{Hz})}}{\sqrt{S_{V,\mathrm{USB},J}}}\)</td><td><code>7.9609</code></td><td>1</td></tr>
+<tr><td>m_tls</td><td><a href="noise-tls.html#design-scaling-and-geometry-controls">\(M_{\mathrm{TLS}}\)</a></td><td>\(M_{\mathrm{TLS}}=\sqrt{\dfrac{(S_f/f_0^2)_{\mathrm{TLS}}}{(S_f/f_0^2)_{J,\mathrm{full}}}}\)</td><td><code>26.9104</code></td><td>1</td></tr>
       </table>
     </section>
     
@@ -264,12 +264,12 @@
 <tr><td>thermal_energy_fluct_rms_eV</td><td><a href="simple-estimates.html">\(\sigma_{E,\mathrm{th,eV}}\)</a></td><td>\(\sigma_{E,\mathrm{th,eV}}=\sigma_{E,\mathrm{th}}/q_e\)</td><td><code>0.206568</code></td><td>eV</td></tr>
 <tr><td>deltaT_event_full_absorption_K</td><td><a href="physics.html#thermal-derived-formulas">\(\Delta T_{\mathrm{event}}\)</a></td><td>\(\Delta T_{\mathrm{event}}=\dfrac{E_{\mathrm{Ho}}}{C}\)</td><td><code>0.0567219</code></td><td>K</td></tr>
 <tr><td>p_bifurcation_W</td><td><a href="bifurcation-limit.html#bifurcation-model">\(P_{\mathrm{bif}}\)</a></td><td>\(P_{\mathrm{bif}}=\dfrac{Q_c\omega_0E_*}{2Q_r^3}\)</td><td><code>1.000000e-10</code></td><td>W</td></tr>
-<tr><td>mt_eig1_per_s</td><td><a href="mt-stability.html#stability-criterion">\(\lambda_1(M_t)\)</a></td><td>\(\lambda_1(M_t)\)</td><td><code>-6.124289e+05 + 0i</code></td><td>1/s</td></tr>
-<tr><td>mt_eig2_per_s</td><td><a href="mt-stability.html#stability-criterion">\(\lambda_2(M_t)\)</a></td><td>\(\lambda_2(M_t)\)</td><td><code>-1.025945e+06 + 0i</code></td><td>1/s</td></tr>
-<tr><td>mt_eig3_per_s</td><td><a href="mt-stability.html#stability-criterion">\(\lambda_3(M_t)\)</a></td><td>\(\lambda_3(M_t)\)</td><td><code>-1.047198e+06 + 0i</code></td><td>1/s</td></tr>
-<tr><td>mt_max_real_part_per_s</td><td><a href="mt-stability.html#stability-criterion">\(\max\Re[\lambda(M_t)]\)</a></td><td>\(\max\Re[\lambda(M_t)]\)</td><td><code>-6.124289e+05</code></td><td>1/s</td></tr>
+<tr><td>mt_eig1_per_s</td><td><a href="mt-stability.html#stability-criterion">\(\lambda_1(M_t)\)</a></td><td>\(\lambda_1(M_t)\)</td><td><code>-1.120152e+05 + 1.696065e+06i</code></td><td>1/s</td></tr>
+<tr><td>mt_eig2_per_s</td><td><a href="mt-stability.html#stability-criterion">\(\lambda_2(M_t)\)</a></td><td>\(\lambda_2(M_t)\)</td><td><code>-1.120152e+05 - 1.696065e+06i</code></td><td>1/s</td></tr>
+<tr><td>mt_eig3_per_s</td><td><a href="mt-stability.html#stability-criterion">\(\lambda_3(M_t)\)</a></td><td>\(\lambda_3(M_t)\)</td><td><code>-2.461541e+06 - 3.055902e-10i</code></td><td>1/s</td></tr>
+<tr><td>mt_max_real_part_per_s</td><td><a href="mt-stability.html#stability-criterion">\(\max\Re[\lambda(M_t)]\)</a></td><td>\(\max\Re[\lambda(M_t)]\)</td><td><code>-1.120152e+05</code></td><td>1/s</td></tr>
 <tr><td>bifurcation_power_ratio</td><td><a href="bifurcation-limit.html#operating-margin">\(P_0/P_{\mathrm{bif}}\)</a></td><td>\(\dfrac{P_0}{P_{\mathrm{bif}}}\)</td><td><code>0.7</code></td><td>1</td></tr>
-<tr><td>mt_pulse_shortening_ratio</td><td><a href="mt-stability.html#pulse-shortening">\(\rho_{\mathrm{short}}\)</a></td><td>\(\rho_{\mathrm{short}}=\dfrac{G/C}{\min_i|\lambda_i(M_t)|}\ \mathrm{if\ stable}\)</td><td><code>0.979706</code></td><td>1</td></tr>
+<tr><td>mt_pulse_shortening_ratio</td><td><a href="mt-stability.html#pulse-shortening">\(\rho_{\mathrm{short}}\)</a></td><td>\(\rho_{\mathrm{short}}=\dfrac{G/C}{\min_i|\lambda_i(M_t)|}\ \mathrm{if\ stable}\)</td><td><code>0.352991</code></td><td>1</td></tr>
       </table>
     </section>
     
