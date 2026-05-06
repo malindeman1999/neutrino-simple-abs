@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEP To Sigma_E | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>NEP Integration to Energy Resolution</h1>
+    <p>Computing \(\sigma_E\) from a frequency-dependent NEP spectrum.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="nep-to-sigma.html" class="active">NEP to Sigma</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Definition</h2>
+      <p>Given a one-sided NEP ASD spectrum \(\mathrm{NEP}(f)\) in \(\mathrm{W}/\sqrt{\mathrm{Hz}}\), compute RMS energy resolution by:</p>
+      <p>\[
+      \sigma_E = \left(\int_{f_{\min}}^{f_{\max}} \frac{4}{\mathrm{NEP}(f)^2}\,df\right)^{-1/2}.
+      \]</p>
+      <p>Equivalent FWHM form: \(\Delta E_{\mathrm{FWHM}}=2\sqrt{2\ln2}\,\sigma_E\).</p>
+    </section>
+
+    <section class="card">
+      <h2>Discrete Integration (Log-Spaced f)</h2>
+      <p>For sampled \((f_i, \mathrm{NEP}_i)\), including log-spaced \(f\), evaluate the integral numerically with trapezoidal integration over \(f\):</p>
+      <p>\[
+      \int \frac{4}{\mathrm{NEP}^2}df \approx \sum_i \frac{\frac{4}{\mathrm{NEP}_i^2}+\frac{4}{\mathrm{NEP}_{i+1}^2}}{2}\,(f_{i+1}-f_i),
+      \quad
+      \sigma_E=\left(\int \frac{4}{\mathrm{NEP}^2}df\right)^{-1/2}.
+      \]</p>
+      <p>Important: do not assume constant \(\Delta f\). Use the actual spacing \(f_{i+1}-f_i\).</p>
+    </section>
+
+    <section class="card">
+      <h2>Python Implementation</h2>
+      <p>Implemented in <a href="../python/sensor.py"><code>Sensor.sigma_energy_from_nep_spectrum_J()</code></a> and <a href="../python/sensor.py"><code>Sensor.sigma_energy_from_nep_spectrum_eV()</code></a>.</p>
+      <p>Related NEP methods: <a href="../python/sensor.py"><code>Sensor.nep_from_phase_asd_W_per_rtHz()</code></a>, <a href="../python/sensor.py"><code>Sensor.nep_phi_total_W_per_rtHz</code></a>, and per-source NEP properties in <code>Sensor</code>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Scope Note</h2>
+      <p>This \(\sigma_E\) integration is a direct NEP-band integration metric. For full optimal-filter \(\sigma_E\), use the template-weighted expression on <a href="signal-processing.html">Signal Processing</a>.</p>
+    </section>
+  </main>
+</body>
+</html>

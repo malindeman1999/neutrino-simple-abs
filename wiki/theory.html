@@ -99,7 +99,7 @@
 
     <section class="card">
       <h2>Eq. (14)-(15): Time-Domain Dynamics and Pulse Model</h2>
-      <p>Eq. (14) converts the frequency-domain model to time-domain dynamics \(\dot{Y}=M_tY+D_1^{-1}N\), where \(M_t\) is obtained from \(M(\omega)\).</p>
+      <p>Eq. (14) converts the frequency-domain model to time-domain dynamics \(\dot{Y}=M_tY+D_1^{-1}N\), where <a href="mt-stability.html#mt-from-momega">\(M_t\)</a> is obtained from \(M(\omega)\).</p>
       <p>Eq. (15) gives explicit coupled ODEs for \(r(t)\), \(\phi(t)\), and \(T(t)\) on resonance. The absorbed calorimeter power enters as an additive source term \(P(t)/C\) in the thermal equation.</p>
       <p>Use this form to check stability (all eigenvalues of \(M_t\) must have negative real parts), pulse shape, and thermal/electrical coupling behavior before noise propagation.</p>
     </section>
@@ -115,6 +115,7 @@
       \mathrm{NEP}_{\phi}(\omega)=\left|\frac{[Y_{\mathrm{RMS}}(\omega)]_{\phi}}{(M^{-1})_{\phi,\,P}}\right|.
       \]</p>
       <p>This is the core equation to convert modeled/measured phase noise into calorimeter-equivalent input power noise.</p>
+      <p>Python methods: <a href="../python/sensor.py"><code>Sensor.phase_responsivity_complex_rad_per_W_at_hz()</code></a>, <a href="../python/sensor.py"><code>Sensor.phase_responsivity_mag_rad_per_W_at_hz()</code></a>, <a href="../python/sensor.py"><code>Sensor.phase_responsivity_rad_per_W</code></a>, <a href="../python/sensor.py"><code>Sensor.nep_from_phase_asd_W_per_rtHz()</code></a>.</p>
     </section>
 
     <section class="card">
@@ -127,7 +128,7 @@
         <li>Compute \(\mathrm{NEP}_{\phi}\) with Eq. (20), then feed the resulting PSD into the optimal filter on the Signal Processing page.</li>
       </ul>
       <p>Notation convention used here: \(T_b\) is bath temperature and \(T_0\) is bolometer operating-point temperature under bias.</p>
-      <p>Python implementation links: <a href="../python/sensor.py"><code>Sensor.estimates()</code></a>, <a href="../python/sensor.py"><code>Sensor.tau_res_s</code></a>, and <a href="../python/sensor.py"><code>Sensor.tau_th_s</code></a>.</p>
+      <p>Python implementation links: <a href="../python/sensor.py"><code>Sensor.estimates()</code></a>, <a href="../python/sensor.py"><code>Sensor.tau_res_s</code></a>, <a href="../python/sensor.py"><code>Sensor.tau_th_s</code></a>, <a href="../python/sensor.py"><code>Sensor.sphi_total_per_hz</code></a>, and <a href="../python/sensor.py"><code>Sensor.nep_phi_total_W_per_rtHz</code></a>.</p>
     </section>
 
     <section class="card" id="kid-lumped-formulas">

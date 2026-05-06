@@ -4,6 +4,7 @@ digraph wiki {
   node [shape=box, style=rounded, fontname="Helvetica"];
   edge [fontname="Helvetica"];
   "absorber-source.html";
+  "bifurcation-limit.html";
   "capping-properties.html";
   "design.html";
   "electron-phonon-coupling.html";
@@ -28,11 +29,14 @@ digraph wiki {
   "physics.html";
   "pileup-analysis.html";
   "project.html";
+  "readout-power-mapping.html";
   "signal-processing.html";
+  "simple-estimates.html";
   "source-tradeoffs.html";
   "theory.html";
   "thermal-conductance.html";
   "thermalization-times.html";
+  "tls-capacitor-to-phase.html";
   "tls-estimate.html";
   "absorber-source.html" -> "capping-properties.html";
   "absorber-source.html" -> "electron-phonon-coupling.html";
@@ -49,6 +53,7 @@ digraph wiki {
   "design.html" -> "mt-stability.html";
   "design.html" -> "thermal-conductance.html";
   "energy-window-criterion.html" -> "pileup-analysis.html";
+  "index.html" -> "bifurcation-limit.html";
   "index.html" -> "design.html";
   "index.html" -> "m-matrix.html";
   "index.html" -> "noise-sources.html";
@@ -56,7 +61,9 @@ digraph wiki {
   "index.html" -> "physics.html";
   "index.html" -> "project.html";
   "index.html" -> "signal-processing.html";
+  "index.html" -> "simple-estimates.html";
   "index.html" -> "theory.html";
+  "index.html" -> "tls-capacitor-to-phase.html";
   "m-matrix.html" -> "mt-stability.html";
   "noise-johnson-sf.html" -> "noise-johnson.html";
   "noise-johnson-sf.html" -> "noise-tls.html";
@@ -72,13 +79,16 @@ digraph wiki {
   "noise-sources.html" -> "noise-tls.html";
   "noise-sources.html" -> "signal-processing.html";
   "noise-sources.html" -> "theory.html";
+  "noise-sources.html" -> "tls-capacitor-to-phase.html";
   "noise-tls.html" -> "idc-geometry.html";
+  "noise-tls.html" -> "tls-capacitor-to-phase.html";
   "noise-tls.html" -> "tls-estimate.html";
   "performance.html" -> "pileup-analysis.html";
   "pileup-analysis.html" -> "energy-window-criterion.html";
   "signal-processing.html" -> "energy-window-criterion.html";
   "signal-processing.html" -> "pileup-analysis.html";
   "signal-processing.html" -> "theory.html";
+  "simple-estimates.html" -> "bifurcation-limit.html";
   "theory.html" -> "m-matrix.html";
   "thermalization-times.html" -> "electron-phonon-coupling.html";
   "thermalization-times.html" -> "kapitza-coupling.html";

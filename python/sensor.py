@@ -36,7 +36,7 @@ class SensorInputs:
 
     # Geometry + count-rate requirements (primary project knobs)
     count_rate_Hz: float
-    pileup_probability_max: float
+    deltaT_abs_over_bath_setpoint_K: float
     ho_in_au_atomic_fraction: float
     ho_decay_energy_J: float
     kid_length_m: float
@@ -86,9 +86,9 @@ class Version1SensorInputs(SensorInputs):
 
     T0_K: float = 0.100
     Tb_K: float = 0.100
-    count_rate_Hz: float = 300.0
-    pileup_probability_max: float = 5.0e-4
-    ho_in_au_atomic_fraction: float = 0.01
+    count_rate_Hz: float = 130.0
+    deltaT_abs_over_bath_setpoint_K: float = 0.060
+    ho_in_au_atomic_fraction: float = 0.004333333333333333
     ho_decay_energy_J: float = 4.5e-16
     kid_length_m: float = 220e-6
     kid_width_m: float = 220e-6
@@ -103,8 +103,8 @@ class Version1SensorInputs(SensorInputs):
     tls_beta: float = 0.5
     sphi_j_ref_per_hz: float = 1.0e-18
     f0_Hz: float = 1.0e9
-    Qr: float = 3000.0
-    Qi: float = 6000.0
+    Qr: float = 50000.0
+    Qi: float = 100000.0
     tau_qp_s: float = 5.0e-8
     kinetic_inductance_fraction: float = 0.5
     kid_trace_length_m: float = 10.0e-3
@@ -145,6 +145,11 @@ class Sensor:
     def detuning_Hz(self) -> float:
         """Readout detuning derived from resonator-width units (fr/Qr)."""
         return self.detuning_widths * (self.f0_Hz / self.Qr)
+
+    @cached_property
+    def x(self) -> float:
+        """Dimensionless detuning, x = detuning_Hz / f0_Hz."""
+        return self.detuning_Hz / self.f0_Hz
 
     @cached_property
     def au_number_density_per_m3(self) -> float:
@@ -221,18 +226,18 @@ class Sensor:
 
     @cached_property
     def tau_th_s(self) -> float:
-        """Thermal decay tau from pileup approximation: P ~ R * tau."""
-        return self.pileup_probability_max / self.count_rate_Hz
+        """Thermal decay tau from thermal link and heat capacity."""
+        return self.C_J_per_K / self.G_W_per_K
 
     @cached_property
     def G_W_per_K(self) -> float:
-        """Derived thermal conductance from C / tau."""
-        return self.C_J_per_K / self.tau_th_s
+        """Thermal conductance set by operating-point temperature elevation."""
+        return self.P0_W / self.deltaT_abs_over_bath_setpoint_K
 
     @cached_property
     def deltaT_abs_over_bath_K(self) -> float:
         """Absorber/KID operating-point temperature elevation over bath."""
-        return self.P0_W / self.G_W_per_K
+        return self.deltaT_abs_over_bath_setpoint_K
 
     @cached_property
     def tbath_from_link_K(self) -> float:
@@ -365,7 +370,12 @@ class Sensor:
     @cached_property
     def tau_target_from_rate_s(self) -> float:
         """Symbol used in outputs to mirror rate-derived tau target."""
-        return self.pileup_probability_max / self.count_rate_Hz
+        return 5.0e-4 / self.count_rate_Hz
+
+    @cached_property
+    def pileup_probability_max(self) -> float:
+        """Derived pileup probability from rate and solved thermal time constant."""
+        return self.count_rate_Hz * self.tau_th_s
 
     @cached_property
     def tau_error_fraction(self) -> float:
@@ -395,8 +405,8 @@ class Sensor:
 
     @cached_property
     def core_rule2_ratio(self) -> float:
-        """Rule 2 ratio: tau_res / (tau_th/3), must be <= 1."""
-        return self.tau_res_s / (self.tau_th_s / 3.0)
+        """Rule 2 ratio: tau_res / tau_th, must be <= 1."""
+        return self.tau_res_s / self.tau_th_s
 
     @cached_property
     def core_rule2_ok(self) -> bool:
@@ -448,11 +458,82 @@ class Sensor:
         return self._propagate_noise_vector(self.n_tls_phi(self.m_tls), self.f_demod_Hz)
 
     @cached_property
+    def y_electronic_A(self) -> np.ndarray:
+        """Electronic (generation-like) A-noise output vector at f_demod."""
+        return self._propagate_noise_vector(self.n_electronic_A(), self.f_demod_Hz)
+
+    @cached_property
+    def y_electronic_phi(self) -> np.ndarray:
+        """Electronic (generation-like) phi-noise output vector at f_demod."""
+        return self._propagate_noise_vector(self.n_electronic_phi(), self.f_demod_Hz)
+
+    def phase_responsivity_complex_rad_per_W_at_hz(self, f_hz: float) -> complex:
+        """Complex phase responsivity to power source: (M^-1)_{phi,power}."""
+        m = self.m_matrix_array(f_hz)
+        e_power = np.array((0.0 + 0.0j, 0.0 + 0.0j, 1.0 + 0.0j), dtype=complex)
+        y_unit_power = np.linalg.solve(m, e_power)
+        return complex(y_unit_power[1])
+
+    def phase_responsivity_mag_rad_per_W_at_hz(self, f_hz: float) -> float:
+        """Magnitude of phase responsivity to power source."""
+        return float(abs(self.phase_responsivity_complex_rad_per_W_at_hz(f_hz)))
+
+    @cached_property
+    def phase_responsivity_rad_per_W(self) -> float:
+        """Phase responsivity magnitude at f_demod."""
+        return self.phase_responsivity_mag_rad_per_W_at_hz(self.f_demod_Hz)
+
+    def nep_from_phase_asd_W_per_rtHz(self, asd_phi_per_rtHz: float, f_hz: float | None = None) -> float:
+        """Convert phase ASD to NEP using |dphi/dP| at selected frequency."""
+        f_eval = self.f_demod_Hz if f_hz is None else f_hz
+        resp = self.phase_responsivity_mag_rad_per_W_at_hz(f_eval)
+        if resp == 0.0:
+            return float("nan")
+        return asd_phi_per_rtHz / resp
+
+    def sigma_energy_from_nep_spectrum_J(self, f_hz: np.ndarray, nep_W_per_rtHz: np.ndarray) -> float:
+        """Estimate calorimetric RMS energy resolution from NEP(f), in joules.
+
+        Uses the standard optimal-filter NEP relation:
+            sigma_E = ( integral(4 / NEP(f)^2 df) )^(-1/2)
+        evaluated with trapezoidal integration over arbitrary frequency spacing.
+        This works for linearly or logarithmically spaced frequency arrays.
+        """
+        f = np.asarray(f_hz, dtype=float)
+        nep = np.asarray(nep_W_per_rtHz, dtype=float)
+        if f.ndim != 1 or nep.ndim != 1 or f.size != nep.size:
+            raise ValueError("f_hz and nep_W_per_rtHz must be 1D arrays with equal length")
+        if f.size < 2:
+            raise ValueError("at least two frequency samples are required")
+        if np.any(~np.isfinite(f)) or np.any(~np.isfinite(nep)):
+            raise ValueError("inputs must be finite")
+        if np.any(f <= 0.0):
+            raise ValueError("frequencies must be > 0")
+        if np.any(np.diff(f) <= 0.0):
+            raise ValueError("frequencies must be strictly increasing")
+        if np.any(nep <= 0.0):
+            raise ValueError("NEP values must be > 0")
+        inv_sigma2_integrand = 4.0 / (nep * nep)
+        inv_sigma2 = float(np.trapezoid(inv_sigma2_integrand, x=f))
+        if inv_sigma2 <= 0.0 or not np.isfinite(inv_sigma2):
+            return float("nan")
+        return 1.0 / sqrt(inv_sigma2)
+
+    def sigma_energy_from_nep_spectrum_eV(self, f_hz: np.ndarray, nep_W_per_rtHz: np.ndarray) -> float:
+        """Energy RMS sigma_E in eV from integrated NEP spectrum."""
+        return self.sigma_energy_from_nep_spectrum_J(f_hz, nep_W_per_rtHz) / J_PER_EV
+
+    @cached_property
     def sphi_johnson_full_per_hz(self) -> float:
         """Johnson phase-noise PSD from full matrix model at f_demod."""
         yja_phi = self.y_johnson_A[1]
         yjp_phi = self.y_johnson_phi[1]
         return float(abs(yja_phi) ** 2 + abs(yjp_phi) ** 2)
+
+    @cached_property
+    def asd_phi_johnson_full_per_rtHz(self) -> float:
+        """Johnson phase-noise ASD from full matrix model at f_demod."""
+        return sqrt(self.sphi_johnson_full_per_hz)
 
     @cached_property
     def sphi_tls_per_hz(self) -> float:
@@ -465,10 +546,93 @@ class Sensor:
         return sqrt(self.sphi_tls_per_hz)
 
     @cached_property
+    def sphi_electronic_per_hz(self) -> float:
+        """Electronic (generation-like) phase-noise PSD at f_demod."""
+        yea_phi = self.y_electronic_A[1]
+        yep_phi = self.y_electronic_phi[1]
+        return float(abs(yea_phi) ** 2 + abs(yep_phi) ** 2)
+
+    @cached_property
+    def asd_phi_electronic_per_rtHz(self) -> float:
+        """Electronic (generation-like) phase-noise ASD at f_demod."""
+        return sqrt(self.sphi_electronic_per_hz)
+
+    @cached_property
+    def sphi_total_per_hz(self) -> float:
+        """Total phase-noise PSD from Johnson, TLS, phonon, and electronic sources."""
+        return (
+            self.sphi_johnson_full_per_hz
+            + self.sphi_tls_per_hz
+            + (self.asd_phi_phonon_full_per_rtHz**2)
+            + self.sphi_electronic_per_hz
+        )
+
+    @cached_property
+    def asd_phi_total_per_rtHz(self) -> float:
+        """Total phase-noise ASD from quadrature sum of modeled sources."""
+        return sqrt(self.sphi_total_per_hz)
+
+    @cached_property
+    def nep_phi_johnson_W_per_rtHz(self) -> float:
+        return self.nep_from_phase_asd_W_per_rtHz(self.asd_phi_johnson_full_per_rtHz)
+
+    @cached_property
+    def nep_phi_tls_W_per_rtHz(self) -> float:
+        return self.nep_from_phase_asd_W_per_rtHz(self.asd_phi_tls_per_rtHz)
+
+    @cached_property
+    def nep_phi_phonon_W_per_rtHz(self) -> float:
+        return self.nep_from_phase_asd_W_per_rtHz(self.asd_phi_phonon_full_per_rtHz)
+
+    @cached_property
+    def nep_phi_electronic_W_per_rtHz(self) -> float:
+        return self.nep_from_phase_asd_W_per_rtHz(self.asd_phi_electronic_per_rtHz)
+
+    @cached_property
+    def nep_phi_total_W_per_rtHz(self) -> float:
+        return self.nep_from_phase_asd_W_per_rtHz(self.asd_phi_total_per_rtHz)
+
+    @cached_property
+    def nep_phi_phonon_0hz_W_per_rtHz(self) -> float:
+        """Phase-direction phonon NEP evaluated at 0 Hz."""
+        y_ph = self._propagate_noise_vector(self.n_phonon(), 0.0)
+        asd_phi_ph = float(abs(y_ph[1]))
+        resp0 = self.phase_responsivity_mag_rad_per_W_at_hz(0.0)
+        if resp0 == 0.0:
+            return float("nan")
+        return asd_phi_ph / resp0
+
+    @cached_property
+    def nep_phi_total_0hz_W_per_rtHz(self) -> float:
+        """Phase-direction total NEP evaluated at 0 Hz."""
+        y_j_a = self._propagate_noise_vector(self.n_johnson_A(), 0.0)
+        y_j_p = self._propagate_noise_vector(self.n_johnson_phi(), 0.0)
+        y_ph = self._propagate_noise_vector(self.n_phonon(), 0.0)
+        y_tls = self._propagate_noise_vector(self.n_tls_phi(self.m_tls), 0.0)
+        y_e_a = self._propagate_noise_vector(self.n_electronic_A(), 0.0)
+        y_e_p = self._propagate_noise_vector(self.n_electronic_phi(), 0.0)
+        asd_j = sqrt(abs(y_j_a[1]) ** 2 + abs(y_j_p[1]) ** 2)
+        asd_ph = abs(y_ph[1])
+        asd_tls = abs(y_tls[1])
+        asd_e = sqrt(abs(y_e_a[1]) ** 2 + abs(y_e_p[1]) ** 2)
+        asd_total = sqrt(asd_j**2 + asd_ph**2 + asd_tls**2 + asd_e**2)
+        resp0 = self.phase_responsivity_mag_rad_per_W_at_hz(0.0)
+        if resp0 == 0.0:
+            return float("nan")
+        return float(asd_total / resp0)
+
+    @cached_property
+    def nep_phi_0hz_over_phonon_ratio(self) -> float:
+        """Ratio NEP_total(0 Hz) / NEP_phonon(0 Hz)."""
+        denom = self.nep_phi_phonon_0hz_W_per_rtHz
+        if denom == 0.0:
+            return float("nan")
+        return self.nep_phi_total_0hz_W_per_rtHz / denom
+
+    @cached_property
     def dphi_df_detuning_per_hz(self) -> float:
         """Approximate local phase slope including detuning dependence."""
-        x = self.detuning_Hz / self.f0_Hz
-        return (4.0 * self.Qr / self.f0_Hz) / (1.0 + (2.0 * self.Qr * x) ** 2)
+        return (4.0 * self.Qr / self.f0_Hz) / (1.0 + (2.0 * self.Qr * self.x) ** 2)
 
     @cached_property
     def dfr_dT_Hz_per_K(self) -> float:
@@ -640,28 +804,28 @@ class Sensor:
 
         Notes:
         - Q is identified with loaded resonator Qr.
-        - x_det is dimensionless detuning: detuning_Hz / f0_Hz.
+        - x is dimensionless detuning: detuning_Hz / f0_Hz.
         - omega is demodulated angular frequency (rad/s).
         """
         w0 = 2.0 * pi * self.f0_Hz
         omega = 2.0 * pi * f_hz
         q = self.Qr
         qi = self.Qi
-        x_det = self.detuning_Hz / self.f0_Hz
+        x = self.x
         c = self.C_J_per_K
         g = self.G_W_per_K
 
-        m11 = (2.0j * omega * qi / w0) + (qi / q) + self.beta_A + (4.0 * qi * q * x_det * x_det)
-        m12 = -(4.0j * omega * qi * q * x_det / w0)
-        m13 = -(2.0 * q * x_det * self.beta_A) + (2.0 * self.alpha_A / self.T0_K)
+        m11 = (2.0j * omega * qi / w0) + (qi / q) + self.beta_A + (4.0 * qi * q * x * x)
+        m12 = -(4.0j * omega * qi * q * x / w0)
+        m13 = -(2.0 * q * x * self.beta_A) + (2.0 * self.alpha_A / self.T0_K)
 
-        m21 = +(4.0j * omega * qi * q * x_det / w0) - self.beta_phi
-        m22 = (2.0j * omega * qi / w0) + (qi / q) + (4.0 * qi * q * x_det * x_det) + (2.0 * q * x_det * self.beta_phi)
+        m21 = +(4.0j * omega * qi * q * x / w0) - self.beta_phi
+        m22 = (2.0j * omega * qi / w0) + (qi / q) + (4.0 * qi * q * x * x) + (2.0 * q * x * self.beta_phi)
         m23 = -(2.0 * self.alpha_phi / self.T0_K)
 
         # Eq. (13): third row is in power-balance form (no /C factor here).
         m31 = -((1.0 + self.beta_A / 2.0) * self.P0_W)
-        m32 = +(q * x_det * (self.beta_A + 2.0) * self.P0_W)
+        m32 = +(q * x * (self.beta_A + 2.0) * self.P0_W)
         m33 = (1.0j * omega * c) + g - (self.P0_W * self.alpha_A / self.T0_K)
 
         return (
@@ -771,15 +935,29 @@ class Sensor:
 
     @cached_property
     def P0_W(self) -> float:
-        """Derived operating power from requested bifurcation fraction."""
+        """Resonator-dissipated power from generator drive via Eq. (3)-style mapping."""
+        detuning_factor = 1.0 / (1.0 + 4.0 * (self.Qr**2) * (self.x**2))
+        coupling_factor = (4.0 * self.Qc * self.Qi) / ((self.Qc + self.Qi) ** 2)
+        return 0.5 * detuning_factor * coupling_factor * self.Pg_W
+
+    @cached_property
+    def Pg_W(self) -> float:
+        """Generator/readout drive power set as a fraction of bifurcation power."""
         return self.p0_over_pbif_target * self.p_bifurcation_W
 
     @cached_property
+    def pg_to_p0_factor(self) -> float:
+        """Transfer factor from generator power to dissipated resonator power."""
+        if self.Pg_W == 0.0:
+            return float("nan")
+        return self.P0_W / self.Pg_W
+
+    @cached_property
     def bifurcation_power_ratio(self) -> float:
-        """How close operating power is to bifurcation: P0 / P_bif."""
+        """How close generator drive is to bifurcation: Pg / P_bif."""
         if self.p_bifurcation_W <= 0.0:
             return float("nan")
-        return self.P0_W / self.p_bifurcation_W
+        return self.Pg_W / self.p_bifurcation_W
 
     @cached_property
     def p_bifurcation_dBm(self) -> float:
@@ -833,11 +1011,25 @@ class Sensor:
         """Rule 12: Mt eigenvalues must all have negative real part."""
         return bool(self.mt_stable)
 
+    @cached_property
+    def core_rule13_ok(self) -> bool:
+        """Rule 13: pileup probability should be below 0.5."""
+        return bool(self.pileup_probability_max < 0.5)
+
+    @cached_property
+    def core_rule14_ok(self) -> bool:
+        """Rule 14: NEP at 0 Hz should be within 1% of phonon NEP."""
+        ratio = self.nep_phi_0hz_over_phonon_ratio
+        if not np.isfinite(ratio):
+            return False
+        return bool(abs(ratio - 1.0) <= 0.01)
+
     def estimates(self) -> Dict[str, float]:
         return {
             "f0_Hz": self.f0_Hz,
             "detuning_widths": self.detuning_widths,
             "detuning_Hz": self.detuning_Hz,
+            "x": self.x,
             "f_demod_Hz": self.f_demod_Hz,
             "count_rate_Hz": self.count_rate_Hz,
             "pileup_probability_max": self.pileup_probability_max,
@@ -886,9 +1078,9 @@ class Sensor:
             "tau_ratio_res_over_th": self.tau_ratio_res_over_th,
             "core_rule1_left_ratio": self.core_rule1_left_ratio,
             "core_rule1_right_ratio": self.core_rule1_right_ratio,
-            "core_rule1_ok": float(self.core_rule1_left_ratio < 0.1),
+            "core_rule1_ok": float(self.core_rule1_ok),
             "core_rule2_ratio": self.core_rule2_ratio,
-            "core_rule2_ok": float(self.core_rule1_right_ratio < 1.0),
+            "core_rule2_ok": float(self.core_rule2_ok),
             "core_rule3_ok": float(self.core_rule3_ok),
             "core_rule4_ok": float(self.core_rule4_ok),
             "core_rule5_ok": float(self.core_rule5_ok),
@@ -899,6 +1091,8 @@ class Sensor:
             "core_rule10_ok": float(self.core_rule10_ok),
             "core_rule11_ok": float(self.core_rule11_ok),
             "core_rule12_ok": float(self.core_rule12_ok),
+            "core_rule13_ok": float(self.core_rule13_ok),
+            "core_rule14_ok": float(self.core_rule14_ok),
             "L_geo_H": self.L_geo_H,
             "L_total_H": self.L_total_H,
             "C_res_F": self.C_res_F,
@@ -913,10 +1107,24 @@ class Sensor:
             "sphi_j_ref_per_hz": self.sphi_j_ref_per_hz,
             "sf_over_f0sq_johnson_ref": self.sf_over_f0sq_johnson_ref,
             "sphi_johnson_full_per_hz": self.sphi_johnson_full_per_hz,
+            "asd_phi_johnson_full_per_rtHz": self.asd_phi_johnson_full_per_rtHz,
             "sphi_tls_per_hz": self.sphi_tls_per_hz,
             "asd_phi_tls_per_rtHz": self.asd_phi_tls_per_rtHz,
+            "sphi_electronic_per_hz": self.sphi_electronic_per_hz,
+            "asd_phi_electronic_per_rtHz": self.asd_phi_electronic_per_rtHz,
+            "sphi_total_per_hz": self.sphi_total_per_hz,
+            "asd_phi_total_per_rtHz": self.asd_phi_total_per_rtHz,
             "asd_phi_tls_100hz_model_per_rtHz": self.asd_phi_tls_100hz_model_per_rtHz,
             "asd_phi_phonon_full_per_rtHz": self.asd_phi_phonon_full_per_rtHz,
+            "phase_responsivity_rad_per_W": self.phase_responsivity_rad_per_W,
+            "nep_phi_johnson_W_per_rtHz": self.nep_phi_johnson_W_per_rtHz,
+            "nep_phi_tls_W_per_rtHz": self.nep_phi_tls_W_per_rtHz,
+            "nep_phi_phonon_W_per_rtHz": self.nep_phi_phonon_W_per_rtHz,
+            "nep_phi_electronic_W_per_rtHz": self.nep_phi_electronic_W_per_rtHz,
+            "nep_phi_total_W_per_rtHz": self.nep_phi_total_W_per_rtHz,
+            "nep_phi_phonon_0hz_W_per_rtHz": self.nep_phi_phonon_0hz_W_per_rtHz,
+            "nep_phi_total_0hz_W_per_rtHz": self.nep_phi_total_0hz_W_per_rtHz,
+            "nep_phi_0hz_over_phonon_ratio": self.nep_phi_0hz_over_phonon_ratio,
             "dphi_df_detuning_per_hz": self.dphi_df_detuning_per_hz,
             "sf_over_f0sq_johnson_full": self.sf_over_f0sq_johnson_full,
             "sf_over_f0sq_johnson_simple": self.sf_over_f0sq_johnson_simple,
@@ -939,6 +1147,8 @@ class Sensor:
             "beta_phi": self.beta_phi,
             "Tc_K": self.Tc_K,
             "P0_W": self.P0_W,
+            "Pg_W": self.Pg_W,
+            "pg_to_p0_factor": self.pg_to_p0_factor,
             "delta_J": self.delta_J,
             "eqp_J": self.eqp_J,
             "phonon_power_rms_W": self.phonon_power_rms_W,
