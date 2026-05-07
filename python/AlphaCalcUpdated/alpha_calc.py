@@ -439,9 +439,10 @@ def main():
     progress(f"[main] Starting alpha workflow from {__file__}")
 
     # Set constants
-    constants_lowT = {'Tc': 1, 'Tdb': 275, 'w0': 1.194e9 * 2 * np.pi, 'type': 'lowT'}
-    # constants_NBTiN = {'Tc': 14, 'Tdb': 275, 'w0': 1.194e9 * 2 * np.pi, 'type': 'NbTiN'}
+    constants_lowT = {'Tc': 2, 'Tdb': 275, 'w0': 1.194e9 * 2 * np.pi, 'type': 'lowT'}
+    constants_NBTiN = {'Tc': 14, 'Tdb': 275, 'w0': 1e9 * 2 * np.pi, 'type': 'NbTiN'}
     constants = constants_lowT
+    # constants = constants_NBTiN
 
     # Set the temperatures to calculate
     temps = np.linspace(0.05 * constants['Tc'], 0.9 * constants['Tc'], num=100)  # Temperatures from 0.3 Tc to 0.9 Tc
