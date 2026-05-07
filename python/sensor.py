@@ -34,9 +34,8 @@ class SensorInputs:
     T0_K: float
     Tb_K: float
 
-    # Geometry + count-rate requirements (primary project knobs)
-    count_rate_Hz: float
-    deltaT_abs_over_bath_setpoint_K: float
+    # Geometry + thermal-capacity requirements (primary project knobs)
+    heat_capacity_eV_per_mK: float
     ho_in_au_atomic_fraction: float
     ho_decay_energy_J: float
     kid_length_m: float
@@ -50,16 +49,16 @@ class SensorInputs:
     # Material properties used with geometry (independent inputs)
     cv_absorber_J_per_m3K: float
     kappa_leg_W_per_mK: float
+    thermal_link_exponent_n: float
 
     # Simplified TLS model inputs
     tls_phi_asd_100hz_per_rtHz: float
     tls_beta: float
-    sphi_j_ref_per_hz: float
 
     # Resonator/electrical operating point
     f0_Hz: float
-    Qr: float
     Qi: float
+    Qc: float
     tau_qp_s: float
     kinetic_inductance_fraction: float
     kid_trace_length_m: float
@@ -69,7 +68,7 @@ class SensorInputs:
     beta_A: float
     beta_phi: float
     Tc_K: float
-    p0_over_pbif_target: float
+    pg_drive_dBm: float
     bifurcation_energy_scale_J: float
     pbif_typical_min_dBm: float
     pbif_typical_max_dBm: float
@@ -77,6 +76,7 @@ class SensorInputs:
 
     # Readout condition
     detuning_widths: float
+    nep_sufficiency_percent: float
     f_demod_Hz: float = 0.0
 
 
@@ -85,9 +85,8 @@ class Version1SensorInputs(SensorInputs):
     """Primary project preset (version 1 configuration)."""
 
     T0_K: float = 0.100
-    Tb_K: float = 0.100
-    count_rate_Hz: float = 130.0
-    deltaT_abs_over_bath_setpoint_K: float = 0.060
+    Tb_K: float = 0.040
+    heat_capacity_eV_per_mK: float = 49.516636998679125
     ho_in_au_atomic_fraction: float = 0.004333333333333333
     ho_decay_energy_J: float = 4.5e-16
     kid_length_m: float = 220e-6
@@ -99,12 +98,12 @@ class Version1SensorInputs(SensorInputs):
     membrane_thickness_m: float = 1.0e-6
     cv_absorber_J_per_m3K: float = 0.075
     kappa_leg_W_per_mK: float = 1.5e-3
+    thermal_link_exponent_n: float = 3.0
     tls_phi_asd_100hz_per_rtHz: float = 1.0e-6
     tls_beta: float = 0.5
-    sphi_j_ref_per_hz: float = 1.0e-18
     f0_Hz: float = 1.0e9
-    Qr: float = 50000.0
     Qi: float = 100000.0
+    Qc: float = 100000.0
     tau_qp_s: float = 5.0e-8
     kinetic_inductance_fraction: float = 0.5
     kid_trace_length_m: float = 10.0e-3
@@ -114,22 +113,23 @@ class Version1SensorInputs(SensorInputs):
     beta_A: float = 0.0
     beta_phi: float = 0.0
     Tc_K: float = 2.0
-    p0_over_pbif_target: float = 0.7
+    pg_drive_dBm: float = -95.98599459218455
     bifurcation_energy_scale_J: float = 1.4323944878270582e-13
     pbif_typical_min_dBm: float = -95.0
     pbif_typical_max_dBm: float = -70.0
     thermal_energy_resolution_target_eV: float = 0.1
     detuning_widths: float = 0.5
+    nep_sufficiency_percent: float = 10.0
     f_demod_Hz: float = 0.0
 
 @dataclass(frozen=True)
 class Sensor:
     """Sensor model instantiated from a SensorInputs object.
 
-    Basic inputs are geometry + count-rate requirements, plus independent
+    Basic inputs are geometry + heat-capacity requirements, plus independent
     electrical/material constants. Leg width is a basic geometry parameter.
-    Tau derives from count rate, G derives from C/tau, and leg length derives
-    from G and leg geometry/material parameters.
+    Count rate derives from absorber volume and Ho activity. G derives from C/tau,
+    and leg length derives from G and leg geometry/material parameters.
 
     Notes:
     - Noise estimates are evaluated in phase direction at demodulated frequency 0 Hz.
@@ -174,8 +174,8 @@ class Sensor:
 
     @cached_property
     def absorber_volume_m3(self) -> float:
-        """Absorber volume required to meet count rate at chosen Ho density."""
-        return self.count_rate_Hz / self.ho_activity_per_m3_Hz
+        """Absorber volume implied by heat capacity and absorber material c_v."""
+        return self.C_J_per_K / self.cv_absorber_J_per_m3K
 
     @cached_property
     def absorber_edge_m(self) -> float:
@@ -216,13 +216,18 @@ class Sensor:
 
     @cached_property
     def C_J_per_K(self) -> float:
-        """Derived heat capacity from absorber geometry."""
-        return self.cv_absorber_J_per_m3K * self.absorber_volume_m3
+        """Heat capacity converted from primary input heat_capacity_eV_per_mK."""
+        return self.heat_capacity_eV_per_mK * 1.0e3 * J_PER_EV
+
+    @cached_property
+    def count_rate_Hz(self) -> float:
+        """Derived count rate from Ho activity and absorber volume."""
+        return self.ho_activity_per_m3_Hz * self.absorber_volume_m3
 
     @cached_property
     def tau_resolve_s(self) -> float:
         """Resolve window from pileup requirement: P ~ R * tau_resolve."""
-        return self.pileup_probability_max / self.count_rate_Hz
+        return self.nep_sufficient_time_s
 
     @cached_property
     def tau_th_s(self) -> float:
@@ -232,7 +237,14 @@ class Sensor:
     @cached_property
     def G_W_per_K(self) -> float:
         """Thermal conductance set by operating-point temperature elevation."""
+        if self.deltaT_abs_over_bath_setpoint_K <= 0.0:
+            raise ValueError("T0_K must be greater than Tb_K to define positive thermal elevation")
         return self.P0_W / self.deltaT_abs_over_bath_setpoint_K
+
+    @cached_property
+    def deltaT_abs_over_bath_setpoint_K(self) -> float:
+        """Operating-point elevation setpoint derived from T0 and Tb."""
+        return self.T0_K - self.Tb_K
 
     @cached_property
     def deltaT_abs_over_bath_K(self) -> float:
@@ -251,13 +263,13 @@ class Sensor:
 
     @cached_property
     def C_eV_per_mK(self) -> float:
-        """Island heat capacity in eV/mK."""
-        return (self.C_J_per_K / J_PER_EV) / 1.0e3
+        """Island heat capacity in eV/mK (primary input value)."""
+        return self.heat_capacity_eV_per_mK
 
     @cached_property
     def C_ho_eV_per_mK(self) -> float:
         """Ho absorber heat capacity in eV/mK."""
-        return (self.C_J_per_K / J_PER_EV) / 1.0e3
+        return self.heat_capacity_eV_per_mK
 
     @cached_property
     def ho_decay_energy_eV(self) -> float:
@@ -321,21 +333,33 @@ class Sensor:
         return self.Z0_res_Ohm / self.Qr
 
     @cached_property
-    def Qc(self) -> float:
-        """Coupling Q derived from loaded Qr and internal Qi."""
-        denom = (1.0 / self.Qr) - (1.0 / self.Qi)
-        if denom <= 0.0:
+    def Qr(self) -> float:
+        """Loaded resonator Q derived from internal and coupling Q values."""
+        if self.Qi <= 0.0 or self.Qc <= 0.0:
             return float("nan")
-        return 1.0 / denom
+        return 1.0 / ((1.0 / self.Qi) + (1.0 / self.Qc))
 
     @cached_property
     def phonon_power_rms_W(self) -> float:
-        return sqrt(4.0 * K_B * (self.Tb_K**2) * self.G_W_per_K)
+        """Phonon TFN ASD with two-temperature weak-link correction."""
+        return self.phonon_power_asd_device_W_per_rtHz
 
     @cached_property
     def phonon_power_asd_device_W_per_rtHz(self) -> float:
-        """Simple phonon power ASD at device temperature T0."""
-        return sqrt(4.0 * K_B * (self.T0_K**2) * self.G_W_per_K)
+        """Phonon TFN ASD: sqrt(4 k_B T0^2 G F_link(T0,Tb,n))."""
+        n = self.thermal_link_exponent_n
+        if n <= -1.0:
+            raise ValueError("thermal_link_exponent_n must be > -1")
+        if self.T0_K <= 0.0 or self.Tb_K <= 0.0:
+            raise ValueError("T0_K and Tb_K must be > 0")
+        r = self.Tb_K / self.T0_K
+        denom = 1.0 - (r ** (n + 1.0))
+        if abs(denom) < 1.0e-15:
+            f_link = 1.0
+        else:
+            num = 1.0 - (r ** (2.0 * n + 3.0))
+            f_link = ((n + 1.0) / (2.0 * n + 3.0)) * (num / denom)
+        return sqrt(4.0 * K_B * (self.T0_K**2) * self.G_W_per_K * f_link)
 
     @cached_property
     def johnson_voltage_rms_V(self) -> float:
@@ -374,8 +398,105 @@ class Sensor:
 
     @cached_property
     def pileup_probability_max(self) -> float:
-        """Derived pileup probability from rate and solved thermal time constant."""
-        return self.count_rate_Hz * self.tau_th_s
+        """Per-event rejection probability for a +/-tau coincidence veto window.
+
+        Uses tau = nep_sufficient_time_s and Poisson arrivals with rate R.
+        An event is rejected if any other event occurs within +/-tau, so:
+            P_reject = 1 - exp(-2 R tau)
+        This rejects both pulses in a colliding pair.
+        """
+        arg = -2.0 * self.count_rate_Hz * self.nep_sufficient_time_s
+        return 1.0 - float(np.exp(arg))
+
+    def _phase_nep_spectrum(self) -> tuple[np.ndarray, np.ndarray]:
+        """Phase-total NEP spectrum used for NEP sufficiency calculations."""
+        eigs = np.array(self.mt_eigenvalues, dtype=complex)
+        max_mode_rate_per_s = float(np.max(np.abs(eigs)))
+        f_min_hz = 0.1
+        f_max_hz = max(f_min_hz * 10.0, 10.0 * max_mode_rate_per_s / (2.0 * pi))
+        freqs_hz = np.logspace(np.log10(f_min_hz), np.log10(f_max_hz), 1000)
+
+        asd_phase_johnson = np.zeros_like(freqs_hz)
+        asd_phase_phonon = np.zeros_like(freqs_hz)
+        asd_phase_tls = np.zeros_like(freqs_hz)
+        asd_phase_electronic = np.zeros_like(freqs_hz)
+        phase_resp = np.zeros_like(freqs_hz)
+
+        for i, f_hz in enumerate(freqs_hz):
+            y_j_a = self._propagate_noise_vector(self.n_johnson_A(), float(f_hz))
+            y_j_phi = self._propagate_noise_vector(self.n_johnson_phi(), float(f_hz))
+            y_ph = self._propagate_noise_vector(self.n_phonon(), float(f_hz))
+            m_tls_f = self.m_tls_from_ratio(self.sf_over_f0sq_tls_at_hz(float(f_hz)), self.sf_over_f0sq_johnson_full)
+            y_tls = self._propagate_noise_vector(self.n_tls_phi(m_tls_f), float(f_hz))
+            y_e_a = self._propagate_noise_vector(self.n_electronic_A(), float(f_hz))
+            y_e_phi = self._propagate_noise_vector(self.n_electronic_phi(), float(f_hz))
+
+            asd_phase_johnson[i] = np.sqrt(abs(y_j_a[1]) ** 2 + abs(y_j_phi[1]) ** 2)
+            asd_phase_phonon[i] = abs(y_ph[1])
+            asd_phase_tls[i] = abs(y_tls[1])
+            asd_phase_electronic[i] = np.sqrt(abs(y_e_a[1]) ** 2 + abs(y_e_phi[1]) ** 2)
+            phase_resp[i] = self.phase_responsivity_mag_rad_per_W_at_hz(float(f_hz))
+
+        asd_phase_total = np.sqrt(asd_phase_johnson**2 + asd_phase_phonon**2 + asd_phase_tls**2 + asd_phase_electronic**2)
+        nep_phase_total = np.where(phase_resp > 0.0, asd_phase_total / phase_resp, np.nan)
+        return freqs_hz, nep_phase_total
+
+    @staticmethod
+    def _first_sufficiency_frequency_hz(
+        f_hz: np.ndarray, nep_w_per_rthz: np.ndarray, sufficiency_percent: float
+    ) -> float:
+        """First frequency (high->low integration) within sufficiency_percent of full sigma."""
+        f = np.asarray(f_hz, dtype=float)
+        nep = np.asarray(nep_w_per_rthz, dtype=float)
+        valid = np.isfinite(f) & np.isfinite(nep) & (f > 0.0) & (nep > 0.0)
+        if np.count_nonzero(valid) < 2:
+            return float("nan")
+        f = f[valid]
+        nep = nep[valid]
+        order = np.argsort(f)
+        f = f[order]
+        nep = nep[order]
+        if np.any(np.diff(f) <= 0.0):
+            return float("nan")
+
+        # Cumulative information from the high-frequency end down to each f.
+        integrand = 4.0 / (nep * nep)
+        df = np.diff(f)
+        trap = 0.5 * (integrand[:-1] + integrand[1:]) * df
+        inv_sigma2_prefix = np.zeros_like(f)
+        inv_sigma2_prefix[1:] = np.cumsum(trap)
+        inv_sigma2_full = float(inv_sigma2_prefix[-1])
+        # Numerical guard: high->low cumulative information must be >= 0.
+        inv_sigma2_cum = np.maximum(inv_sigma2_full - inv_sigma2_prefix, 0.0)
+        if inv_sigma2_full <= 0.0 or not np.isfinite(inv_sigma2_full):
+            return float("nan")
+
+        sigma_full = 1.0 / sqrt(inv_sigma2_full)
+        frac = max(0.0, float(sufficiency_percent)) / 100.0
+        sigma_target = (1.0 + frac) * sigma_full
+        sigma_cum = np.full_like(inv_sigma2_cum, np.inf, dtype=float)
+        pos = inv_sigma2_cum > 0.0
+        sigma_cum[pos] = 1.0 / np.sqrt(inv_sigma2_cum[pos])
+        hit = sigma_cum <= sigma_target
+        idxs = np.where(hit)[0]
+        if idxs.size == 0:
+            return float("nan")
+        # First crossing while scanning from high to low.
+        return float(f[idxs[-1]])
+
+    @cached_property
+    def nep_sufficient_frequency_hz(self) -> float:
+        """First low->high frequency where cumulative NEP sigma is sufficiently close."""
+        freqs_hz, nep_phase_total = self._phase_nep_spectrum()
+        return self._first_sufficiency_frequency_hz(freqs_hz, nep_phase_total, self.nep_sufficiency_percent)
+
+    @cached_property
+    def nep_sufficient_time_s(self) -> float:
+        """Characteristic window time from NEP-sufficient frequency."""
+        f = self.nep_sufficient_frequency_hz
+        if not np.isfinite(f) or f <= 0.0:
+            return float("nan")
+        return 1.0 / f
 
     @cached_property
     def tau_error_fraction(self) -> float:
@@ -413,10 +534,6 @@ class Sensor:
         return self.core_rule2_ratio <= 1.0
 
     @cached_property
-    def sf_over_f0sq_johnson_ref(self) -> float:
-        return self.fractional_frequency_psd_from_phase(self.sphi_j_ref_per_hz)
-
-    @cached_property
     def sf_over_f0sq_tls_model(self) -> float:
         return self.sf_over_f0sq_tls()
 
@@ -426,7 +543,7 @@ class Sensor:
         return self.m_tls_from_ratio(self.sf_over_f0sq_tls_model, self.sf_over_f0sq_johnson_full)
 
     def n_phonon(self) -> Tuple[complex, complex, complex]:
-        return (0.0 + 0.0j, 0.0 + 0.0j, self.phonon_power_rms_W + 0.0j)
+        return (0.0 + 0.0j, 0.0 + 0.0j, self.phonon_power_asd_device_W_per_rtHz + 0.0j)
 
     def n_johnson_A(self) -> Tuple[complex, complex, complex]:
         return (self.nj_scale + 0.0j, 0.0 + 0.0j, -self.nj_thermal_scale + 0.0j)
@@ -942,8 +1059,15 @@ class Sensor:
 
     @cached_property
     def Pg_W(self) -> float:
-        """Generator/readout drive power set as a fraction of bifurcation power."""
-        return self.p0_over_pbif_target * self.p_bifurcation_W
+        """Generator/readout drive power from input drive level in dBm."""
+        return 1.0e-3 * (10.0 ** (self.pg_drive_dBm / 10.0))
+
+    @cached_property
+    def p0_over_pbif_target(self) -> float:
+        """Derived drive fraction relative to bifurcation power: Pg / P_bif."""
+        if self.p_bifurcation_W <= 0.0:
+            return float("nan")
+        return self.Pg_W / self.p_bifurcation_W
 
     @cached_property
     def pg_to_p0_factor(self) -> float:
@@ -1024,6 +1148,13 @@ class Sensor:
             return False
         return bool(abs(ratio - 1.0) <= 0.01)
 
+    @cached_property
+    def core_rule15_ok(self) -> bool:
+        """Rule 15: drive must stay below bifurcation (Pg/Pbif < 1)."""
+        if not np.isfinite(self.p0_over_pbif_target):
+            return False
+        return bool(self.p0_over_pbif_target < 1.0)
+
     def estimates(self) -> Dict[str, float]:
         return {
             "f0_Hz": self.f0_Hz,
@@ -1031,8 +1162,11 @@ class Sensor:
             "detuning_Hz": self.detuning_Hz,
             "x": self.x,
             "f_demod_Hz": self.f_demod_Hz,
+            "nep_sufficiency_percent": self.nep_sufficiency_percent,
             "count_rate_Hz": self.count_rate_Hz,
             "pileup_probability_max": self.pileup_probability_max,
+            "nep_sufficient_frequency_hz": self.nep_sufficient_frequency_hz,
+            "nep_sufficient_time_s": self.nep_sufficient_time_s,
             "ho_in_au_atomic_fraction": self.ho_in_au_atomic_fraction,
             "au_number_density_per_m3": self.au_number_density_per_m3,
             "ho_number_density_per_m3": self.ho_number_density_per_m3,
@@ -1056,6 +1190,7 @@ class Sensor:
             "C_eV_per_mK": self.C_eV_per_mK,
             "C_ho_eV_per_mK": self.C_ho_eV_per_mK,
             "G_W_per_K": self.G_W_per_K,
+            "deltaT_abs_over_bath_setpoint_K": self.deltaT_abs_over_bath_setpoint_K,
             "deltaT_abs_over_bath_K": self.deltaT_abs_over_bath_K,
             "tbath_from_link_K": self.tbath_from_link_K,
             "deltaT_event_full_absorption_K": self.deltaT_event_full_absorption_K,
@@ -1093,19 +1228,21 @@ class Sensor:
             "core_rule12_ok": float(self.core_rule12_ok),
             "core_rule13_ok": float(self.core_rule13_ok),
             "core_rule14_ok": float(self.core_rule14_ok),
+            "core_rule15_ok": float(self.core_rule15_ok),
             "L_geo_H": self.L_geo_H,
             "L_total_H": self.L_total_H,
             "C_res_F": self.C_res_F,
             "Z0_res_Ohm": self.Z0_res_Ohm,
             "R0_Ohm": self.R0_Ohm,
             "Qc": self.Qc,
+            "Qr": self.Qr,
             "p_bifurcation_W": self.p_bifurcation_W,
             "p_bifurcation_dBm": self.p_bifurcation_dBm,
+            "pg_drive_dBm": self.pg_drive_dBm,
+            "p0_over_pbif_target": self.p0_over_pbif_target,
             "bifurcation_power_ratio": self.bifurcation_power_ratio,
             "tls_phi_asd_100hz_per_rtHz": self.tls_phi_asd_100hz_per_rtHz,
             "tls_beta": self.tls_beta,
-            "sphi_j_ref_per_hz": self.sphi_j_ref_per_hz,
-            "sf_over_f0sq_johnson_ref": self.sf_over_f0sq_johnson_ref,
             "sphi_johnson_full_per_hz": self.sphi_johnson_full_per_hz,
             "asd_phi_johnson_full_per_rtHz": self.asd_phi_johnson_full_per_rtHz,
             "sphi_tls_per_hz": self.sphi_tls_per_hz,

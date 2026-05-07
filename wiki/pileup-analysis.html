@@ -29,48 +29,42 @@
     <section class="card">
       <h2>Assumptions</h2>
       <ul>
-        <li>Average event rate: \(R=50\,\mathrm{Hz}\)</li>
-        <li>Average spacing: \(\bar{\Delta t}=1/R=20\,\mathrm{ms}=20000\,\mu s\)</li>
-        <li>Single-pulse shape tail modeled as exponential \(\propto e^{-t/\tau}\)</li>
-        <li>Pileup criterion: pileup occurs if more than \(1/20000\) of first-pulse area remains when second pulse begins</li>
+        <li>Average event rate: \(R\) from source activity and absorber volume</li>
+        <li>NEP sufficiency percent input: \(p_{\mathrm{NEP,suff}}\) (default \(10\%\))</li>
+        <li>Phase-total NEP spectrum integrated from high to low frequency</li>
+        <li>Coincidence veto window set by NEP-sufficient time \(\tau_{\mathrm{NEP,suff}}\)</li>
       </ul>
-      <p>Tail-area fraction after delay \(\Delta t\):</p>
+      <p>The cumulative and full NEP-based energy resolutions are:</p>
       <p>\[
-      f_{tail}(\Delta t)=e^{-\Delta t/\tau}.
+      \sigma_E^{\mathrm{hi\to lo}}(f)=\left[\int_{f}^{f_{\max}}\frac{4}{\mathrm{NEP}(f')^2}\,df'\right]^{-1/2},\qquad
+      \sigma_{E,\mathrm{full}}=\left[\int_{f_{\min}}^{f_{\max}}\frac{4}{\mathrm{NEP}(f')^2}\,df'\right]^{-1/2}.
       \]</p>
-      <p>Pileup threshold delay:</p>
+      <p>Define the first sufficient frequency:</p>
       <p>\[
-      e^{-\Delta t/\tau}>1/20000\Rightarrow \Delta t<\tau\ln(20000)\approx 9.90\,\tau.
+      f_{\mathrm{NEP,suff}}=\max\left\{f:\sigma_E^{\mathrm{hi\to lo}}(f)\le\left(1+\frac{p_{\mathrm{NEP,suff}}}{100}\right)\sigma_{E,\mathrm{full}}\right\},
+      \quad
+      \tau_{\mathrm{NEP,suff}}=\frac{1}{f_{\mathrm{NEP,suff}}}.
       \]</p>
-      <p>Derivation page: <a href="energy-window-criterion.html">Energy Window Criterion</a></p>
-      <p>For Poisson arrivals, per-event pileup probability:</p>
+      <p>Any pulse with another arrival inside \(\pm\tau_{\mathrm{NEP,suff}}\) is rejected (both colliding pulses rejected). For Poisson arrivals, the per-event rejection probability is:</p>
       <p>\[
-      P_{pileup}=1-e^{-R\,(9.90\tau)}.
+      P_{\mathrm{pileup,reject}}=1-e^{-2R\tau_{\mathrm{NEP,suff}}}.
       \]</p>
     </section>
 
     <section class="card">
-      <h2>Results Table</h2>
-      <table>
-        <tr>
-          <th>\(\tau\) choice</th>
-          <th>\(\tau\) (\(\mu s\))</th>
-          <th>Overlap window \(9.90\tau\) (ms)</th>
-          <th>\(P_{pileup}\) per event</th>
-        </tr>
-        <tr><td>\(\bar{\Delta t}/100\)</td><td>200</td><td>1.98</td><td>9.4%</td></tr>
-        <tr><td>\(\bar{\Delta t}/50\)</td><td>400</td><td>3.96</td><td>18.0%</td></tr>
-        <tr><td>\(\bar{\Delta t}/20\)</td><td>1000</td><td>9.90</td><td>39.0%</td></tr>
-        <tr><td>\(\bar{\Delta t}/10\)</td><td>2000</td><td>19.80</td><td>62.8%</td></tr>
-      </table>
+      <h2>Model Outputs</h2>
+      <p>See the current computed values in <a href="python-estimates.html">Python Estimates</a>:</p>
+      <ul>
+        <li><code>nep_sufficiency_percent</code></li>
+        <li><code>nep_sufficient_frequency_hz</code></li>
+        <li><code>nep_sufficient_time_s</code></li>
+        <li><code>pileup_probability_max</code> (used as rejection probability)</li>
+      </ul>
     </section>
 
     <section class="card">
-      <h2>Recommendation</h2>
-      <p><strong>Selected design goal for this project:</strong> \(\tau=\bar{\Delta t}/20\) (1.0 ms).</p>
-      <p>This corresponds to the table row with overlap window \(9.90\tau=9.90\,\mathrm{ms}\) and raw Poisson overlap probability \(\sim39\%\) under the strict worst-case criterion.</p>
-      <p>This choice is intentionally conservative with respect to integration-window bias control and assumes model-based pulse fitting will further reduce effective energy bias from overlaps.</p>
-      <p><strong>Important:</strong> this is conservative. In practice, pulse fitting/deconvolution can recover substantially better energy estimates than worst-case direct integration, reducing effective bias from overlaps.</p>
+      <h2>Default Setting</h2>
+      <p>The default model setting is \(p_{\mathrm{NEP,suff}}=10\%\), meaning \(\tau_{\mathrm{NEP,suff}}\) is taken where cumulative NEP resolution comes within 10% while integrating from high to low of the full-band NEP resolution.</p>
     </section>
   </main>
 </body>

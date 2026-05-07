@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detuned Quadrature Mixing | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Detuned Quadrature Mixing</h1>
+    <p>Why TLS can appear in amplitude readout when the resonator is detuned.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="theory.html">Theory</a>
+    <a href="m-matrix.html">M Matrix</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="detuned-quadrature-mixing.html" class="active">Detuned Mixing</a>
+    <a href="noise-tls.html">TLS + Johnson</a>
+    <a href="signal-processing.html">Signal Processing</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Short Answer</h2>
+      <p>Yes, this is physical and expected: with nonzero detuning, phase-like and amplitude-like outputs are mixed by the linear response matrix.</p>
+      <p>So a TLS source that is introduced in the phase-like source vector can produce a nonzero amplitude-channel output.</p>
+    </section>
+
+    <section class="card">
+      <h2>What Changes Off Resonance</h2>
+      <p>On resonance, quadratures align more closely with reactive (phase) and dissipative (amplitude) directions.</p>
+      <p>With detuning \(x\neq 0\), those directions rotate/mix. In matrix form:</p>
+      <p>\[
+      Y(\omega)=M^{-1}(\omega)\,N(\omega),
+      \]</p>
+      <p>and off-diagonal couplings in \(M\) (including detuning-dependent terms) make the amplitude output depend on phase-like source components.</p>
+      <p>See <a href="theory.html">Theory</a> and <a href="m-matrix.html">M Matrix</a> for the full coefficient definitions.</p>
+    </section>
+
+    <section class="card">
+      <h2>Does This Mean TLS Does Work?</h2>
+      <p>No. Observing TLS in amplitude readout under detuning does <strong>not</strong> by itself imply TLS is supplying net dissipative power.</p>
+      <p>It primarily reflects readout-basis projection: a reactive fluctuation source can project onto the measured amplitude coordinate when the operating point is detuned.</p>
+    </section>
+
+    <section class="card">
+      <h2>Connection to the Python Model</h2>
+      <p>In code, TLS is injected as a phase-like source vector and propagated through \(M^{-1}\):</p>
+      <ul>
+        <li><a href="../python/sensor.py"><code>Sensor.n_tls_phi()</code></a> defines the TLS source vector.</li>
+        <li><a href="../python/sensor.py"><code>Sensor._propagate_noise_vector()</code></a> applies matrix propagation.</li>
+        <li>The GUI computes both phase and amplitude channel outputs versus frequency and converts each to NEP using channel-specific responsivity.</li>
+      </ul>
+      <p>Practical implication: in amplitude-readout mode, a TLS trace can be nonzero even when TLS is modeled as phase-like at injection.</p>
+    </section>
+  </main>
+</body>
+</html>
+

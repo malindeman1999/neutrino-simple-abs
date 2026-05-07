@@ -40,13 +40,14 @@
       <table>
         <tr><th>Parameter</th><th>Value</th></tr>
         <tr><td>\\(T_0\\)</td><td><code>0.1</code> K</td></tr>
-        <tr><td>\\(T_b\\)</td><td><code>0.1</code> K</td></tr>
+        <tr><td>\\(T_b\\)</td><td><code>0.04</code> K</td></tr>
         <tr><td>\\(f_0\\)</td><td><code>1.000000e+09</code> Hz</td></tr>
-        <tr><td>Detuning</td><td><code>0</code> widths (<code>0</code> Hz)</td></tr>
+        <tr><td>Detuning</td><td><code>0.5</code> widths (<code>1.000000e+04</code> Hz)</td></tr>
+        <tr><td>NEP sufficiency threshold</td><td><code>10</code> %</td></tr>
         <tr><td>Demod frequency</td><td><code>0</code> Hz</td></tr>
         <tr><td>\\((P_g/P_{bif})_{target}\\)</td><td><code>0.7</code></td></tr>
         <tr><td>\\(P_g\\)</td><td><code>2.520000e-13</code> W</td></tr>
-        <tr><td>\\(P_0\\)</td><td><code>1.260000e-13</code> W</td></tr>
+        <tr><td>\\(P_0\\)</td><td><code>6.300000e-14</code> W</td></tr>
         <tr><td>\\(E_*\\)</td><td><code>1.432394e-13</code> J</td></tr>
       </table>
     </section>
@@ -56,7 +57,9 @@
       <table>
         <tr><th>Parameter</th><th>Value</th></tr>
         <tr><td>Count rate \\(R\\)</td><td><code>130</code> Hz</td></tr>
-        <tr><td>Pileup probability max</td><td><code>0.491118</code></td></tr>
+        <tr><td>Pileup rejection probability</td><td><code>0.90494</code></td></tr>
+        <tr><td>NEP sufficient frequency</td><td><code>110.486</code> Hz</td></tr>
+        <tr><td>NEP sufficient time</td><td><code>0.00905095</code> s</td></tr>
         <tr><td>Ho/Au atomic fraction \\(x_{Ho/Au}\\)</td><td><code>0.00433333</code></td></tr>
         <tr><td>Ho activity \\(A_{Ho}\\)</td><td><code>1.228975e+15</code> Hz/m^3</td></tr>
         <tr><td>Ho event energy \\(E_{Ho}\\)</td><td><code>4.500000e-16</code> J (<code>2808.68</code> eV)</td></tr>
@@ -79,8 +82,8 @@
         <tr><td>\\(C\\)</td><td><code>7.933440e-15</code> J/K</td></tr>
         <tr><td>\\(C_{eV/mK}\\)</td><td><code>49.5166</code> eV/mK</td></tr>
         <tr><td>\\(C_{Ho,eV/mK}\\)</td><td><code>49.5166</code> eV/mK</td></tr>
-        <tr><td>\\(G\\)</td><td><code>2.100000e-12</code> W/K</td></tr>
-        <tr><td>\\(\\tau_{th}\\)</td><td><code>0.00377783</code> s</td></tr>
+        <tr><td>\\(G\\)</td><td><code>1.050000e-12</code> W/K</td></tr>
+        <tr><td>\\(\\tau_{th}\\)</td><td><code>0.00755566</code> s</td></tr>
         <tr><td>\\(\\Delta T_{event}\\)</td><td><code>0.0567219</code> K</td></tr>
       </table>
     </section>
@@ -90,7 +93,7 @@
       <table>
         <tr><th>Check</th><th>Value</th></tr>
         <tr><td>\\(\\tau_{res}\\)</td><td><code>1.591549e-05</code> s</td></tr>
-        <tr><td>\\(\\tau_{th}\\)</td><td><code>0.00377783</code> s</td></tr>
+        <tr><td>\\(\\tau_{th}\\)</td><td><code>0.00755566</code> s</td></tr>
         <tr><td><strong>Rule Statuses</strong></td><td><strong>Pass/Fail</strong></td></tr>
         <tr><td>Rule 1</td><td><code><span class="pass">Pass</span></code></td></tr>
         <tr><td>Rule 2</td><td><code><span class="pass">Pass</span></code></td></tr>
@@ -104,14 +107,14 @@
         <tr><td>Rule 10</td><td><code><span class="pass">Pass</span></code></td></tr>
         <tr><td>Rule 11</td><td><code><span class="pass">Pass</span></code></td></tr>
         <tr><td>Rule 12</td><td><code><span class="pass">Pass</span></code></td></tr>
-        <tr><td>Rule 13</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 13</td><td><code><span class="fail">Fail</span></code></td></tr>
         <tr><td><strong>Bifurcation Metrics</strong></td><td></td></tr>
         <tr><td>\\(\\Delta T_{event}\\)</td><td><code>0.0567219</code> K</td></tr>
         <tr><td>\\(P_{bif}\\)</td><td><code>3.600000e-13</code> W</td></tr>
         <tr><td>\\(P_{bif,dBm}\\)</td><td><code>-94.437</code> dBm</td></tr>
         <tr><td>\\(P_g/P_{bif}\\)</td><td><code>0.7</code></td></tr>
-        <tr><td>\\(\\max \\Re[\\lambda(M_t)]\\)</td><td><code>-264.77</code> 1/s</td></tr>
-        <tr><td>\\(\\rho_{short}\\)</td><td><code>0.999746</code></td></tr>
+        <tr><td>\\(\\max \\Re[\\lambda(M_t)]\\)</td><td><code>-2611.78</code> 1/s</td></tr>
+        <tr><td>\\(\\rho_{short}\\)</td><td><code>0.0506747</code></td></tr>
       </table>
       <p>Stability details: <a href="mt-stability.html">Mt Stability</a>.</p>
     </section>

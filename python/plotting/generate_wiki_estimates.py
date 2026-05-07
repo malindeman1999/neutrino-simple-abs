@@ -72,9 +72,9 @@ def main() -> None:
         "membrane_thickness_m": "m",
         "cv_absorber_J_per_m3K": "J/(m^3 K)",
         "kappa_leg_W_per_mK": "W/(m K)",
+        "thermal_link_exponent_n": "1",
         "tls_phi_asd_100hz_per_rtHz": "1/Hz^(1/2)",
         "tls_beta": "1",
-        "sphi_j_ref_per_hz": "rad^2/Hz",
         "f0_Hz": "Hz",
         "Qr": "1",
         "Qi": "1",
@@ -98,6 +98,7 @@ def main() -> None:
         "delta_J": "J",
         "eqp_J": "J",
         "detuning_widths": "fr/Qr",
+        "nep_sufficiency_percent": "%",
         "detuning_Hz": "Hz",
         "x": "1",
         "f_demod_Hz": "Hz",
@@ -125,6 +126,8 @@ def main() -> None:
         "thermal_energy_fluct_rms_J": "J",
         "thermal_energy_fluct_rms_eV": "eV",
         "tau_th_s": "s",
+        "nep_sufficient_frequency_hz": "Hz",
+        "nep_sufficient_time_s": "s",
         "tau_target_from_rate_s": "s",
         "tau_error_fraction": "1",
         "tau_res_s": "s",
@@ -154,7 +157,6 @@ def main() -> None:
         "p_bifurcation_W": "W",
         "p_bifurcation_dBm": "dBm",
         "bifurcation_power_ratio": "1",
-        "sf_over_f0sq_johnson_ref": "1/Hz",
         "sphi_johnson_full_per_hz": "1/Hz",
         "sphi_tls_per_hz": "1/Hz",
         "asd_phi_tls_per_rtHz": "1/Hz^(1/2)",
@@ -194,7 +196,7 @@ def main() -> None:
         "Tb_K": r"\(T_b\)",
         "count_rate_Hz": r"\(R\)",
         "deltaT_abs_over_bath_setpoint_K": r"\(\Delta T_{\mathrm{abs-bath,set}}\)",
-        "pileup_probability_max": r"\(P_{\mathrm{pileup,max}}\)",
+        "pileup_probability_max": r"\(P_{\mathrm{pileup,reject}}\)",
         "ho_in_au_atomic_fraction": r"\(x_{\mathrm{Ho/Au}}\)",
         "ho_activity_per_m3_Hz": r"\(A_{\mathrm{Ho}}\)",
         "au_number_density_per_m3": r"\(n_{\mathrm{Au}}\)",
@@ -216,9 +218,9 @@ def main() -> None:
         "membrane_thickness_m": r"\(t_{\mathrm{mem}}\)",
         "cv_absorber_J_per_m3K": r"\(c_{V,\mathrm{abs}}\)",
         "kappa_leg_W_per_mK": r"\(\kappa_{\mathrm{leg}}\)",
+        "thermal_link_exponent_n": r"\(n_{\mathrm{link}}\)",
         "tls_phi_asd_100hz_per_rtHz": r"\(\sqrt{S_{\phi,\mathrm{TLS}}}(100\,\mathrm{Hz})\)",
         "tls_beta": r"\(\beta_{\mathrm{TLS}}\)",
-        "sphi_j_ref_per_hz": r"\(S_{\phi,J}^{\mathrm{ref}}\)",
         "f0_Hz": r"\(f_0\)",
         "Qr": r"\(Q_r\)",
         "Qi": r"\(Q_i\)",
@@ -243,6 +245,7 @@ def main() -> None:
         "delta_J": r"\(\Delta\)",
         "eqp_J": r"\(E_{qp}\)",
         "detuning_widths": r"\(xQ_r\)",
+        "nep_sufficiency_percent": r"\(p_{\mathrm{NEP,suff}}\)",
         "detuning_Hz": r"\(\delta f\)",
         "x": r"\(x\)",
         "f_demod_Hz": r"\(f_{\mathrm{demod}}\)",
@@ -270,6 +273,8 @@ def main() -> None:
         "thermal_energy_fluct_rms_J": r"\(\sigma_{E,\mathrm{th}}\)",
         "thermal_energy_fluct_rms_eV": r"\(\sigma_{E,\mathrm{th,eV}}\)",
         "tau_th_s": r"\(\tau_{\mathrm{th}}\)",
+        "nep_sufficient_frequency_hz": r"\(f_{\mathrm{NEP,suff}}\)",
+        "nep_sufficient_time_s": r"\(\tau_{\mathrm{NEP,suff}}\)",
         "tau_target_from_rate_s": r"\(\tau_{\mathrm{target}}\)",
         "tau_error_fraction": r"\(\epsilon_{\tau}\)",
         "tau_res_s": r"\(\tau_{\mathrm{res}}\)",
@@ -299,7 +304,6 @@ def main() -> None:
         "p_bifurcation_W": r"\(P_{\mathrm{bif}}\)",
         "p_bifurcation_dBm": r"\(P_{\mathrm{bif,dBm}}\)",
         "bifurcation_power_ratio": r"\(P_g/P_{\mathrm{bif}}\)",
-        "sf_over_f0sq_johnson_ref": r"\(\left(S_f/f_0^2\right)_J\)",
         "sphi_johnson_full_per_hz": r"\(S_{\phi,J}^{\mathrm{full}}\)",
         "sphi_tls_per_hz": r"\(S_{\phi,\mathrm{TLS}}\)",
         "asd_phi_tls_per_rtHz": r"\(\sqrt{S_{\phi,\mathrm{TLS}}}\)",
@@ -369,8 +373,11 @@ def main() -> None:
         "thermal_energy_fluct_rms_eV": r"\(\sigma_{E,\mathrm{th,eV}}=\sigma_{E,\mathrm{th}}/q_e\)",
         "ho_decay_energy_eV": r"\(E_{\mathrm{Ho,eV}}=\dfrac{E_{\mathrm{Ho}}}{q_e}\)",
         "tau_th_s": r"\(\tau_{\mathrm{th}}=\dfrac{C}{G}\)",
+        "nep_sufficient_frequency_hz": r"\(f_{\mathrm{NEP,suff}}=\max\{f:\sigma_E^{\mathrm{hi\to lo}}(f)\le(1+p_{\mathrm{NEP,suff}}/100)\sigma_{E,\mathrm{full}}\}\)",
+        "nep_sufficient_time_s": r"\(\tau_{\mathrm{NEP,suff}}=\dfrac{1}{f_{\mathrm{NEP,suff}}}\)",
         "tau_target_from_rate_s": r"\(\tau_{\mathrm{target}}=\dfrac{P_{\mathrm{pileup,max}}}{R}\)",
         "tau_error_fraction": r"\(\epsilon_{\tau}=0\)",
+        "pileup_probability_max": r"\(P_{\mathrm{pileup,reject}}=1-e^{-2R\tau_{\mathrm{NEP,suff}}}\)",
         "tau_res_s": r"\(\tau_{\mathrm{res}}=\dfrac{Q_r}{\pi f_0}\)",
         "tau_ratio_res_over_th": r"\(\dfrac{\tau_{\mathrm{res}}}{\tau_{\mathrm{th}}}\)",
         "core_rule1_left_ratio": r"\(\dfrac{\tau_{qp}}{\tau_{\mathrm{res}}}\)",
@@ -388,7 +395,7 @@ def main() -> None:
         "core_rule10_ok": r"\(\text{Pass if } T_{\mathrm{bath}} \gt 10\,\mathrm{mK}\)",
         "core_rule11_ok": r"\(\text{Pass if } \Delta T_{\mathrm{event}} \lt \Delta T_{\mathrm{abs-bath}}\)",
         "core_rule12_ok": r"\(\text{Pass if } \Re[\lambda_i(M_t)]<0,\ \forall i\)",
-        "core_rule13_ok": r"\(\text{Pass if } P_{\mathrm{pileup,max}} < 0.5\)",
+        "core_rule13_ok": r"\(\text{Pass if } P_{\mathrm{pileup,reject}} < 0.5\)",
         "phonon_power_rms_W": r"\(P_{\mathrm{ph,RMS}}=\sqrt{4k_BT_b^2G}\)",
         "L_geo_H": r"\(L_g\approx \mu_0\ell\left[\ln\!\left(\dfrac{2\ell}{w}\right)+0.5\right]\)",
         "L_total_H": r"\(L_{\mathrm{tot}}=\dfrac{L_g}{1-\alpha_k}\)",
@@ -416,7 +423,6 @@ def main() -> None:
         "mt_max_real_part_per_s": r"\(\max\Re[\lambda(M_t)]\)",
         "mt_stable": r"\(1\ \mathrm{if}\ \Re[\lambda_i(M_t)]<0\ \forall i\)",
         "mt_pulse_shortening_ratio": r"\(\rho_{\mathrm{short}}=\dfrac{G/C}{\min_i|\lambda_i(M_t)|}\ \mathrm{if\ stable}\)",
-        "sf_over_f0sq_johnson_ref": r"\(\left(S_f/f_0^2\right)_J=\dfrac{S_{\phi,J}^{\mathrm{ref}}}{(4Q_r)^2}\)",
         "sphi_johnson_full_per_hz": r"\(S_{\phi,J}^{\mathrm{full}}=\left|[Y_{J,A}]_{\phi}\right|^2+\left|[Y_{J,\phi}]_{\phi}\right|^2\)",
         "sphi_tls_per_hz": r"\(S_{\phi,\mathrm{TLS}}=\left|[Y_{\mathrm{TLS}}]_{\phi}\right|^2\)",
         "asd_phi_tls_per_rtHz": r"\(\sqrt{S_{\phi,\mathrm{TLS}}}\)",
@@ -476,6 +482,8 @@ def main() -> None:
         "thermal_energy_fluct_rms_eV": {"thermal_energy_fluct_rms_J"},
         "ho_decay_energy_eV": {"ho_decay_energy_J"},
         "tau_th_s": {"C_J_per_K", "G_W_per_K"},
+        "nep_sufficient_frequency_hz": {"nep_sufficiency_percent", "nep_phi_total_W_per_rtHz"},
+        "nep_sufficient_time_s": {"nep_sufficient_frequency_hz"},
         "tau_target_from_rate_s": {"count_rate_Hz"},
         "tau_error_fraction": set(),
         "tau_res_s": {"Qr", "f0_Hz"},
@@ -486,10 +494,10 @@ def main() -> None:
         "C_res_F": {"f0_Hz", "L_total_H"},
         "Z0_res_Ohm": {"f0_Hz", "L_total_H"},
         "R0_Ohm": {"Z0_res_Ohm", "Qr"},
-        "Pg_W": {"p0_over_pbif_target", "p_bifurcation_W"},
+        "Pg_W": {"pg_drive_dBm"},
         "pg_to_p0_factor": {"Qr", "Qi", "Qc", "x"},
         "P0_W": {"Pg_W", "pg_to_p0_factor"},
-        "Qc": {"Qr", "Qi"},
+        "Qc": set(),
         "p_bifurcation_W": {"Qc", "f0_Hz", "bifurcation_energy_scale_J", "Qr"},
         "p_bifurcation_dBm": {"p_bifurcation_W"},
         "bifurcation_power_ratio": {"Pg_W", "p_bifurcation_W"},
@@ -524,7 +532,6 @@ def main() -> None:
         "core_rule11_ok": {"deltaT_event_full_absorption_K", "deltaT_abs_over_bath_K"},
         "core_rule12_ok": {"mt_stable"},
         "core_rule13_ok": {"pileup_probability_max"},
-        "sf_over_f0sq_johnson_ref": {"sphi_j_ref_per_hz", "Qr"},
         "sphi_johnson_full_per_hz": set(),
         "sphi_tls_per_hz": set(),
         "asd_phi_tls_per_rtHz": {"sphi_tls_per_hz"},
@@ -595,6 +602,8 @@ def main() -> None:
         "thermal_energy_fluct_rms_eV": "simple-estimates.html",
         "ho_decay_energy_eV": "physics.html#thermal-derived-formulas",
         "tau_th_s": "physics.html#thermal-derived-formulas",
+        "nep_sufficient_frequency_hz": "nep-to-sigma.html",
+        "nep_sufficient_time_s": "pileup-analysis.html",
         "tau_target_from_rate_s": "physics.html#thermal-derived-formulas",
         "tau_error_fraction": "physics.html#thermal-derived-formulas",
         "tau_res_s": "physics.html#resonator-derived-formulas",
@@ -639,7 +648,6 @@ def main() -> None:
         "mt_max_real_part_per_s": "mt-stability.html#stability-criterion",
         "mt_stable": "mt-stability.html#stability-criterion",
         "mt_pulse_shortening_ratio": "mt-stability.html#pulse-shortening",
-        "sf_over_f0sq_johnson_ref": "noise-johnson.html#role-in-nep-and-electronic-noise-scaling",
         "sphi_johnson_full_per_hz": "noise-johnson.html#role-in-nep-and-electronic-noise-scaling",
         "sphi_tls_per_hz": "noise-tls.html#use-in-total-budget",
         "asd_phi_tls_per_rtHz": "noise-tls.html#use-in-total-budget",
@@ -662,10 +670,9 @@ def main() -> None:
         "m_tls": "noise-tls.html#design-scaling-and-geometry-controls",
     }
 
-    # TLS multiplier from modeled TLS PSD and reference Johnson PSD.
-    sf_f2_j = s.sf_over_f0sq_johnson_ref
+    # TLS multiplier from modeled TLS PSD and full-model Johnson PSD.
     sf_f2_tls = s.sf_over_f0sq_tls()
-    m_tls = s.m_tls_from_ratio(sf_f2_tls, sf_f2_j)
+    m_tls = s.m_tls_from_ratio(sf_f2_tls, s.sf_over_f0sq_johnson_full)
 
     vectors = {
         "N_ph": [complex(v).real if complex(v).imag == 0 else [complex(v).real, complex(v).imag] for v in s.n_phonon()],
@@ -712,6 +719,7 @@ def main() -> None:
             "f0_Hz": "Nominal detector carrier frequency",
             "f_demod_Hz": "Demodulated analysis frequency",
             "detuning_widths": "Project input in resonator widths (fr/Qr)",
+            "nep_sufficiency_percent": "Percent-above-full-integral threshold used for NEP sufficiency timing",
             "detuning_Hz": "Derived detuning from detuning_widths * f0_Hz / Qr",
             "complex_value_format": "[real, imag]",
         },
@@ -719,7 +727,7 @@ def main() -> None:
         "model_inputs": model_inputs,
         "model_outputs": model_outputs,
         "tls_ratio_example": {
-            "Sf_over_f0sq_J": sf_f2_j,
+            "Sf_over_f0sq_J": s.sf_over_f0sq_johnson_full,
             "Sf_over_f0sq_TLS": sf_f2_tls,
             "M_TLS": m_tls,
         },
@@ -793,7 +801,6 @@ def main() -> None:
         "Capacitor TLS": [
             "tls_phi_asd_100hz_per_rtHz",
             "tls_beta",
-            "sphi_j_ref_per_hz",
         ],
     }
 
@@ -823,9 +830,8 @@ def main() -> None:
             "dphi_dE_rad_per_J",
             "deltafr_event_Hz",
             "deltaphi_event_rad",
+            "sf_over_f0sq_johnson_simple",
             "phonon_power_asd_device_W_per_rtHz",
-            "phonon_temp_asd_device_K_per_rtHz",
-            "phonon_energy_asd_device_J_per_rtHz",
             "asd_phi_phonon_simple_per_rtHz",
             "thermal_energy_fluct_rms_J",
             "thermal_energy_fluct_rms_eV",
@@ -898,7 +904,6 @@ def main() -> None:
             "dphi_df_detuning_per_hz",
             "sf_over_f0sq_johnson_full",
             "sf_over_f0sq_johnson_simple",
-            "sf_over_f0sq_johnson_ref",
             "sf_over_f0sq_tls_model",
             "sf_over_f0sq_tls_1hz",
             "I0_rms_A",
@@ -1016,7 +1021,7 @@ def main() -> None:
   <main class="container">
     <section class="card">
       <h2>Nominal Settings</h2>
-      <p>All values use the <strong>version 1 preset</strong> (\(R={_fmt(model_inputs['count_rate_Hz'])}\,\mathrm{{Hz}}\)) with nominal <strong>f0 = 1.0 GHz</strong>, demodulated band frequency <strong>0 Hz</strong>, detuning <strong>{_fmt(model_inputs['detuning_widths'])} widths</strong>, and derived detuning <strong>{_fmt(model_outputs['detuning_Hz'])} Hz</strong>.</p>
+      <p>All values use the <strong>version 1 preset</strong> (\(R={_fmt(model_outputs['count_rate_Hz'])}\,\mathrm{{Hz}}\)) with nominal <strong>f0 = 1.0 GHz</strong>, demodulated band frequency <strong>0 Hz</strong>, detuning <strong>{_fmt(model_inputs['detuning_widths'])} widths</strong>, and derived detuning <strong>{_fmt(model_outputs['detuning_Hz'])} Hz</strong>.</p>
       <p>JSON source: <code>../python/outputs/wiki_estimates.json</code></p>
     </section>
 
@@ -1081,8 +1086,9 @@ def main() -> None:
         <tr><td>\\(T_b\\)</td><td><code>{_fmt(model_inputs['Tb_K'])}</code> K</td></tr>
         <tr><td>\\(f_0\\)</td><td><code>{_fmt(model_inputs['f0_Hz'])}</code> Hz</td></tr>
         <tr><td>Detuning</td><td><code>{_fmt(model_inputs['detuning_widths'])}</code> widths (<code>{_fmt(model_outputs['detuning_Hz'])}</code> Hz)</td></tr>
+        <tr><td>NEP sufficiency threshold</td><td><code>{_fmt(model_inputs['nep_sufficiency_percent'])}</code> %</td></tr>
         <tr><td>Demod frequency</td><td><code>{_fmt(model_inputs['f_demod_Hz'])}</code> Hz</td></tr>
-        <tr><td>\\((P_g/P_{{bif}})_{{target}}\\)</td><td><code>{_fmt(model_inputs['p0_over_pbif_target'])}</code></td></tr>
+        <tr><td>\\((P_g/P_{{bif}})_{{target}}\\)</td><td><code>{_fmt(model_outputs['p0_over_pbif_target'])}</code></td></tr>
         <tr><td>\\(P_g\\)</td><td><code>{_fmt(model_outputs['Pg_W'])}</code> W</td></tr>
         <tr><td>\\(P_0\\)</td><td><code>{_fmt(model_outputs['P0_W'])}</code> W</td></tr>
         <tr><td>\\(E_*\\)</td><td><code>{_fmt(model_inputs['bifurcation_energy_scale_J'])}</code> J</td></tr>
@@ -1093,8 +1099,10 @@ def main() -> None:
       <h2>Source and Geometry Inputs</h2>
       <table>
         <tr><th>Parameter</th><th>Value</th></tr>
-        <tr><td>Count rate \\(R\\)</td><td><code>{_fmt(model_inputs['count_rate_Hz'])}</code> Hz</td></tr>
-        <tr><td>Pileup probability max</td><td><code>{_fmt(model_outputs['pileup_probability_max'])}</code></td></tr>
+        <tr><td>Count rate \\(R\\)</td><td><code>{_fmt(model_outputs['count_rate_Hz'])}</code> Hz</td></tr>
+        <tr><td>Pileup rejection probability</td><td><code>{_fmt(model_outputs['pileup_probability_max'])}</code></td></tr>
+        <tr><td>NEP sufficient frequency</td><td><code>{_fmt(model_outputs['nep_sufficient_frequency_hz'])}</code> Hz</td></tr>
+        <tr><td>NEP sufficient time</td><td><code>{_fmt(model_outputs['nep_sufficient_time_s'])}</code> s</td></tr>
         <tr><td>Ho/Au atomic fraction \\(x_{{Ho/Au}}\\)</td><td><code>{_fmt(model_inputs['ho_in_au_atomic_fraction'])}</code></td></tr>
         <tr><td>Ho activity \\(A_{{Ho}}\\)</td><td><code>{_fmt(model_outputs['ho_activity_per_m3_Hz'])}</code> Hz/m^3</td></tr>
         <tr><td>Ho event energy \\(E_{{Ho}}\\)</td><td><code>{_fmt(model_inputs['ho_decay_energy_J'])}</code> J (<code>{_fmt(model_outputs['ho_decay_energy_eV'])}</code> eV)</td></tr>

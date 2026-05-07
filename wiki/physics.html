@@ -62,15 +62,28 @@
       <p>This enforces single-node thermal behavior and suppresses internal thermal fluctuation noise.</p>
       <p>Code-derived model formulas used by this wiki:</p>
       <p>\[
-      \tau_{\mathrm{th}}=\frac{P_{\mathrm{pileup,max}}}{R},\qquad
+      \tau_{\mathrm{th}}=\frac{C}{G},\qquad
       G=\frac{C}{\tau_{\mathrm{th}}},\qquad
       \Delta T_{\mathrm{abs-bath}}=\frac{P_0}{G},\qquad
       \Delta T_{\mathrm{event}}=\frac{E_{\mathrm{Ho}}}{C},\qquad
       E_{\mathrm{Ho,eV}}=\frac{E_{\mathrm{Ho}}}{q_e},\qquad
       C_{\mathrm{eV/mK}}=\frac{C}{q_e\cdot 10^3},\qquad
       C_{\mathrm{Ho,eV/mK}}=\frac{C_{\mathrm{Ho}}}{q_e\cdot 10^3},\qquad
-      P_{\mathrm{ph,RMS}}=\sqrt{4k_BT_b^2G}.
+      P_{\mathrm{ph,RMS}}=\sqrt{4k_BT_0^2G\,F_{\mathrm{link}}(T_0,T_b,n)}.
       \]</p>
+      <p>Pileup now uses an NEP-sufficiency timing window derived from the high-to-low cumulative NEP integral:</p>
+      <p>\[
+      \sigma_E^{\mathrm{hi\to lo}}(f)=\left[\int_{f}^{f_{\max}}\frac{4}{\mathrm{NEP}(f')^2}\,df'\right]^{-1/2},\qquad
+      \sigma_{E,\mathrm{full}}=\left[\int_{f_{\min}}^{f_{\max}}\frac{4}{\mathrm{NEP}(f')^2}\,df'\right]^{-1/2},
+      \]</p>
+      <p>\[
+      f_{\mathrm{NEP,suff}}=\max\left\{f:\sigma_E^{\mathrm{hi\to lo}}(f)\le\left(1+\frac{p_{\mathrm{NEP,suff}}}{100}\right)\sigma_{E,\mathrm{full}}\right\},\qquad
+      \tau_{\mathrm{NEP,suff}}=\frac{1}{f_{\mathrm{NEP,suff}}},
+      \]</p>
+      <p>\[
+      P_{\mathrm{pileup,reject}}=1-e^{-2R\tau_{\mathrm{NEP,suff}}}.
+      \]</p>
+      <p>This is a per-event rejection probability for a \(\pm\tau_{\mathrm{NEP,suff}}\) coincidence veto, where both colliding pulses are rejected.</p>
       <p>Python: <a href="../python/sensor.py"><code>Sensor.tau_th_s</code></a>, <a href="../python/sensor.py"><code>Sensor.G_W_per_K</code></a>, <a href="../python/sensor.py"><code>Sensor.phonon_power_rms_W</code></a>.</p>
     </section>
 

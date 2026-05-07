@@ -17,7 +17,10 @@ from matplotlib.figure import Figure
 from sensor import Sensor, Version1SensorInputs
 
 
-SETTINGS_FILE = Path(__file__).resolve().parent / "last_plot_settings.pkl"
+PLOT_DIR = Path(__file__).resolve().parent
+SAVES_DIR = PLOT_DIR / "saves"
+SETTINGS_FILE = SAVES_DIR / "last_plot_settings.pkl"
+STARTUP_STATE_FILE = SAVES_DIR / "last_plot_settings_state.pkl"
 
 INPUT_SECTIONS = [
     (
@@ -28,6 +31,7 @@ INPUT_SECTIONS = [
             "pg_drive_dBm",
             "f0_Hz",
             "detuning_widths",
+            "nep_sufficiency_percent",
         ],
     ),
     (
@@ -63,6 +67,7 @@ LABELS = {
     "pg_drive_dBm": "Drive [dBm]",
     "f0_Hz": "f0 [Hz]",
     "detuning_widths": "Detuning [widths]",
+    "nep_sufficiency_percent": "NEP suff [%]",
     "heat_capacity_eV_per_mK": "C [eV/mK]",
     "ho_in_au_atomic_fraction": "Ho/Au frac",
     "tls_phi_asd_100hz_per_rtHz": "TLS ASD @100Hz",
@@ -85,11 +90,45 @@ def _positive_limits(arrays: list[np.ndarray], pad: float = 1.3) -> tuple[float,
     return (vmin / pad, vmax * pad)
 
 
+def _resolution_threshold_markers(
+    f_hz: np.ndarray, nep_w_per_rthz: np.ndarray, thresholds: tuple[float, ...] = (0.50, 0.10, 0.01)
+) -> list[tuple[float, str]]:
+    """Return first frequencies (high->low integration) within threshold of full sigma.
+
+    threshold=0.10 means first f where sigma(f) <= 1.10 * sigma_full.
+    """
+    f = np.asarray(f_hz, dtype=float)
+    nep = np.asarray(nep_w_per_rthz, dtype=float)
+    integ = 4.0 / (nep * nep)
+    df = np.diff(f)
+    trap = 0.5 * (integ[:-1] + integ[1:]) * df
+    inv_sigma2_prefix = np.zeros_like(f)
+    inv_sigma2_prefix[1:] = np.cumsum(trap)
+    inv_sigma2_full = float(inv_sigma2_prefix[-1])
+    # Numerical guard: high->low cumulative information must be >= 0.
+    inv_sigma2_cum = np.maximum(inv_sigma2_full - inv_sigma2_prefix, 0.0)
+    if not np.isfinite(inv_sigma2_full) or inv_sigma2_full <= 0.0:
+        return []
+    sigma_full = 1.0 / np.sqrt(inv_sigma2_full)
+
+    out: list[tuple[float, str]] = []
+    for frac in thresholds:
+        sigma_target = (1.0 + float(frac)) * sigma_full
+        sigma_cum = np.full_like(inv_sigma2_cum, np.inf, dtype=float)
+        pos = inv_sigma2_cum > 0.0
+        sigma_cum[pos] = 1.0 / np.sqrt(inv_sigma2_cum[pos])
+        hit = sigma_cum <= sigma_target
+        idxs = np.where(hit)[0]
+        if idxs.size > 0:
+            out.append((float(f[idxs[-1]]), f"{int(round(100.0 * frac))}%"))
+    return out
+
+
 class NoiseGui:
     def __init__(self) -> None:
+        SAVES_DIR.mkdir(parents=True, exist_ok=True)
         self.defaults = asdict(Version1SensorInputs())
-        self.current = self._load_saved_or_defaults()
-        self.last_loaded = dict(self.current)
+        self.current, self.last_loaded, self.last_loaded_name = self._load_startup_settings()
         self.undo_stack: list[dict[str, float]] = []
 
         self.root = tk.Tk()
@@ -100,6 +139,7 @@ class NoiseGui:
         self.readout_var = tk.StringVar(value="Phase")
         self.status_var = tk.StringVar(value="")
         self.summary_var = tk.StringVar(value="")
+        self.loaded_name_var = tk.StringVar(value="")
         self.entry_vars: dict[str, tk.StringVar] = {}
 
         self._build_layout()
@@ -138,9 +178,12 @@ class NoiseGui:
         ttk.Label(controls, text="Noise/NEP Controls", font=("Segoe UI", 12, "bold")).grid(
             row=0, column=0, columnspan=2, sticky="w", pady=(0, 8)
         )
+        ttk.Label(controls, textvariable=self.loaded_name_var, foreground="#222").grid(
+            row=1, column=0, columnspan=2, sticky="w", pady=(0, 8)
+        )
 
         mode_frame = ttk.LabelFrame(controls, text="Mode", padding=6)
-        mode_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 8))
+        mode_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(0, 8))
         ttk.Radiobutton(mode_frame, text="Noise ASD", variable=self.mode_var, value="Noise ASD", command=self._on_mode).grid(
             row=0, column=0, sticky="w"
         )
@@ -149,7 +192,7 @@ class NoiseGui:
         )
 
         readout_frame = ttk.LabelFrame(controls, text="Readout", padding=6)
-        readout_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(0, 8))
+        readout_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(0, 8))
         ttk.Radiobutton(
             readout_frame, text="Phase", variable=self.readout_var, value="Phase", command=self._on_mode
         ).grid(row=0, column=0, sticky="w")
@@ -157,7 +200,7 @@ class NoiseGui:
             readout_frame, text="Amplitude", variable=self.readout_var, value="Amplitude", command=self._on_mode
         ).grid(row=0, column=1, sticky="w", padx=(12, 0))
 
-        row = 3
+        row = 4
         for section_name, keys in INPUT_SECTIONS:
             section = ttk.LabelFrame(controls, text=section_name, padding=6)
             section.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(0, 8))
@@ -213,6 +256,46 @@ class NoiseGui:
                 pass
         return dict(self.defaults)
 
+    def _load_settings_file(self, path: Path) -> dict[str, float] | None:
+        try:
+            with path.open("rb") as f:
+                loaded = pickle.load(f)
+            if not isinstance(loaded, dict):
+                return None
+            vals = dict(self.defaults)
+            for k in INPUT_KEYS:
+                if k in loaded:
+                    vals[k] = float(loaded[k])
+            return vals
+        except Exception:
+            return None
+
+    def _load_startup_settings(self) -> tuple[dict[str, float], dict[str, float], str | None]:
+        if STARTUP_STATE_FILE.exists():
+            try:
+                with STARTUP_STATE_FILE.open("rb") as f:
+                    state = pickle.load(f)
+                if isinstance(state, dict):
+                    source = state.get("source_path")
+                    if isinstance(source, str) and source:
+                        source_path = Path(source)
+                        vals = self._load_settings_file(source_path)
+                        if vals is not None:
+                            return vals, dict(vals), source_path.name
+            except Exception:
+                pass
+
+        vals = self._load_saved_or_defaults()
+        name = SETTINGS_FILE.name if SETTINGS_FILE.exists() else None
+        return vals, dict(vals), name
+
+    def _persist_startup_state(self, source_path: Path) -> None:
+        try:
+            with STARTUP_STATE_FILE.open("wb") as f:
+                pickle.dump({"source_path": str(source_path)}, f)
+        except Exception:
+            pass
+
     def _read_fields(self) -> dict[str, float]:
         vals = dict(self.current)
         for k, var in self.entry_vars.items():
@@ -230,15 +313,28 @@ class NoiseGui:
     def _set_summary(self, s: Sensor) -> None:
         delta_t_mk = 1.0e3 * float(s.deltaT_event_full_absorption_K)
         rate_hz = float(s.count_rate_Hz)
+        pileup_pct = 100.0 * float(s.pileup_probability_max)
         shorten = float(s.mt_pulse_shortening_ratio)
         self.summary_var.set(
             "Event dT (island): "
             f"{delta_t_mk:.3g} mK\n"
             "Average event rate: "
             f"{rate_hz:.3g} Hz\n"
+            "Pileup probability: "
+            f"{pileup_pct:.3g}%\n"
             "Pulse shortening factor: "
             f"{shorten:.3g}"
         )
+
+    @staticmethod
+    def _settings_match(a: dict[str, float], b: dict[str, float], rtol: float = 1.0e-12, atol: float = 0.0) -> bool:
+        return all(np.isclose(float(a[k]), float(b[k]), rtol=rtol, atol=atol) for k in INPUT_KEYS)
+
+    def _update_loaded_name(self) -> None:
+        if self.last_loaded_name and self._settings_match(self.current, self.last_loaded):
+            self.loaded_name_var.set(f"Settings file: {self.last_loaded_name}")
+        else:
+            self.loaded_name_var.set("")
 
     def _push_undo(self, prev: dict[str, float]) -> None:
         self.undo_stack.append(dict(prev))
@@ -308,11 +404,14 @@ class NoiseGui:
         sigma_e_amp_mev = 1.0e3 * s.sigma_energy_from_nep_spectrum_eV(freqs_hz, nep_amp_total)
 
         marker_specs = [
-            (1.0 / (2.0 * pi * s.tau_th_s), "f_therm"),
-            (1.0 / (2.0 * pi * s.tau_res_s), "f_res"),
+            (float(s.count_rate_Hz), "f_rate", ":"),
+            (1.0 / (2.0 * pi * s.tau_th_s), "f_therm", "--"),
+            (1.0 / (2.0 * pi * s.tau_res_s), "f_res", "--"),
         ]
-        marker_specs.extend((abs(complex(lam)) / (2.0 * pi), f"f_eig{i + 1}") for i, lam in enumerate(eigs))
-        valid_markers = [(float(fm), name) for fm, name in marker_specs if np.isfinite(fm) and fm > 0.0]
+        marker_specs.extend((abs(complex(lam)) / (2.0 * pi), f"f_eig{i + 1}", "--") for i, lam in enumerate(eigs))
+        valid_markers = [
+            (float(fm), name, linestyle) for fm, name, linestyle in marker_specs if np.isfinite(fm) and fm > 0.0
+        ]
         valid_markers.sort(key=lambda x: x[0])
 
         asd_phase_ylim = _positive_limits(
@@ -330,6 +429,8 @@ class NoiseGui:
             "asd_tls_direct": asd_tls_direct,
             "nep_phase": (nep_phase_johnson, nep_phase_phonon, nep_phase_tls, nep_phase_electronic, nep_phase_total),
             "nep_amp": (nep_amp_johnson, nep_amp_phonon, nep_amp_tls, nep_amp_electronic, nep_amp_total),
+            "res_threshold_phase": _resolution_threshold_markers(freqs_hz, nep_phase_total),
+            "res_threshold_amp": _resolution_threshold_markers(freqs_hz, nep_amp_total),
             "asd_johnson_simple": asd_johnson_simple,
             "sigma_phase_mev": sigma_e_phase_mev,
             "sigma_amp_mev": sigma_e_amp_mev,
@@ -403,8 +504,8 @@ class NoiseGui:
         cluster_step_log10 = 0.035
         prev_log10_f = None
         cluster_idx = -1
-        for f_mark_hz, name in d["markers"]:
-            self.ax.axvline(f_mark_hz, linestyle="--", linewidth=1.0, alpha=0.7, color="#666")
+        for f_mark_hz, name, linestyle in d["markers"]:
+            self.ax.axvline(f_mark_hz, linestyle=linestyle, linewidth=1.0, alpha=0.7, color="#666")
             log10_f = float(np.log10(f_mark_hz))
             if prev_log10_f is None or (log10_f - prev_log10_f) > cluster_step_log10:
                 cluster_idx = 0
@@ -413,6 +514,14 @@ class NoiseGui:
             y_text = y_levels[cluster_idx % len(y_levels)]
             self.ax.text(f_mark_hz, y_text, name, rotation=90, va="top", ha="right", transform=self.ax.get_xaxis_transform())
             prev_log10_f = log10_f
+
+        threshold_marks = d["res_threshold_phase"] if is_phase else d["res_threshold_amp"]
+        for f_thr_hz, label in threshold_marks:
+            idx = int(np.argmin(np.abs(freqs - f_thr_hz)))
+            y_thr = float(ysets[4][idx])
+            if np.isfinite(y_thr) and y_thr > 0.0:
+                self.ax.plot([f_thr_hz], [y_thr], linestyle="None", marker="|", markersize=11, color="k", zorder=5)
+                self.ax.text(f_thr_hz, y_thr * 1.18, label, ha="center", va="bottom", color="k")
 
         if s.mt_stable:
             sigma_mev = d["sigma_phase_mev"] if is_phase else d["sigma_amp_mev"]
@@ -456,6 +565,7 @@ class NoiseGui:
             self.current = new_vals
             self._recompute_and_draw()
             self._push_undo(prev)
+            self._update_loaded_name()
             self._set_status("Applied settings")
         except Exception as exc:
             self._set_status(f"Apply failed: {exc}")
@@ -470,6 +580,7 @@ class NoiseGui:
         try:
             self._recompute_and_draw()
             self._push_undo(prev)
+            self._update_loaded_name()
             self._set_status("Loaded defaults")
         except Exception as exc:
             self.current = prev
@@ -494,6 +605,9 @@ class NoiseGui:
             with save_path.open("wb") as f:
                 pickle.dump({k: self.current[k] for k in INPUT_KEYS}, f)
             self.last_loaded = dict(self.current)
+            self.last_loaded_name = save_path.name
+            self._persist_startup_state(save_path)
+            self._update_loaded_name()
             self._set_status(f"Saved settings to {save_path.name}")
         except Exception as exc:
             self._set_status(f"Save failed: {exc}")
@@ -510,17 +624,18 @@ class NoiseGui:
                 self._set_status("Load cancelled")
                 return
             load_path = Path(path)
-            with load_path.open("rb") as f:
-                loaded = pickle.load(f)
-            vals = dict(self.defaults)
-            for k in INPUT_KEYS:
-                vals[k] = float(loaded[k])
+            vals = self._load_settings_file(load_path)
+            if vals is None:
+                raise ValueError("invalid settings file")
             prev = dict(self.current)
             self.current = vals
             self.last_loaded = dict(vals)
+            self.last_loaded_name = load_path.name
+            self._persist_startup_state(load_path)
             self._write_fields(self.current)
             self._recompute_and_draw()
             self._push_undo(prev)
+            self._update_loaded_name()
             self._set_status(f"Loaded settings from {load_path.name}")
         except Exception as exc:
             self._set_status(f"Load failed: {exc}")
@@ -532,6 +647,7 @@ class NoiseGui:
         try:
             self._recompute_and_draw()
             self._push_undo(prev)
+            self._update_loaded_name()
             self._set_status("Restored last loaded settings")
         except Exception as exc:
             self.current = prev
@@ -547,12 +663,14 @@ class NoiseGui:
         self._write_fields(self.current)
         try:
             self._recompute_and_draw()
+            self._update_loaded_name()
             self._set_status("Undo applied")
         except Exception as exc:
             self._set_status(f"Undo failed: {exc}")
 
     def run(self) -> None:
-        startup = "saved" if SETTINGS_FILE.exists() else "defaults"
+        startup = self.last_loaded_name if self.last_loaded_name else "defaults"
+        self._update_loaded_name()
         self._set_status(f"Loaded startup settings ({startup})")
         self.root.mainloop()
 

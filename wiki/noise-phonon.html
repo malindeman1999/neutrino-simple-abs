@@ -11,12 +11,23 @@
 <main class="container">
 <section class="card" id="physical-expression"><h2>Physical Expression</h2>
 <p>Thermal-link fluctuation power RMS:</p>
-<p>\[P_{ph,\mathrm{RMS}}=\sqrt{4k_B T_b^2 G}.\]</p>
+<p>\[
+P_{ph,\mathrm{RMS}}=\sqrt{4k_B T_0^2 G\,F_{\mathrm{link}}(T_0,T_b,n)}.
+\]</p>
+<p>\[
+F_{\mathrm{link}}=\frac{n+1}{2n+3}\,
+\frac{1-(T_b/T_0)^{2n+3}}{1-(T_b/T_0)^{n+1}}.
+\]</p>
+<p>Default in this project: \(n=3\) for SiN-like legs.</p>
 <p>This source is purely thermal-band power injection.</p></section>
 <section class="card"><h2>Noise Vector Derivation</h2>
 <p>In sideband/source notation, phonon fluctuations do not directly drive USB/LSB voltage terms, only the thermal source component.</p>
 <p>So the source vector is:</p>
-<p>\[N_{ph}=\begin{bmatrix}0\\0\\\sqrt{4k_B T_b^2 G}\end{bmatrix}.\]</p>
+<p>\[
+N_{ph}=\begin{bmatrix}
+0\\0\\\sqrt{4k_B T_0^2 G\,F_{\mathrm{link}}(T_0,T_b,n)}
+\end{bmatrix}.
+\]</p>
 <p>This is Eq. (16), already in the normalized model coordinate system used with \\(Y=M^{-1}N\\).</p></section>
 <section class="card"><h2>Vector Component Units</h2>
 <p>Noise vectors are mixed-unit objects in the \((r,\phi,T)\) basis, so units are component-wise:</p>
@@ -35,5 +46,5 @@
 <p>Phase-direction contribution:</p><p>\[\mathrm{NEP}_{\phi,ph}(\omega)=\left|\frac{[Y_{ph}(\omega)]_{\phi}}{(M^{-1})_{\phi,\,P}}\right|.\]</p>
 </section>
 <section class="card"><h2>Python Function Links</h2>
-<p>Code references: <a href="../python/sensor.py"><code>Sensor.phonon_power_rms_W</code></a> and <a href="../python/sensor.py"><code>Sensor.n_phonon()</code></a>.</p>
+<p>Code references: <a href="../python/sensor.py"><code>Sensor.thermal_link_exponent_n</code></a>, <a href="../python/sensor.py"><code>Sensor.phonon_power_asd_device_W_per_rtHz</code></a>, and <a href="../python/sensor.py"><code>Sensor.n_phonon()</code></a>.</p>
 </section></main></body></html>

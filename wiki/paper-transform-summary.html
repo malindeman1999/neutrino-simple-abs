@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paper Transform Summary | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Resonator-Bolometer Transform Summary</h1>
+    <p>Concise map of the coordinate and normalization transforms used in the 2014 paper.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="theory.html">Theory</a>
+    <a href="m-matrix.html">M Matrix</a>
+    <a href="paper-transform-summary.html" class="active">Transform Summary</a>
+    <a href="noise-sources.html">Noise Sources</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Purpose</h2>
+      <p>The paper uses a transformation chain to convert sideband voltages into normalized demodulated coordinates, then solves the coupled linear system in that basis.</p>
+      <p>Main references in the paper: Eq. (10)-(13), with \(M(\omega)Y(\omega)=N(\omega)\) in Eq. (11).</p>
+    </section>
+
+    <section class="card">
+      <h2>Transformation Chain</h2>
+      <p>\[
+      \text{USB/LSB sideband variables}
+      \xrightarrow{\text{demod / coordinate transform}}
+      \text{demodulated quadratures}
+      \xrightarrow{\text{normalization}}
+      Y=[r,\phi,T]^T.
+      \]</p>
+      <p>In compact notation used across this wiki:</p>
+      <p>\[
+      Y = T_V^{-1}\,d^{-1}\,y,
+      \]</p>
+      <p>where \(y\) is the sideband-domain vector, \(T_V\) is the sideband-to-demodulated transform, and \(d\) applies the paper's normalization scale factors.</p>
+    </section>
+
+    <section class="card">
+      <h2>Where the Matrix Model Enters</h2>
+      <p>After transformation/normalization, the dynamics and source coupling are solved in normalized coordinates:</p>
+      <p>\[
+      M(\omega)\,Y(\omega)=N(\omega),\qquad
+      Y(\omega)=M^{-1}(\omega)\,N(\omega).
+      \]</p>
+      <p>\(M(\omega)\) coefficients are given by Eq. (13). See <a href="m-matrix.html">M Matrix</a>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Units and Interpretation</h2>
+      <p>Raw demodulated \(I/Q\) are not automatically in physical phase radians.</p>
+      <p>The paper's normalization puts variables into a model-consistent basis; converting a measured channel to absolute radians or absolute amplitude requires calibration at a chosen reference plane.</p>
+      <p>So: transform + normalization defines the coordinate system; experimental calibration defines physical scaling in those coordinates.</p>
+    </section>
+
+    <section class="card">
+      <h2>Readout Noise Placement</h2>
+      <p>If first-stage amplifier noise is injected after the resonator output, handle it at the output plane:</p>
+      <ul>
+        <li>Represent readout noise in USB/LSB (or equivalent I/Q) coordinates.</li>
+        <li>Apply the same transform to map to amplitude/phase coordinates.</li>
+        <li>Add it to modeled output noise covariance/PSD at the same reference plane.</li>
+      </ul>
+      <p>Avoid propagating this post-resonator readout term through \(M^{-1}\), which is for internal device/source vectors.</p>
+    </section>
+
+    <section class="card">
+      <h2>USB/LSB Readout-Noise Mapping</h2>
+      <p>Given a readout-noise vector defined in sideband coordinates with no thermal component,</p>
+      <p>\[
+      y_{\mathrm{ro}}=
+      \begin{bmatrix}
+      v_{\mathrm{USB}}\\
+      v_{\mathrm{LSB}}^*\\
+      0
+      \end{bmatrix},
+      \]</p>
+      <p>use the same paper transform to map it into normalized coordinates:</p>
+      <p>\[
+      N_{\mathrm{ro}}=T_V^{-1}d^{-1}y_{\mathrm{ro}}.
+      \]</p>
+      <p>This places readout noise in the same normalized coordinate basis as \(Y\) and \(N\) in Eq. (11).</p>
+      <p>For post-resonator amplifier noise, use this mapping for coordinate conversion, then add the resulting contribution at the output noise/covariance level at a common reference plane.</p>
+    </section>
+
+    <section class="card">
+      <h2>50 Ohm Matched Amplifier Mapping</h2>
+      <p>For a matched source/load with \(R=50\,\Omega\), amplifier noise temperature \(T_n\) maps to input-referred voltage-noise PSD as:</p>
+      <p>\[
+      S_V = 4k_B T_n R \quad [\mathrm{V}^2/\mathrm{Hz}],
+      \qquad
+      v_n=\sqrt{4k_B T_n R}\quad [\mathrm{V}/\sqrt{\mathrm{Hz}}].
+      \]</p>
+      <p>For an isotropic sideband-noise model, assign equal USB/LSB variances and zero cross-correlation unless measured otherwise:</p>
+      <p>\[
+      \langle |v_{\mathrm{USB}}|^2\rangle=\langle |v_{\mathrm{LSB}}|^2\rangle,
+      \qquad
+      \langle v_{\mathrm{USB}}v_{\mathrm{LSB}}\rangle=0.
+      \]</p>
+      <p>Then map \(y_{\mathrm{ro}}\) to normalized coordinates with \(N_{\mathrm{ro}}=T_V^{-1}d^{-1}y_{\mathrm{ro}}\).</p>
+      <p><strong>Caveat:</strong> keep one explicit reference plane (resonator output, cable output, amp input, etc.). Include all gain/loss/attenuation when referring noise from one plane to another to avoid incorrect scaling or double counting.</p>
+    </section>
+
+    <section class="card">
+      <h2>Practical Interpretation for This Model</h2>
+      <p>In this model, USB/LSB are the readout sideband voltage variables at the resonator/feedline readout plane used by the paper's small-signal formalism.</p>
+      <p>They are not automatically raw ADC volts unless the full RF/IF chain is explicitly mapped to that same plane and scaling.</p>
+      <p><strong>Assumption used here:</strong> the feedline is well matched to the first-stage preamplifier input, so reflection/mismatch effects are neglected in the USB/LSB-to-normalized mapping.</p>
+      <p>If feedline loss is negligible and the resonator output is connected directly to the first-stage preamplifier input, then the resonator/feedline plane and amp-input plane are effectively the same for this mapping.</p>
+      <p>In that direct-coupled case, the transform steps above are sufficient: form USB/LSB readout noise at that plane, apply \(N_{\mathrm{ro}}=T_V^{-1}d^{-1}y_{\mathrm{ro}}\), and add the contribution at output-noise/covariance level.</p>
+    </section>
+  </main>
+</body>
+</html>
