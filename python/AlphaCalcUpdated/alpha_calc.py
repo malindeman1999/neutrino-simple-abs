@@ -4,20 +4,6 @@
 import numpy as np
 from scipy.integrate import quad
 import matplotlib.pyplot as plt
-import os
-import sys
-
-LOG_PATH = os.path.join(os.path.dirname(__file__), "alpha_progress.log")
-
-def progress(msg):
-    print(msg, file=sys.stderr, flush=True)
-    try:
-        with open(LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(msg + "\n")
-            f.flush()
-            os.fsync(f.fileno())
-    except Exception:
-        pass
 
 # Function int (renamed to compute_integral to avoid conflict with Python's built-in int)
 def compute_integral(beta, xi, Delta):
@@ -39,12 +25,8 @@ def af(Tlist, Tc, Tdb, w0, approximate_sigma=False, approximate_Delta=False):
  
     Tlist = np.array(Tlist)
     
-    progress(f"[af] About to start alpha calculation for {len(Tlist)} temperature points")
-    progress("[af] About to do step 1/4: compute Z1 at base temperatures")
     Z1, Delta_list, sigma = Zf(Tlist, Tc, Tdb, w0, approximate_sigma, approximate_Delta)
-    progress("[af] About to do step 2/4: compute Z2 at perturbed temperatures")
     Z2, _, _ = Zf(Tlist * (1.0 + ef), Tc, Tdb, w0, approximate_sigma, approximate_Delta)
-    progress("[af] About to do step 3/4: compute Rlist/Tmatrix")
     Rlist = np.real(Z1 + Z2) / 2
      
     # Transpose of Tlist
@@ -54,9 +36,7 @@ def af(Tlist, Tc, Tdb, w0, approximate_sigma=False, approximate_Delta=False):
     Tmatrix = np.hstack((Tl, Tl, Tl))
 
     # Compute alpha
-    progress("[af] About to do step 4/4: compute alpha")
     a = (Tmatrix / Rlist) * ((Z2 - Z1) / (ef * Tmatrix))
-    progress("[af] Done")
 
     return np.array(a), np.array(Delta_list), sigma
 
@@ -72,13 +52,7 @@ def compute_alpha(constants, Tlist, approximate_sigma=False, approximate_Delta=F
     Computes alpha using the af function.
     The equations are based on Jonas review.
     """
-    progress(
-        "[compute_alpha] Start: "
-        f"n={len(Tlist)}, Tc={constants['Tc']}, Tdb={constants['Tdb']}, "
-        f"approx_sigma={approximate_sigma}, approx_Delta={approximate_Delta}"
-    )
     out = af(Tlist, constants['Tc'], constants['Tdb'], constants['w0'], approximate_sigma, approximate_Delta)
-    progress("[compute_alpha] Done")
     return out
 
 # Function cross_check (renamed to avoid conflict with compute_alpha)
@@ -108,7 +82,6 @@ def delta_solver2(T, Tc, Tdb, plot=False):
     Returns:
     - D_root: The root found by Brent's method.
     """
-    progress(f"[delta_solver2] About to solve Delta root for T={T:.6g}")
     # Define the function wrapper to solve
     def func_wrapper(Delta):
         return func(Delta, T, Tc, Tdb, False)
@@ -150,7 +123,6 @@ def delta_solver2(T, Tc, Tdb, plot=False):
         plt.grid(True)
         plt.show()
 
-    progress(f"[delta_solver2] Done for T={T:.6g}")
     return D_root
 
 
@@ -257,14 +229,11 @@ def s1(Tlist, Delta_list, w0):
     """
     s = []
     n = len(Tlist)
-    progress(f"[s1] About to start sigma1 integrations for {n} point(s)")
     for i, T in enumerate(Tlist):
-        progress(f"[s1] About to integrate point {i + 1}/{n} at T={T:.6g}")
         Delta = Delta_list[i]
         Emin, Emax = Delta, 1.5 * Delta
         integral, err = quad(lambda E: g1(E, T, Delta, w0), Emin, Emax, epsrel=1e-15)
         s.append(integral)
-    progress("[s1] Done")
     return np.array(s)
 
 # Function s1approx (approximation for sigma_1)
@@ -304,9 +273,7 @@ def s2(Tlist, Delta_list, w0, plt=False):
     num = 100000
     s = []
     n = len(Tlist)
-    progress(f"[s2] About to start sigma2 integrations for {n} point(s)")
     for i, Tl in enumerate(Tlist):
-        progress(f"[s2] About to integrate point {i + 1}/{n} at T={Tl:.6g}")
         Delta = Delta_list[i]
         Emin = Delta - hbar * w0
         Emax = Delta
@@ -330,7 +297,6 @@ def s2(Tlist, Delta_list, w0, plt=False):
         Integral, err = quad(lambda E: g2(Tl, E, Delta, w0), Emin, Emax, epsrel=1e-15)
         s.append(Integral)
 
-    progress("[s2] Done")
     return np.array(s)
 
 # Function s2approx (approximation for sigma_2)
@@ -349,28 +315,17 @@ def sf(Tlist, Tc, Tdb, w0, approximate_sigma=False, approximate_Delta=False):
     Based on Jonas review equations.
     """
     
-    progress(
-        "[sf] Start: "
-        f"n={len(Tlist)}, approx_sigma={approximate_sigma}, approx_Delta={approximate_Delta}"
-    )
     if approximate_Delta:
-        progress("[sf] About to do step 1/3: compute Delta with approximation")
         Delta_list = np.array([bcs_energy_gap_approx(T, Tc) for T in Tlist])
     else:
-        progress("[sf] About to do step 1/3: solve Delta roots (usually the slowest step)")
         Delta_list = np.array([delta_solver2(T, Tc, Tdb) for T in Tlist])
 
     if approximate_sigma:
-        progress("[sf] About to do step 2/3: compute sigma1 approximation")
         sigma1 = s1approx(Tlist, Delta_list, Tc, w0)
-        progress("[sf] About to do step 3/3: compute sigma2 approximation")
         sigma2 = s2approx(Tlist, Delta_list, w0)
     else:
-        progress("[sf] About to do step 2/3: compute sigma1 by integration")
         sigma1 = s1(Tlist, Delta_list, w0)
-        progress("[sf] About to do step 3/3: compute sigma2 by integration")
         sigma2 = s2(Tlist, Delta_list, w0)
-    progress("[sf] Done")
     return sigma1 - 1j * sigma2, Delta_list
 
 # Function Zf (computes impdedance)
@@ -380,7 +335,6 @@ def Zf(Tlist, Tc, Tdb, w0, approximate_sigma=False, approximate_Delta=False):
     Returns 3 columns of data corresponding to Z.
     Derived from Jonas review equations 9 and 11.
     """
-    progress("[Zf] Start")
     sigma, Delta_list = sf(Tlist, Tc, Tdb, w0, approximate_sigma, approximate_Delta)
     Z0 = 1j  # Set the constants Z(T=0)
     sigma0 = -1j  # Set the constants sigma(T=0)
@@ -388,7 +342,6 @@ def Zf(Tlist, Tc, Tdb, w0, approximate_sigma=False, approximate_Delta=False):
     ZThickLocal = Z0 / np.sqrt(term)
     ZExtremeAnom = Z0 * (term) ** (-1 / 3)
     ZThin = Z0 / term
-    progress("[Zf] Done")
     return np.column_stack((ZThickLocal, ZExtremeAnom, ZThin)), Delta_list, sigma
 
 
@@ -427,21 +380,12 @@ def main():
     
     The approximations are reasonable for alpha for T>5 K, with Tc = 14 K
     '''
-    try:
-        sys.stdout.reconfigure(line_buffering=True)
-    except Exception:
-        pass
-    try:
-        with open(LOG_PATH, "w", encoding="utf-8") as f:
-            f.write("")
-    except Exception:
-        pass
-    progress(f"[main] Starting alpha workflow from {__file__}")
+    print(f"[main] Starting alpha workflow from {__file__}")
 
     # Set constants
-    constants_lowT = {'Tc': 2, 'Tdb': 275, 'w0': 1.194e9 * 2 * np.pi, 'type': 'lowT'}
+    constants_lowT_neutrino = {'Tc': 2, 'Tdb': 275, 'w0': 1.194e9 * 2 * np.pi, 'type': 'lowT'}
     constants_NBTiN = {'Tc': 14, 'Tdb': 275, 'w0': 1e9 * 2 * np.pi, 'type': 'NbTiN'}
-    constants = constants_lowT
+    constants = constants_lowT_neutrino
     # constants = constants_NBTiN
 
     # Set the temperatures to calculate
@@ -451,17 +395,17 @@ def main():
     # Compute values without approximation
     approximate_sigma = False
     approximate_Delta = False
-    progress("[main] About to compute exact alpha (no approximations)")
+    print("[main] Computing exact alpha (no approximations)")
     AlphaSet, DeltaArray, SigmaArray = compute_alpha(constants, temps, approximate_sigma, approximate_Delta)
 
     # Compute values with approximation for Delta
     approximate_Delta = True
-    progress("[main] About to compute alpha with Delta approximation only")
+    print("[main] Computing alpha with Delta approximation only")
     AlphaSet_approx, DeltaArray_approx, SigmaArray_approx = compute_alpha(constants, temps, approximate_sigma, approximate_Delta)
 
     # Compute values with approximation for both Delta and Sigma
     approximate_sigma = True
-    progress("[main] About to compute alpha with both Delta and Sigma approximations")
+    print("[main] Computing alpha with Delta and Sigma approximations")
     AlphaSet_approx_both, DeltaArray_approx_both, SigmaArray_approx_both = compute_alpha(constants, temps, approximate_sigma, approximate_Delta)
 
     # Plot alpha results (Imaginary part)

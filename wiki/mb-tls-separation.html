@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MB vs TLS Separation | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Mattis-Bardeen vs TLS Separation</h1>
+    <p>Why a heated membrane inductor with a colder substrate capacitor helps isolate thermal response.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html">Project</a>
+    <a href="physics.html">Physics</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="mb-tls-separation.html" class="active">MB vs TLS</a>
+    <a href="design.html">Design Parameters</a>
+    <a href="performance.html">Performance & Risks</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Design Objective</h2>
+      <p>Separate membrane-temperature-driven resonator response from substrate TLS drift.</p>
+      <p>Target configuration:</p>
+      <ul>
+        <li>Inductor thermally tied to a membrane that can heat during events/readout loading.</li>
+        <li>Capacitor/dielectric region thermally tied closer to bath temperature.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Physical Basis</h2>
+      <p>TLS frequency drift follows dielectric defect temperature in the capacitor/substrate region.</p>
+      <p>Mattis-Bardeen (MB) electrodynamic response follows quasiparticle temperature in the superconducting film.</p>
+      <p>So if dielectric temperature is approximately fixed while film temperature on the membrane changes:</p>
+      <ul>
+        <li>TLS contribution is comparatively stable.</li>
+        <li>Kinetic-inductance/MB contribution carries most of the membrane-temperature-dependent frequency shift.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Applicability at Low Temperature</h2>
+      <p>For a \(T_c \sim 3\) K film at \(T \sim 30\) mK (\(T/T_c \sim 0.01\)), MB is still the correct baseline model for equilibrium superconducting electrodynamics.</p>
+      <p>Practical caveats that can mask equilibrium MB behavior:</p>
+      <ul>
+        <li>Nonequilibrium quasiparticles from readout power or pair-breaking radiation.</li>
+        <li>Residual thermal coupling that warms capacitor dielectric regions.</li>
+        <li>Film-disorder effects requiring generalized MB treatment.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Measurement Strategy</h2>
+      <p>To validate MB/TLS separation experimentally:</p>
+      <ul>
+        <li>Measure \(f_r(T)\) and \(Q_i(T)\) under low-readout-power conditions.</li>
+        <li>Repeat with controlled membrane heating while monitoring bath/substrate stability.</li>
+        <li>Compare low-temperature drift against a TLS-like baseline from dielectric-dominated modes/geometries.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
