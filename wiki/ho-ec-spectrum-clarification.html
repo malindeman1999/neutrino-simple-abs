@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ho EC Spectrum Clarification | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>163Ho EC Spectrum Clarification</h1>
+    <p>Why atomic structure matters even when calorimetry thermalizes all contained energy.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="physics.html">Physics</a>
+    <a href="ho-ec-spectrum-clarification.html" class="active">Ho EC Clarification</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="performance.html">Performance & Risks</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Core Statement</h2>
+      <p>For each contained event, calorimetry measures all non-neutrino energy:</p>
+      <p>\[
+      E_{\mathrm{cal}} \approx Q - E_{\nu}.
+      \]</p>
+      <p>So there is no extra missing-energy term from electron-capture (EC) atomic physics itself.</p>
+    </section>
+
+    <section class="card">
+      <h2>Why Atomic Structure Still Shapes the Spectrum</h2>
+      <p>Even with perfect thermalization, the measured spectrum is a distribution over many events, not one fixed energy.</p>
+      <ul>
+        <li>EC can occur from different atomic shells (M, N, ...).</li>
+        <li>Each capture channel has different matrix element, vacancy energy, and natural width.</li>
+        <li>These atomic factors modulate the probability density in \(E_{\nu}\), and therefore in \(E_{\mathrm{cal}}\).</li>
+      </ul>
+      <p>Result: line/edge structure and tails in the calorimetric spectrum near the endpoint are intrinsic physics, not detector loss.</p>
+    </section>
+
+    <section class="card">
+      <h2>Role of X-Rays and Auger Electrons</h2>
+      <p>Dy de-excitation after EC produces characteristic X-rays and Auger/Coster-Kronig electrons.</p>
+      <ul>
+        <li>If they remain in the absorber, they thermalize and are counted in \(E_{\mathrm{cal}}\).</li>
+        <li>If a fraction escapes, that becomes a detector response systematic (escape tail), not a new EC energy term.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Practical Interpretation for HOLMES-Style Analyses</h2>
+      <ul>
+        <li>Calorimeter design controls containment and thermalization.</li>
+        <li>Atomic-structure modeling controls spectral-shape accuracy near the endpoint.</li>
+        <li>Neutrino-mass inference depends on both: detector response and correct EC line-shape physics.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

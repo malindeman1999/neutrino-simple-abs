@@ -11,6 +11,7 @@ digraph wiki {
   "electron-phonon-coupling.html";
   "energy-window-criterion.html";
   "frequency-multiplexing.html";
+  "ho-ec-spectrum-clarification.html";
   "ho-properties.html";
   "idc-geometry.html";
   "index.html";
@@ -62,6 +63,7 @@ digraph wiki {
   "index.html" -> "bifurcation-limit.html";
   "index.html" -> "design.html";
   "index.html" -> "detuned-quadrature-mixing.html";
+  "index.html" -> "ho-ec-spectrum-clarification.html";
   "index.html" -> "m-matrix.html";
   "index.html" -> "mb-tls-separation.html";
   "index.html" -> "noise-sources.html";
