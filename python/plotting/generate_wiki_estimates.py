@@ -14,7 +14,7 @@ from pathlib import Path
 from sensor import version_1_sensor
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUT_JSON = ROOT / "python" / "outputs" / "wiki_estimates.json"
 OUT_HTML = ROOT / "wiki" / "python-estimates.html"
 OUT_DESIGN_HTML = ROOT / "wiki" / "design.html"

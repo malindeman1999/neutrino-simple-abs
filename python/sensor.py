@@ -84,10 +84,10 @@ class SensorInputs:
 class Version1SensorInputs(SensorInputs):
     """Primary project preset (version 1 configuration)."""
 
-    T0_K: float = 0.100
-    Tb_K: float = 0.040
-    heat_capacity_eV_per_mK: float = 49.516636998679125
-    ho_in_au_atomic_fraction: float = 0.004333333333333333
+    T0_K: float = 0.040
+    Tb_K: float = 0.020
+    heat_capacity_eV_per_mK: float = 150.0
+    ho_in_au_atomic_fraction: float = 0.00068
     ho_decay_energy_J: float = 4.5e-16
     kid_length_m: float = 220e-6
     kid_width_m: float = 220e-6
@@ -102,23 +102,23 @@ class Version1SensorInputs(SensorInputs):
     tls_phi_asd_100hz_per_rtHz: float = 1.0e-6
     tls_beta: float = 0.5
     f0_Hz: float = 1.0e9
-    Qi: float = 100000.0
-    Qc: float = 100000.0
+    Qi: float = 50000.0
+    Qc: float = 50000.0
     tau_qp_s: float = 5.0e-8
     kinetic_inductance_fraction: float = 0.5
     kid_trace_length_m: float = 10.0e-3
     kid_trace_width_m: float = 2.0e-6
     alpha_A: float = 0.1
-    alpha_phi: float = 60.0
+    alpha_phi: float = 140.0
     beta_A: float = 0.0
     beta_phi: float = 0.0
     Tc_K: float = 2.0
-    pg_drive_dBm: float = -95.98599459218455
+    pg_drive_dBm: float = -100.0
     bifurcation_energy_scale_J: float = 1.4323944878270582e-13
     pbif_typical_min_dBm: float = -95.0
     pbif_typical_max_dBm: float = -70.0
     thermal_energy_resolution_target_eV: float = 0.1
-    detuning_widths: float = 0.5
+    detuning_widths: float = 0.1
     nep_sufficiency_percent: float = 10.0
     f_demod_Hz: float = 0.0
 
