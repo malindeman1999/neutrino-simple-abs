@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Parameters | TKID Neutrino Detector Docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .pass { color: #0b8a2a; font-weight: 700; }
+    .fail { color: #b42318; font-weight: 700; }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Design Parameters</h1>
+    <p>Auto-generated from <code>python/sensor.py</code> by <code>python/generate_wiki_estimates.py</code>.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="project.html">Project</a>
+    <a href="physics.html">Physics</a>
+    <a href="theory.html">Theory</a>
+    <a href="noise-sources.html">Noise Sources</a>
+    <a href="signal-processing.html">Signal Processing</a>
+    <a href="design.html" class="active">Design Parameters</a>
+    <a href="python-estimates.html">Python Estimates</a>
+    <a href="mt-stability.html">Mt Stability</a>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Setpoints and Readout</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>\\(T_0\\)</td><td><code>0.04</code> K</td></tr>
+        <tr><td>\\(T_b\\)</td><td><code>0.02</code> K</td></tr>
+        <tr><td>\\(f_0\\)</td><td><code>1.000000e+09</code> Hz</td></tr>
+        <tr><td>Detuning</td><td><code>0.1</code> widths (<code>4000</code> Hz)</td></tr>
+        <tr><td>NEP sufficiency threshold</td><td><code>10</code> %</td></tr>
+        <tr><td>Demod frequency</td><td><code>0</code> Hz</td></tr>
+        <tr><td>\\((P_g/P_{bif})_{target}\\)</td><td><code>0.0694444</code></td></tr>
+        <tr><td>\\(P_g\\)</td><td><code>1.000000e-13</code> W</td></tr>
+        <tr><td>\\(P_0\\)</td><td><code>4.807692e-14</code> W</td></tr>
+        <tr><td>\\(E_*\\)</td><td><code>1.432394e-13</code> J</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Source and Geometry Inputs</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Count rate \\(R\\)</td><td><code>61.7974</code> Hz</td></tr>
+        <tr><td>Pileup rejection probability</td><td><code>0.972352</code></td></tr>
+        <tr><td>NEP sufficient frequency</td><td><code>34.4447</code> Hz</td></tr>
+        <tr><td>NEP sufficient time</td><td><code>0.029032</code> s</td></tr>
+        <tr><td>Ho/Au atomic fraction \\(x_{Ho/Au}\\)</td><td><code>6.800000e-04</code></td></tr>
+        <tr><td>Ho activity \\(A_{Ho}\\)</td><td><code>1.928546e+14</code> Hz/m^3</td></tr>
+        <tr><td>Ho event energy \\(E_{Ho}\\)</td><td><code>4.500000e-16</code> J (<code>2808.68</code> eV)</td></tr>
+        <tr><td>KID footprint \\(L_{KID},W_{KID}\\)</td><td><code>2.200000e-04</code> m, <code>2.200000e-04</code> m</td></tr>
+        <tr><td>Membrane margin \\(\\Delta_{mem}\\)</td><td><code>2.000000e-05</code> m</td></tr>
+        <tr><td>Leg count \\(N_{leg}\\)</td><td><code>4</code></td></tr>
+        <tr><td>Leg width \\(w_{leg}\\)</td><td><code>5.000000e-07</code> m</td></tr>
+        <tr><td>Membrane thickness \\(t_{mem}\\)</td><td><code>1.000000e-06</code> m</td></tr>
+        <tr><td>Cap thickness \\(t_{cap}\\)</td><td><code>1.000000e-06</code> m</td></tr>
+      </table>
+      <p>Reference for percent-level alloy loading guidance: M. B. Sisti et al., <em>Specific Heat of Holmium in Gold and Silver at Low Temperatures</em> (see discussion of x_Ho >= 1% as a practical regime), <a href="https://arxiv.org/abs/1912.09354">arXiv:1912.09354</a>.</p>
+      <p>Related pages: <a href="absorber-source.html">Absorber + Source</a>, <a href="idc-geometry.html">IDC Geometry</a>, <a href="thermal-conductance.html">Thermal Conductance</a>.</p>
+      <p>Related page: <a href="frequency-multiplexing.html">Frequency + Mux</a>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Derived Thermal Nominals</h2>
+      <table>
+        <tr><th>Quantity</th><th>Value</th></tr>
+        <tr><td>\\(C\\)</td><td><code>2.403265e-14</code> J/K</td></tr>
+        <tr><td>\\(C_{eV/mK}\\)</td><td><code>150</code> eV/mK</td></tr>
+        <tr><td>\\(C_{Ho,eV/mK}\\)</td><td><code>150</code> eV/mK</td></tr>
+        <tr><td>\\(G\\)</td><td><code>2.403846e-12</code> W/K</td></tr>
+        <tr><td>\\(\\tau_{th}\\)</td><td><code>0.00999758</code> s</td></tr>
+        <tr><td>\\(\\Delta T_{event}\\)</td><td><code>0.0187245</code> K</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Design Verification</h2>
+      <table>
+        <tr><th>Check</th><th>Value</th></tr>
+        <tr><td>\\(\\tau_{res}\\)</td><td><code>7.957747e-06</code> s</td></tr>
+        <tr><td>\\(\\tau_{th}\\)</td><td><code>0.00999758</code> s</td></tr>
+        <tr><td><strong>Rule Statuses</strong></td><td><strong>Pass/Fail</strong></td></tr>
+        <tr><td>Rule 1</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 2</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 3</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 4</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 5</td><td><code><span class="fail">Fail</span></code></td></tr>
+        <tr><td>Rule 6</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 7</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 8</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 9</td><td><code><span class="fail">Fail</span></code></td></tr>
+        <tr><td>Rule 10</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 11</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 12</td><td><code><span class="pass">Pass</span></code></td></tr>
+        <tr><td>Rule 13</td><td><code><span class="fail">Fail</span></code></td></tr>
+        <tr><td><strong>Bifurcation Metrics</strong></td><td></td></tr>
+        <tr><td>\\(\\Delta T_{event}\\)</td><td><code>0.0187245</code> K</td></tr>
+        <tr><td>\\(P_{bif}\\)</td><td><code>1.440000e-12</code> W</td></tr>
+        <tr><td>\\(P_{bif,dBm}\\)</td><td><code>-88.4164</code> dBm</td></tr>
+        <tr><td>\\(P_g/P_{bif}\\)</td><td><code>0.0694444</code></td></tr>
+        <tr><td>\\(\\max \\Re[\\lambda(M_t)]\\)</td><td><code>-1477.32</code> 1/s</td></tr>
+        <tr><td>\\(\\rho_{short}\\)</td><td><code>0.0677064</code></td></tr>
+      </table>
+      <p>Stability details: <a href="mt-stability.html">Mt Stability</a>.</p>
+    </section>
+  </main>
+</body>
+</html>

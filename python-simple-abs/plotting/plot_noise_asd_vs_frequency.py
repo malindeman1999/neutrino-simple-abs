@@ -6,6 +6,7 @@ from dataclasses import asdict
 from math import pi
 from pathlib import Path
 import pickle
+import sys
 import tkinter as tk
 from tkinter import filedialog, ttk
 
@@ -13,6 +14,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from sensor import Sensor, Version1SensorInputs
 

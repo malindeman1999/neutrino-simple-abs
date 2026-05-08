@@ -22,8 +22,20 @@ from html.parser import HTMLParser
 from typing import Dict, List, Set, Tuple
 
 
-ROOT = Path(__file__).resolve().parents[1]
-WIKI_DIR = ROOT / "wiki"
+ROOT = Path(__file__).resolve().parent
+REPO_ROOT = ROOT.parent
+
+
+def _select_wiki_dir() -> Path:
+    candidates = [ROOT / "wiki", REPO_ROOT / "wiki"]
+    existing = [p for p in candidates if p.is_dir()]
+    if not existing:
+        return candidates[0]
+    # Prefer the directory that actually contains the wiki corpus.
+    return max(existing, key=lambda p: len(list(p.glob("*.html"))))
+
+
+WIKI_DIR = _select_wiki_dir()
 DOT_OUT = WIKI_DIR / "wiki-links.dot"
 SVG_OUT = WIKI_DIR / "wiki-links.svg"
 
@@ -97,6 +109,7 @@ def build_graph(excluded: Set[str]) -> Tuple[Set[str], Set[Tuple[str, str]]]:
 
 
 def write_dot(nodes: Set[str], edges: Set[Tuple[str, str]], dot_path: Path) -> None:
+    dot_path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         "digraph wiki {",
         "  rankdir=LR;",

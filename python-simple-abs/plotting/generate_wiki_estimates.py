@@ -10,12 +10,14 @@ from __future__ import annotations
 from dataclasses import fields
 import json
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from sensor import version_1_sensor
-
-
-ROOT = Path(__file__).resolve().parents[2]
-OUT_JSON = ROOT / "python" / "outputs" / "wiki_estimates.json"
+OUT_JSON = ROOT / "outputs" / "wiki_estimates.json"
 OUT_HTML = ROOT / "wiki" / "python-estimates.html"
 OUT_DESIGN_HTML = ROOT / "wiki" / "design.html"
 
@@ -41,6 +43,8 @@ def _pf_html(x: float) -> str:
 
 
 def main() -> None:
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    OUT_HTML.parent.mkdir(parents=True, exist_ok=True)
     s = version_1_sensor()
     est = s.estimates()
     input_keys = [f.name for f in fields(s.inputs)]
